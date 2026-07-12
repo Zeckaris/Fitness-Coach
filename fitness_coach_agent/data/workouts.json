@@ -1,0 +1,266 @@
+[
+  {
+    "id": "chest_001",
+    "name": "Push-Ups",
+    "type": "strength",
+    "primary_target_area": "chest",
+    "secondary_target_areas": [
+      "triceps",
+      "shoulders"
+    ],
+    "movement_patterns": [
+      "push",
+      "horizontal_push"
+    ],
+    "equipment": "none",
+    "required_space": "minimal",
+    "difficulty": "beginner",
+    "duration_minutes": 5,
+    "avoid_if_injured": [
+      "shoulder",
+      "wrist"
+    ],
+    "description": "3 sets of 10-15 reps. Hands under shoulders, body straight, lower chest to floor, push back up. Rest 45 seconds between sets.",
+    "tags": [
+      "no_equipment",
+      "travel"
+    ]
+  },
+  {
+    "id": "quads_001",
+    "name": "Goblet Squat",
+    "type": "strength",
+    "primary_target_area": "quads",
+    "secondary_target_areas": [
+      "glutes",
+      "hamstrings"
+    ],
+    "movement_patterns": [
+      "squat",
+      "lower_body_push"
+    ],
+    "equipment": "dumbbells",
+    "required_space": "minimal",
+    "difficulty": "beginner",
+    "duration_minutes": 6,
+    "avoid_if_injured": [
+      "knee",
+      "lower_back"
+    ],
+    "description": "3 sets of 12 reps. Hold one dumbbell close to chest, feet shoulder-width apart, squat down keeping chest up, drive through heels to stand. Rest 60 seconds between sets.",
+    "tags": [
+      "equipment_needed",
+      "beginner_friendly"
+    ]
+  },
+  {
+    "id": "back_001",
+    "name": "Superman Hold",
+    "type": "strength",
+    "primary_target_area": "lower_back",
+    "secondary_target_areas": [
+      "glutes",
+      "shoulders"
+    ],
+    "movement_patterns": [
+      "extension",
+      "posterior_chain"
+    ],
+    "equipment": "none",
+    "required_space": "minimal",
+    "difficulty": "beginner",
+    "duration_minutes": 4,
+    "avoid_if_injured": [
+      "lower_back"
+    ],
+    "description": "3 sets of 10 reps, 2-second hold at top. Lie face down, arms extended forward, lift arms and legs off the ground simultaneously, squeeze lower back and glutes. Rest 30 seconds between sets.",
+    "tags": [
+      "no_equipment",
+      "travel",
+      "beginner_friendly"
+    ]
+  },
+  {
+    "id": "back_002",
+    "name": "Dumbbell Bent-Over Row",
+    "type": "strength",
+    "primary_target_area": "back",
+    "secondary_target_areas": [
+      "biceps",
+      "shoulders"
+    ],
+    "movement_patterns": [
+      "pull",
+      "horizontal_pull"
+    ],
+    "equipment": "dumbbells",
+    "required_space": "minimal",
+    "difficulty": "intermediate",
+    "duration_minutes": 6,
+    "avoid_if_injured": [
+      "lower_back",
+      "shoulder"
+    ],
+    "description": "3 sets of 12 reps. Hinge at hips, flat back, dumbbells hanging under shoulders, pull elbows back squeezing shoulder blades together, lower with control. Rest 45 seconds between sets.",
+    "tags": [
+      "equipment_needed"
+    ]
+  },
+  {
+    "id": "shoulders_001",
+    "name": "Dumbbell Lateral Raise",
+    "type": "strength",
+    "primary_target_area": "shoulders",
+    "secondary_target_areas": [],
+    "movement_patterns": [
+      "abduction",
+      "isolation"
+    ],
+    "equipment": "dumbbells",
+    "required_space": "minimal",
+    "difficulty": "beginner",
+    "duration_minutes": 5,
+    "avoid_if_injured": [
+      "shoulder"
+    ],
+    "description": "3 sets of 12-15 reps. Light dumbbells at sides, raise arms out to shoulder height with a slight elbow bend, lower slowly. Rest 45 seconds between sets.",
+    "tags": [
+      "equipment_needed",
+      "isolation"
+    ]
+  },
+  {
+    "id": "hamstrings_001",
+    "name": "Glute Bridge",
+    "type": "strength",
+    "primary_target_area": "hamstrings",
+    "secondary_target_areas": [
+      "glutes",
+      "lower_back"
+    ],
+    "movement_patterns": [
+      "hip_hinge",
+      "extension"
+    ],
+    "equipment": "none",
+    "required_space": "minimal",
+    "difficulty": "beginner",
+    "duration_minutes": 5,
+    "avoid_if_injured": [
+      "lower_back",
+      "knee"
+    ],
+    "description": "3 sets of 15 reps. Lie on back, knees bent, feet flat, drive hips up squeezing glutes and hamstrings at the top, lower with control. Rest 30 seconds between sets.",
+    "tags": [
+      "no_equipment",
+      "travel",
+      "beginner_friendly"
+    ]
+  },
+  {
+    "id": "abs_001",
+    "name": "Plank",
+    "type": "strength",
+    "primary_target_area": "abs",
+    "secondary_target_areas": [
+      "shoulders",
+      "lower_back"
+    ],
+    "movement_patterns": [
+      "anti_extension",
+      "core_stability"
+    ],
+    "equipment": "none",
+    "required_space": "minimal",
+    "difficulty": "beginner",
+    "duration_minutes": 4,
+    "avoid_if_injured": [
+      "lower_back",
+      "wrist"
+    ],
+    "description": "3 sets, hold for 30-45 seconds each. Forearms on the ground, body in a straight line from head to heels, brace core. Rest 30 seconds between sets.",
+    "tags": [
+      "no_equipment",
+      "travel",
+      "beginner_friendly"
+    ]
+  },
+  {
+    "id": "calves_001",
+    "name": "Standing Calf Raise",
+    "type": "strength",
+    "primary_target_area": "calves",
+    "secondary_target_areas": [],
+    "movement_patterns": [
+      "plantar_flexion",
+      "isolation"
+    ],
+    "equipment": "none",
+    "required_space": "minimal",
+    "difficulty": "beginner",
+    "duration_minutes": 4,
+    "avoid_if_injured": [
+      "ankle",
+      "calf"
+    ],
+    "description": "3 sets of 20 reps. Stand tall, rise onto the balls of your feet as high as possible, pause, lower slowly. Hold a wall or chair for balance if needed.",
+    "tags": [
+      "no_equipment",
+      "travel",
+      "beginner_friendly"
+    ]
+  },
+  {
+    "id": "biceps_001",
+    "name": "Dumbbell Bicep Curl",
+    "type": "strength",
+    "primary_target_area": "biceps",
+    "secondary_target_areas": [
+      "forearms"
+    ],
+    "movement_patterns": [
+      "pull",
+      "isolation"
+    ],
+    "equipment": "dumbbells",
+    "required_space": "minimal",
+    "difficulty": "beginner",
+    "duration_minutes": 5,
+    "avoid_if_injured": [
+      "elbow",
+      "wrist"
+    ],
+    "description": "3 sets of 12 reps. Stand tall, dumbbells at sides, curl up keeping elbows tucked in, lower with control. Rest 45 seconds between sets.",
+    "tags": [
+      "equipment_needed",
+      "isolation"
+    ]
+  },
+  {
+    "id": "triceps_001",
+    "name": "Chair Tricep Dip",
+    "type": "strength",
+    "primary_target_area": "triceps",
+    "secondary_target_areas": [
+      "shoulders",
+      "chest"
+    ],
+    "movement_patterns": [
+      "push",
+      "isolation"
+    ],
+    "equipment": "chair",
+    "required_space": "minimal",
+    "difficulty": "intermediate",
+    "duration_minutes": 5,
+    "avoid_if_injured": [
+      "shoulder",
+      "wrist"
+    ],
+    "description": "3 sets of 10-12 reps. Hands on the edge of a sturdy chair behind you, legs extended, lower body by bending elbows, push back up. Rest 45 seconds between sets.",
+    "tags": [
+      "minimal_equipment",
+      "travel"
+    ]
+  }
+]
