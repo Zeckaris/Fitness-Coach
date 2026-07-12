@@ -1,0 +1,15 @@
+# --- Version 1 requirements only ---
+# Core agent orchestration
+langgraph>=0.2.0
+
+# Gemini LLM connector (LangChain integration)
+langchain-google-genai>=1.0.0
+
+# Web UI for testing the agent
+streamlit>=1.38.0
+
+# Load GOOGLE_API_KEY from .env
+python-dotenv>=1.0.0
+
+# NOTE: RAG-related packages (langchain-astradb, HuggingFace embeddings, etc.)
+# will be added in V2 - not needed yet.
