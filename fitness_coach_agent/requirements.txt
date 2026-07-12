@@ -13,3 +13,7 @@ python-dotenv>=1.0.0
 
 # NOTE: RAG-related packages (langchain-astradb, HuggingFace embeddings, etc.)
 # will be added in V2 - not needed yet.
+
+# --- Version 2 requirements only ---
+langchain>=0.3.0
+langfuse>=2.0.0
