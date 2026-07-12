@@ -1,8 +1,9 @@
 """
-Streamlit UI for V1.
-
-V1 scope: a single chat box. Each message goes through the full LangGraph
-(build_graph) and the response is displayed. No context or memory at this time.
+Streamlit UI for V2.
+ 
+V2 scope: a single chat box, same as V1. The agent behind it now has tool
+access (search_workout_library) and Langfuse tracing, but the UI layer
+itself is unchanged. Still no memory across turns/sessions.
 """
 
 import sys
@@ -15,7 +16,7 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from dotenv import load_dotenv
 
-# GEMINI_API_KEY from the environment at import time.
+# GEMINI_API_KEY (and LANGFUSE_* keys) from the environment at import time.
 load_dotenv()
 
 import streamlit as st
@@ -41,9 +42,9 @@ def extract_text(content) -> str:
     return str(content)
 
 
-st.set_page_config(page_title="AI Fitness Coach - V1", page_icon="🏋️")
-st.title("🏋️ AI Fitness Coach (V1)")
-st.caption("Version 1: no tools, no RAG, no memory across sessions - just a single agent node.")
+st.set_page_config(page_title="AI Fitness Coach - V2", page_icon="🏋️")
+st.title("🏋️ AI Fitness Coach (V2)")
+st.caption("Version 2: tool-calling agent (search_workout_library) with Langfuse tracing. Still no memory across sessions.")
 
 
 if "graph" not in st.session_state:
