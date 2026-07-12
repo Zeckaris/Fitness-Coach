@@ -13,12 +13,16 @@ from langgraph.graph import StateGraph, START, END
 from langgraph.prebuilt import ToolNode, tools_condition
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_core.messages import SystemMessage
+from langfuse.langchain import CallbackHandler
 
 from agent.state import CoachState
 from agent.prompts import SYSTEM_PROMPT
 from tools.workout_library import search_workout_library
 
 GEMINI_API_KEY= os.environ.get("GEMINI_API_KEY")
+
+langfuse_handler = CallbackHandler()
+
 
 # All tools available to the coach.
 TOOLS = [search_workout_library]
@@ -62,5 +66,9 @@ def build_graph():
     )
     workflow.add_edge("tools", "coach_node")
     compiled_workflow= workflow.compile()
-    return compiled_workflow
+    
+    
+    # Attach the Langfuse callback at compile time so every future
+    # .invoke()/.stream() call is traced automatically
+    return compiled_workflow.with_config({"callbacks": [langfuse_handler]})
 
