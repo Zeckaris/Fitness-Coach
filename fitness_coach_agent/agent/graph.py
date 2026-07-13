@@ -1,12 +1,15 @@
 """
 The agent graph itself.
  
-V2 scope: adds tool-calling (the ReAct loop). The coach's LLM is now bound
-to search_workout_library, so it can decide per-message whether to call the
-tool or just respond directly. A conditional edge checks the LLM's output:
-if it requested a tool call, route to the "tools" node, run the tool, feed
-the result back to the coach, and repeat - until the LLM responds with
-plain text instead of a tool call, at which point we're done.
+V3 scope: adds a second tool, search_fitness_knowledge_base (RAG over the
+ingested books), alongside V2's search_workout_library. The coach's LLM is
+bound to both, so it can decide per-message whether to look up a concrete
+exercise, search the knowledge base for open-ended guidance, call both, or
+just respond directly. The conditional agent<->tools loop from V2 already
+handles any number of bound tools - no structural graph changes needed here.
+ 
+Every graph run is traced to Langfuse (LLM calls, tool calls, full agent
+loop) so we can see which tool (if any) the agent chose and why.
 """
 import os
 from langgraph.graph import StateGraph, START, END
@@ -18,6 +21,7 @@ from langfuse.langchain import CallbackHandler
 from agent.state import CoachState
 from agent.prompts import SYSTEM_PROMPT
 from tools.workout_library import search_workout_library
+from tools.knowledge_base import search_fitness_knowledge_base
 
 GEMINI_API_KEY= os.environ.get("GEMINI_API_KEY")
 
@@ -25,10 +29,10 @@ langfuse_handler = CallbackHandler()
 
 
 # All tools available to the coach.
-TOOLS = [search_workout_library]
+TOOLS = [search_workout_library, search_fitness_knowledge_base]
 
 def get_llm()->ChatGoogleGenerativeAI:
-    llm = ChatGoogleGenerativeAI( model="gemini-3.5-flash", temperature=0.4, api_key=GEMINI_API_KEY)
+    llm = ChatGoogleGenerativeAI( model="gemini-2.5-flash", temperature=0.4, api_key=GEMINI_API_KEY)
     return llm.bind_tools(TOOLS)
 
 def coach_node(state:CoachState)->dict:
