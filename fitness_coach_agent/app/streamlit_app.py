@@ -1,9 +1,11 @@
 """
-Streamlit UI for V2.
+Streamlit UI for V3.
  
-V2 scope: a single chat box, same as V1. The agent behind it now has tool
-access (search_workout_library) and Langfuse tracing, but the UI layer
-itself is unchanged. Still no memory across turns/sessions.
+V3 scope: a single chat box, same as V1/V2. The agent behind it now has two
+tools - search_workout_library (structured exercise lookup) and
+search_fitness_knowledge_base (RAG over ingested books) - plus Langfuse
+tracing. The UI layer itself is unchanged. Still no memory across
+turns/sessions.
 """
 
 import sys
@@ -42,9 +44,9 @@ def extract_text(content) -> str:
     return str(content)
 
 
-st.set_page_config(page_title="AI Fitness Coach - V2", page_icon="🏋️")
-st.title("🏋️ AI Fitness Coach (V2)")
-st.caption("Version 2: tool-calling agent (search_workout_library) with Langfuse tracing. Still no memory across sessions.")
+st.set_page_config(page_title="AI Fitness Coach - V3", page_icon="🏋️")
+st.title("🏋️ AI Fitness Coach (V3)")
+st.caption("Version 3: tool-calling agent with structured exercise lookup + RAG over real training/nutrition/injury books. Still no memory across sessions.")
 
 
 if "graph" not in st.session_state:
