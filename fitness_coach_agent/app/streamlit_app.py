@@ -1,11 +1,17 @@
 """
-Streamlit UI for V3.
- 
-V3 scope: a single chat box, same as V1/V2. The agent behind it now has two
-tools - search_workout_library (structured exercise lookup) and
-search_fitness_knowledge_base (RAG over ingested books) - plus Langfuse
-tracing. The UI layer itself is unchanged. Still no memory across
-turns/sessions.
+Streamlit UI for V4.
+
+V4 scope: the UI remains a simple chat interface. The agent behind it now
+supports multi-tool orchestration with three tools:
+- search_workout_library (structured exercise lookup)
+- search_fitness_knowledge_base (RAG over training/nutrition/injury books)
+- record_checkin (persistent daily check-in storage in MongoDB)
+
+The agent can now use multiple tools in a single conversation turn, for
+example recording a user's injury or nutrition update while also searching
+for relevant workout recommendations.
+
+Still no historical check-in retrieval or memory across sessions (V5).
 """
 
 import sys
@@ -44,9 +50,12 @@ def extract_text(content) -> str:
     return str(content)
 
 
-st.set_page_config(page_title="AI Fitness Coach - V3", page_icon="🏋️")
-st.title("🏋️ AI Fitness Coach (V3)")
-st.caption("Version 3: tool-calling agent with structured exercise lookup + RAG over real training/nutrition/injury books. Still no memory across sessions.")
+st.set_page_config(page_title="AI Fitness Coach - V4", page_icon="🏋️")
+st.title("🏋️ AI Fitness Coach (V4)")
+st.caption(
+    "Version 4: multi-tool agent with workout lookup, RAG knowledge search, "
+    "and persistent daily check-ins stored in MongoDB."
+)
 
 
 if "graph" not in st.session_state:
