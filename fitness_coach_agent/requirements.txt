@@ -31,3 +31,6 @@ langchain-community>=0.3.0
  
 # PDF loading for document ingestion
 pypdf>=4.0.0
+
+# --- Version 5 requirements: MongoDB-backed checkpointer for multi-turn memory ---
+langgraph-checkpoint-mongodb>=0.1.0
