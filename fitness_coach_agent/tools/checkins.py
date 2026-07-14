@@ -8,9 +8,18 @@ beverages_consumed is appended to, not replaced, so multiple mentions in
 the same day accumulate instead of overwriting each other.
 
 Write-only for V4 - reading check-in history back is V5's job.
+
+V5 fix: _today_str() now computes the date in the user's local timezone
+(hardcoded to Africa/Addis_Ababa for now - single user, no profile yet)
+instead of UTC. 
+
+KNOWN DEBT: once multi-user support exists, this hardcoded timezone must
+become a per-user setting (see user_id, same placeholder situation) -
+tracked alongside it as a known TO DO for a future version.
 """
 
-from datetime import datetime, timezone
+from datetime import datetime
+from zoneinfo import ZoneInfo
 from typing import List, Optional
 
 from langchain_core.tools import tool
@@ -20,6 +29,9 @@ from db.mongo_client import get_checkins_collection
 
 # Placeholder until multi-user support exists.
 DEFAULT_USER_ID = "default_user"
+
+# Hardcoded until per-user timezone support exists (see module docstring).
+LOCAL_TZ = ZoneInfo("Africa/Addis_Ababa")
 
 # All schema fields that default to null on first creation of a day's doc.
 _SCALAR_FIELDS = [
@@ -70,7 +82,8 @@ class CheckinInput(BaseModel):
 
 
 def _today_str() -> str:
-    return datetime.now(timezone.utc).strftime("%Y-%m-%d")
+    """Today's date string in the user's local timezone (see module docstring)."""
+    return datetime.now(LOCAL_TZ).strftime("%Y-%m-%d")
 
 
 @tool(args_schema=CheckinInput)
@@ -111,15 +124,11 @@ def record_checkin(
     set_fields = {
         "user_id": DEFAULT_USER_ID,
         "date": date,
-        "timestamp": datetime.now(timezone.utc),
+        "timestamp": datetime.now(ZoneInfo("UTC")),
         "raw_message": raw_message,
         **scalar_updates,
     }
 
-    # Fields not touched this turn still need to exist as null on first
-    # creation of the day's document - but never alongside a $push on the
-    # same field (Mongo forbids that), so beverages_consumed is handled
-    # separately below.
     setoninsert_fields = [f for f in _SCALAR_FIELDS if f not in scalar_updates]
     if not beverages_consumed:
         setoninsert_fields.append("beverages_consumed")
