@@ -1,37 +1,42 @@
 """
-Streamlit UI for V5.
+Streamlit UI for V6.
 
-V5 scope: the UI now has a real notion of "session" - each browser session
-gets a thread_id (a UUID), passed to the graph on every invoke via
-config={"configurable": {"thread_id": ...}}. Combined with the MongoDB
-checkpointer now attached in agent/graph.py, this means:
-- Multi-turn memory actually works: the graph itself remembers earlier
-  turns in this thread, not just what's displayed on screen.
-- A new "New Conversation" sidebar button starts a fresh thread_id, which
-  starts the agent fresh too - including re-triggering history_check_node
-  (V5's deterministic yesterday-check-in pull) for the new session.
+V6 scope: adds a live view of the forward-looking 3-day plan (tomorrow,
+day+2, day+3) alongside the chat, rendered as cards via
+streamlit-antd-components instead of a plain table.
 
-Since the checkpointer already accumulates messages per thread_id, we only
-ever need to pass the NEW user message into invoke() - not the full
-history - the graph loads prior state itself using thread_id.
+The plan is read DIRECTLY from MongoDB here, not through the agent/graph -
+same principle as the chat history already being state Streamlit owns
+itself.
+
+Fix: Streamlit only re-executes the script top-to-bottom on the next
+interaction, not automatically after invoke() returns within the same
+run - so the plan section (rendered near the top) was showing stale data
+fetched before that turn's tool calls ran. We now force a fresh rerun
+right after the assistant's turn completes, so the top-of-script plan
+fetch picks up whatever update_three_day_plan just wrote, without needing
+a manual page refresh.
 """
 
 import sys
 import os
 import uuid
+from datetime import datetime, timedelta
 
-# Streamlit adds this script's own directory (app/) to sys.path, not the
-# project root - so without this, `agent` is not importable. We add the
-# parent directory (project root) explicitly.
+
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from dotenv import load_dotenv
 
-# GEMINI_API_KEY (and LANGFUSE_* keys) from the environment at import time.
 load_dotenv()
 
 import streamlit as st
+import streamlit_antd_components as sac
+
 from agent.graph import build_graph
+from db.mongo_client import get_plans_collection
+from tools.plans import LOCAL_TZ, DEFAULT_USER_ID
+
 
 def extract_text(content) -> str:
     """
@@ -59,12 +64,73 @@ def start_new_conversation():
     st.session_state.history = []
 
 
-st.set_page_config(page_title="AI Fitness Coach - V5", page_icon="🏋️")
-st.title("🏋️ AI Fitness Coach (V5)")
+def get_forward_plan_docs() -> list:
+    """
+    Fetches the raw plan documents for tomorrow, day+2, day+3 directly
+    from MongoDB, as (date, doc) pairs. doc is None for a day with no
+    entry yet.
+    """
+    collection = get_plans_collection()
+    today = datetime.now(LOCAL_TZ).date()
+    docs = []
+    for offset in (1, 2, 3):
+        date = (today + timedelta(days=offset)).strftime("%Y-%m-%d")
+        doc = collection.find_one({"user_id": DEFAULT_USER_ID, "date": date})
+        docs.append((date, doc))
+    return docs
+
+
+def render_plan(docs: list):
+    """Renders the 3-day plan as a stepper header + one card per day."""
+    st.subheader("📅 Your Upcoming Plan")
+
+    step_items = []
+    for date, doc in docs:
+        if not doc:
+            label = "Not planned"
+        elif doc.get("status") == "rest":
+            label = "Rest"
+        else:
+            label = doc.get("focus_area", "Planned").replace("_", " ").title()
+        step_items.append(sac.StepsItem(title=date, description=label))
+
+    sac.steps(items=step_items, format_func="title", size="sm", return_index=False)
+
+    cols = st.columns(3)
+    for col, (date, doc) in zip(cols, docs):
+        with col:
+            with st.container(border=True):
+                if not doc:
+                    st.markdown(f"**{date}**")
+                    st.caption("Not planned yet.")
+                    continue
+
+                if doc.get("status") == "rest":
+                    st.markdown("### 😌 Rest Day")
+                    st.caption(date)
+                else:
+                    focus = doc.get("focus_area", "—").replace("_", " ").title()
+                    duration = doc.get("duration_minutes")
+                    st.markdown(f"### 💪 {focus}")
+                    caption = date if duration is None else f"{date} • {duration} min"
+                    st.caption(caption)
+
+                    for ex in doc.get("exercises") or []:
+                        sets = ex.get("sets", "?")
+                        reps = ex.get("reps", "?")
+                        st.markdown(f"- **{ex['name']}** — {sets}x{reps}")
+
+                if doc.get("avoid_body_parts"):
+                    st.caption(f"Avoiding: {', '.join(doc['avoid_body_parts'])}")
+                if doc.get("notes"):
+                    st.info(doc["notes"])
+
+
+st.set_page_config(page_title="AI Fitness Coach - V6", page_icon="🏋️", layout="wide")
+st.title("🏋️ AI Fitness Coach (V6)")
 st.caption(
-    "Version 5: multi-turn memory within a conversation (MongoDB-backed), "
-    "plus automatic recall of yesterday's check-in at the start of each "
-    "new conversation."
+    "Version 6: real 3-day plan generation - the coach builds and patches "
+    "your upcoming workouts (tomorrow, day+2, day+3), shown below."
 )
 
 if "graph" not in st.session_state:
@@ -80,17 +146,19 @@ with st.sidebar:
     st.button("🆕 New Conversation", on_click=start_new_conversation)
     st.caption(f"Session: {st.session_state.thread_id[:8]}")
 
+render_plan(get_forward_plan_docs())
+st.divider()
+
 # Render existing history
 for msg in st.session_state.history:
     role = "user" if msg["role"] == "user" else "assistant"
     with st.chat_message(role):
         st.markdown(msg["content"])
 
-# Chat input
+
 user_input = st.chat_input("How's your day going? Any updates that affect your fitness?")
 
 if user_input:
-    # Show the user's message immediately
     st.session_state.history.append({"role": "user", "content": user_input})
     with st.chat_message("user"):
         st.markdown(user_input)
@@ -106,3 +174,4 @@ if user_input:
             st.markdown(response_text)
 
     st.session_state.history.append({"role": "assistant", "content": response_text})
+    st.rerun()
