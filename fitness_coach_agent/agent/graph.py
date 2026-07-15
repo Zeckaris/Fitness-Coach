@@ -36,6 +36,8 @@ from tools.workout_library import search_workout_library
 from tools.knowledge_base import search_fitness_knowledge_base
 from tools.checkins import record_checkin
 from tools.checkin_history import get_recent_checkins, fetch_checkin, yesterday_str
+from tools.plans import update_three_day_plan
+from tools.plan_history import get_current_plan, get_past_plans
 
 GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY")
 MONGO_URI = os.environ.get("MONGO_URI")
@@ -45,7 +47,14 @@ langfuse_handler = CallbackHandler()
 
 
 
-TOOLS = [search_workout_library, search_fitness_knowledge_base, record_checkin, get_recent_checkins,]
+TOOLS = [
+    search_workout_library,
+    search_fitness_knowledge_base,
+    record_checkin,
+    get_recent_checkins,
+    get_current_plan,
+    get_past_plans,
+    update_three_day_plan]
 
 def get_llm()->ChatGoogleGenerativeAI:
     llm = ChatGoogleGenerativeAI( model="gemini-2.5-flash", temperature=0.4, api_key=GEMINI_API_KEY)
