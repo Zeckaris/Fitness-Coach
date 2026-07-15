@@ -16,6 +16,16 @@ instead of UTC.
 KNOWN DEBT: once multi-user support exists, this hardcoded timezone must
 become a per-user setting (see user_id, same placeholder situation) -
 tracked alongside it as a known TO DO for a future version.
+
+V6 fix: beverages_consumed now defaults to an empty array ([]) on first
+insert, not None. It's a list field, so null was never a semantically
+correct "nothing yet" - and it broke on the very next check-in that DID
+mention a beverage: MongoDB's $push requires the target field to already
+be an array, so pushing into a null field raised a WriteError ("field
+'beverages_consumed' must be an array but is of type null"). Any doc
+created before this fix still has beverages_consumed: null baked in and
+needs a one-time manual correction (set it to [] in Mongo, or delete and
+let it regenerate) - this fix only prevents the bug going forward.
 """
 
 from datetime import datetime
@@ -33,7 +43,9 @@ DEFAULT_USER_ID = "default_user"
 # Hardcoded until per-user timezone support exists (see module docstring).
 LOCAL_TZ = ZoneInfo("Africa/Addis_Ababa")
 
-# All schema fields that default to null on first creation of a day's doc.
+# Scalar fields that default to null on first creation of a day's doc.
+# beverages_consumed is handled separately (see record_checkin below) since
+# it's a list field and must default to [], not None.
 _SCALAR_FIELDS = [
     "sickness", "injury", "fatigue", "equipment_note",
     "time_constraint_minutes", "protein_adequate", "water_glasses",
@@ -130,12 +142,15 @@ def record_checkin(
     }
 
     setoninsert_fields = [f for f in _SCALAR_FIELDS if f not in scalar_updates]
+    setoninsert_doc = {f: None for f in setoninsert_fields}
     if not beverages_consumed:
-        setoninsert_fields.append("beverages_consumed")
+        # List field - "nothing yet" is [], never null. Without this, the
+        # first $push on a later turn fails (see V6 fix note above).
+        setoninsert_doc["beverages_consumed"] = []
 
     update_doc = {
         "$set": set_fields,
-        "$setOnInsert": {f: None for f in setoninsert_fields},
+        "$setOnInsert": setoninsert_doc,
     }
 
     if beverages_consumed:
