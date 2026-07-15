@@ -34,3 +34,7 @@ pypdf>=4.0.0
 
 # --- Version 5 requirements: MongoDB-backed checkpointer for multi-turn memory ---
 langgraph-checkpoint-mongodb>=0.1.0
+
+#---- Version 6 requirements
+streamlit-elements
+streamlit-antd-components
