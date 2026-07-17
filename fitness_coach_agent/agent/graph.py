@@ -29,6 +29,7 @@ from langchain_core.messages import SystemMessage
 from langfuse.langchain import CallbackHandler
 from pymongo import MongoClient
 from langgraph.checkpoint.mongodb import MongoDBSaver
+from agent.context_trim import trim
 
 from agent.state import CoachState
 from agent.prompts import SYSTEM_PROMPT
@@ -80,7 +81,7 @@ def history_check_node(state: CoachState) -> dict:
 
 
 
-def coach_node(state:CoachState)->dict:
+def coach_node(state: CoachState) -> dict:
     llm = get_llm()
 
     system_content = SYSTEM_PROMPT
@@ -88,7 +89,7 @@ def coach_node(state:CoachState)->dict:
     if yesterday_context:
         system_content += f"\n\nContext from yesterday: {yesterday_context}"
 
-    messages = [SystemMessage(content=system_content)] + state["messages"]
+    messages = [SystemMessage(content=system_content)] + trim(state["messages"])
     response = llm.invoke(messages)
     return {
         "messages": [response]
