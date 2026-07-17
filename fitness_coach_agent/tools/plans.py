@@ -1,35 +1,18 @@
 """
-update_three_day_plan — V6's plan persistence tool.
+update_three_day_plan — V6 plan persistence tool.
 
-V6 scope: writes/patches structured day-plans for the 3-day forward window
-(tomorrow, day+2, day+3 - never today; today stays owned entirely by
-record_checkin's reactive coaching flow, see tools/checkins.py). One
-document per (user_id, date), matching the checkins collection's
-per-date pattern rather than one doc holding all 3 days - this makes
-patching a single day a simple upsert on one document, no array surgery.
+Writes and patches structured plans for the forward 3-day window:
+tomorrow, day+2, and day+3. Never writes today's plan.
 
-This tool is intentionally "dumb" - it persists whatever plan content
-the agent hands it. The actual reasoning (what movement patterns make a
-sound session, which concrete exercises to use) happens earlier in the
-same turn via search_fitness_knowledge_base and search_workout_library;
-this tool only validates structure and writes the result. See
-agent/prompts.py for the mandatory tool-call sequencing that ensures
-those steps actually happen before this one is called.
+This tool only stores validated plan data. Exercise selection and plan
+reasoning happen before this tool call through the required search tools.
 
-Guardrail: a day marked "planned" cannot be saved with an empty exercise
-list - this is enforced in the schema (not just prompted), so the agent
-can't silently skip the reasoning/retrieval steps and still succeed.
+Validation prevents invalid dates and prevents planned days without exercises.
 
-KNOWN DEBT (see also tools/checkins.py):
-- DEFAULT_USER_ID / LOCAL_TZ: same placeholders, same future multi-user
-  fix needed.
-- focus_area assignment is currently inferred by the agent (default
-  rotation, or explicit user request) - this should eventually be owned
-  by the Week Plan (V7).
-- No scheduler - plan writes are reactive only, triggered within a normal
-  conversation turn. Proactive daily/nightly generation is future work.
-- No progression/difficulty tracking yet - exercises are selected for
-  variety and safety only, not escalating difficulty over time.
+KNOWN DEBT:
+- DEFAULT_USER_ID / LOCAL_TZ remain placeholders for future multi-user support.
+- focus_area is currently inferred by the agent.
+- No scheduler or progression tracking yet.
 """
 
 from datetime import datetime, timedelta
@@ -48,7 +31,7 @@ LOCAL_TZ = ZoneInfo("Africa/Addis_Ababa")
 
 
 def _valid_plan_dates() -> set:
-    """The only 3 dates a plan entry may target: tomorrow, day+2, day+3."""
+    """Valid plan dates are tomorrow, day+2, and day+3."""
     today = datetime.now(LOCAL_TZ).date()
     return {
         (today + timedelta(days=offset)).strftime("%Y-%m-%d")
@@ -57,46 +40,42 @@ def _valid_plan_dates() -> set:
 
 
 class ExercisePlanItem(BaseModel):
-    name: str = Field(description="Exercise name, exactly as returned by search_workout_library.")
-    focus: str = Field(description="What this exercise targets, e.g. 'chest', 'hamstrings'.")
-    sets: Optional[int] = Field(default=None, description="Number of sets, if applicable.")
+    name: str = Field(description="Exercise name.")
+    focus: str = Field(description="Exercise target area.")
+    sets: Optional[int] = Field(default=None, description="Number of sets.")
     reps: Optional[str] = Field(
-        default=None, description="Rep range or scheme, e.g. '8-10' or '30 seconds'."
+        default=None, description="Rep range or duration."
     )
-    equipment: Optional[str] = Field(default=None, description="Equipment required, if any.")
+    equipment: Optional[str] = Field(default=None, description="Required equipment.")
     duration_minutes: Optional[int] = Field(
-        default=None, description="Estimated time for this exercise, if known."
+        default=None, description="Estimated duration."
     )
 
 
 class DayPlanInput(BaseModel):
-    """A single day's plan entry - one of tomorrow, day+2, or day+3."""
+    """A single forward plan day."""
 
-    date: str = Field(description="Date this entry is FOR, formatted 'YYYY-MM-DD'.")
-    focus_area: str = Field(
-        description="Focus for this day, e.g. 'upper_body', 'legs', 'rest'."
-    )
-    status: str = Field(description="Either 'planned' or 'rest'.")
+    date: str = Field(description="Plan date in YYYY-MM-DD format.")
+    focus_area: str = Field(description="Training focus.")
+    status: str = Field(description="'planned' or 'rest'.")
     duration_minutes: Optional[int] = Field(
-        default=None, description="Total session length. Omit for rest days."
+        default=None, description="Session duration."
     )
     exercises: Optional[List[ExercisePlanItem]] = Field(
         default=None,
-        description="Exercises for this day. Required (non-empty) when status is 'planned'. "
-        "Must be omitted or empty for 'rest'.",
+        description="Exercises; required for planned days.",
     )
     notes: Optional[str] = Field(
         default=None,
-        description="Short explanation of why this day looks the way it does, e.g. "
-        "'Avoiding shoulder-loading movements due to reported shoulder pain.'",
+        description="Plan notes."
     )
     avoid_body_parts: Optional[List[str]] = Field(
-        default=None, description="Body parts excluded from this day's exercises, if any."
+        default=None,
+        description="Excluded body parts."
     )
     source_checkin_date: Optional[str] = Field(
         default=None,
-        description="Date of the check-in (or 'YYYY-MM-DD' of the triggering message) that "
-        "caused this plan entry to be created/patched, for traceability.",
+        description="Related check-in date."
     )
 
     @model_validator(mode="after")
@@ -125,22 +104,15 @@ class DayPlanInput(BaseModel):
 
 class UpdateThreeDayPlanInput(BaseModel):
     days: List[DayPlanInput] = Field(
-        description="One or more day-entries to create/patch. Only include the day(s) "
-        "actually being changed - untouched days are left as they are."
+        description="Plan days to create or update."
     )
 
 
 @tool(args_schema=UpdateThreeDayPlanInput)
 def update_three_day_plan(days: List[DayPlanInput]) -> str:
     """
-    Create or patch one or more days in the forward-looking 3-day plan
-    (tomorrow, day+2, day+3 - never today).
-
-    Call this only after assembling real exercises via
-    search_fitness_knowledge_base (for sound movement-pattern combinations)
-    and search_workout_library (for concrete exercises) - a 'planned' day
-    cannot be saved without exercises. Only pass the day(s) you're actually
-    changing; other days in the window are left untouched.
+    Create or patch forward 3-day plan entries.
+    Only supports tomorrow, day+2, and day+3.
     """
     collection = get_plans_collection()
     updated_dates = []

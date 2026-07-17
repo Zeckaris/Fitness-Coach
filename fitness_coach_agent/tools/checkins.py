@@ -1,31 +1,10 @@
 """
-record_checkin — V4's persistence tool.
+record_checkin — Stores today's structured check-in.
 
-V4 scope: extracts structured fields from the user's daily update and
-upserts them into MongoDB, one document per (user_id, date). Existing
-scalar fields are overwritten only when a new value is provided this turn;
-beverages_consumed is appended to, not replaced, so multiple mentions in
-the same day accumulate instead of overwriting each other.
+Updates one document per (user_id, date). Provided scalar fields overwrite
+previous values; beverages_consumed is appended.
 
-Write-only for V4 - reading check-in history back is V5's job.
-
-V5 fix: _today_str() now computes the date in the user's local timezone
-(hardcoded to Africa/Addis_Ababa for now - single user, no profile yet)
-instead of UTC. 
-
-KNOWN DEBT: once multi-user support exists, this hardcoded timezone must
-become a per-user setting (see user_id, same placeholder situation) -
-tracked alongside it as a known TO DO for a future version.
-
-V6 fix: beverages_consumed now defaults to an empty array ([]) on first
-insert, not None. It's a list field, so null was never a semantically
-correct "nothing yet" - and it broke on the very next check-in that DID
-mention a beverage: MongoDB's $push requires the target field to already
-be an array, so pushing into a null field raised a WriteError ("field
-'beverages_consumed' must be an array but is of type null"). Any doc
-created before this fix still has beverages_consumed: null baked in and
-needs a one-time manual correction (set it to [] in Mongo, or delete and
-let it regenerate) - this fix only prevents the bug going forward.
+Write-only. Reading past check-ins is handled by get_recent_checkins.
 """
 
 from datetime import datetime
@@ -53,44 +32,41 @@ _SCALAR_FIELDS = [
 
 
 class Beverage(BaseModel):
-    name: str = Field(description="Beverage name, e.g. 'coke', 'orange_juice', 'black_coffee'.")
-    amount_ml: int = Field(description="Volume consumed in this instance, in milliliters.")
+    name: str = Field(description="Beverage name.")
+    amount_ml: int = Field(description="Amount in milliliters.")
 
 
 class CheckinInput(BaseModel):
-    """Structured fields extracted from the user's check-in message."""
+    """Structured check-in fields."""
 
     sickness: Optional[str] = Field(
-        default=None, description="Sickness mentioned, e.g. 'cold', 'fever'. Omit if none."
+        default=None, description="Sickness."
     )
     injury: Optional[str] = Field(
-        default=None, description="Injury or pain mentioned, e.g. 'shoulder pain'. Omit if none."
+        default=None, description="Injury or pain."
     )
     fatigue: Optional[str] = Field(
         default=None,
-        description="Fatigue/sleep issue in the user's own words, e.g. 'slept 4 hours', "
-        "'feeling exhausted'. Omit if not mentioned.",
+        description="Fatigue or sleep issue.",
     )
     equipment_note: Optional[str] = Field(
         default=None,
-        description="Situational equipment constraint for TODAY only, e.g. 'traveling, no "
-        "gym access'. Do NOT use for the user's normally owned equipment.",
+        description="Today's equipment limitation.",
     )
     time_constraint_minutes: Optional[int] = Field(
-        default=None, description="Minutes available for a workout today, if mentioned."
+        default=None, description="Workout time available today."
     )
     beverages_consumed: Optional[List[Beverage]] = Field(
         default=None,
-        description="Tracked beverages consumed, each as its own entry with volume in ml. "
-        "E.g. two separate cokes -> two separate entries, not one combined entry.",
+        description="One entry per beverage consumed.",
     )
     protein_adequate: Optional[bool] = Field(
-        default=None, description="Whether the user reports adequate protein intake."
+        default=None, description="Adequate protein intake."
     )
     water_glasses: Optional[int] = Field(
-        default=None, description="Number of glasses of water the user reports drinking."
+        default=None, description="Glasses of water consumed."
     )
-    raw_message: str = Field(description="The user's original message, verbatim.")
+    raw_message: str = Field(description="User's original message.")
 
 
 def _today_str() -> str:
@@ -111,13 +87,10 @@ def record_checkin(
     water_glasses: Optional[int] = None,
 ) -> str:
     """
-    Record or update today's check-in with any new info from the user's message.
+    Record today's check-in.
 
-    Call this whenever the user shares something loggable about their day -
-    sickness, injury, fatigue, time constraints, equipment situation,
-    beverages, protein, or water intake. Only include fields you actually
-    have information for; omit the rest. Skip this tool entirely for pure
-    small talk with nothing loggable in it.
+    Include only fields mentioned by the user. Skip for messages with no
+    loggable information.
     """
     collection = get_checkins_collection()
     date = _today_str()

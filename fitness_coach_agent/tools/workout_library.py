@@ -1,11 +1,3 @@
-"""
-V2 scope: the LLM extracts structured filter fields from the user's message
-(equipment, target_area, etc.) and calls this tool with them. The tool does
-ONLY deterministic filtering over data/workouts.json - no NLU, no fuzzy
-text matching.
-Real semantic search (embeddings) is still V3's job - this stays deterministic field filtering by design.
-"""
-
 import json
 import os
 from typing import List, Literal, Optional
@@ -37,7 +29,6 @@ RequiredSpace = Literal["minimal"]
 
 
 class WorkoutQuery(BaseModel):
-    """Structured filter for searching the workout library."""
 
     equipment: Optional[Equipment] = Field(
         default=None,
@@ -62,8 +53,7 @@ class WorkoutQuery(BaseModel):
     )
     max_duration_minutes: Optional[int] = Field(
         default=None,
-        description="Maximum time available, in minutes, e.g. if the user says "
-        "'I only have 15 minutes'. Omit if no time constraint was mentioned.",
+        description="Maximum time available, in minutes. Omit if no time constraint was mentioned.",
     )
     required_space: Optional[RequiredSpace] = Field(
         default=None,
@@ -83,8 +73,6 @@ class WorkoutQuery(BaseModel):
 
 
 def _matches(workout: dict, q: WorkoutQuery) -> bool:
-    """Deterministic AND-filtering: a workout must satisfy every field the
-    LLM actually specified. Unspecified (None) fields are not filtered on."""
 
     if q.equipment is not None and workout.get("equipment") != q.equipment:
         return False
@@ -132,14 +120,7 @@ def search_workout_library(
     avoid_body_parts: Optional[List[str]] = None,
     tags: Optional[List[str]] = None,
 ) -> str:
-    """
-    Search the workout library using structured filters.
-
-    Extract relevant fields from the user's message before calling this -
-    e.g. a mentioned body part, an injury to avoid, equipment availability,
-    or a time constraint. Only include fields you actually have information
-    for; omit the rest.
-    """
+    """Search the workout library using structured filters."""
     query = WorkoutQuery(
         equipment=equipment,
         target_area=target_area,

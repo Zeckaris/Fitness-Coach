@@ -1,18 +1,10 @@
 """
-search_fitness_knowledge_base — V3's RAG retrieval tool.
+search_fitness_knowledge_base — V3 RAG retrieval tool.
 
-V3 scope: free-text semantic search over the AstraDB vector store populated
-by rag/ingest.py. Unlike search_workout_library (structured, deterministic
-filtering over a curated JSON), this tool is for open-ended questions where
-the answer requires real explanation/reasoning grounded in the source books
-- not a lookup of a single concrete exercise.
+Semantic search over the fitness knowledge base.
 
-Use this for: "why does X hurt", "what is progressive overload", "how do I
-warm up before squats", nutrition principles, programming/periodization
-concepts, injury/pain guidance that needs real explanation.
-
-Do NOT use this for: "give me a chest exercise" - that's search_workout_library's
-job (concrete, filterable, controlled data).
+Use for explanations about training, nutrition, mobility, injury, and
+programming concepts. Not for retrieving specific exercises.
 """
 
 from langchain_core.tools import tool
@@ -26,20 +18,15 @@ TOP_K = 4
 @tool
 def search_fitness_knowledge_base(query: str) -> str:
     """
-    Search the fitness knowledge base for guidance on
-    training principles, nutrition, injury/pain, mobility, and programming.
+    Search the fitness knowledge base for relevant guidance.
 
-    Use this for open-ended or "why/how" questions that need real
-    explanation - not for finding a specific exercise (use
-    search_workout_library for that instead).
+    Use for fitness explanations and concepts.
 
     Args:
-        query: a natural-language question or topic, e.g. "why does my knee
-               hurt when I squat" or "how much protein do I need"
+        query: Natural-language topic or question.
 
     Returns:
-        Relevant passages from the source books, each labeled with which
-        book it came from, or a message if nothing relevant was found.
+        Relevant source passages or a no-results message.
     """
     store = get_vectorstore()
     results = store.similarity_search(query, k=TOP_K)

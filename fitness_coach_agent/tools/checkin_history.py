@@ -1,24 +1,8 @@
 """
-get_recent_checkins — V5's history-lookup tool.
+get_recent_checkins — Reads a past check-in from MongoDB.
 
-V5 scope: reads a single day's check-in back from MongoDB, formatted for
-either (a) direct injection into the system prompt by history_check_node
-(deterministic, once per session, always "yesterday"), or (b) an LLM tool
-call when the user's message needs a different/further-back date. Both
-paths share the same underlying fetch function so there's one source of
-truth for how a check-in is read and formatted.
-
-Read-only - does not modify anything in Mongo. Pairs with tools/checkins.py,
-which is the write side.
-
-V5 fix: yesterday_str() now computes "yesterday" in the user's local
-timezone (hardcoded to Africa/Addis_Ababa, matching tools/checkins.py's
-_today_str()) instead of UTC. Both functions must stay in agreement on
-what "today"/"yesterday" mean, or check-ins get written under one date
-and looked up under another (exactly what caused the original bug).
-
-KNOWN DEBT: same as tools/checkins.py - this hardcoded timezone needs to
-become per-user once multi-user support exists.
+Read-only. Used for dates beyond the automatically provided yesterday
+context.
 """
 
 from datetime import datetime, timedelta
@@ -93,20 +77,10 @@ def fetch_checkin(date: str) -> str:
 @tool
 def get_recent_checkins(date: str) -> str:
     """
-    Look up the check-in recorded for a specific past date.
+    Look up a past check-in by date.
 
-    Use this when the user asks about a date beyond what you already have
-    in context - e.g. "how was I doing earlier this week?", "what did I
-    log on Monday?". You do NOT need to call this for yesterday's data at
-    the start of a conversation - that is already provided to you
-    automatically.
-
-    Args:
-        date: the date to look up, formatted "YYYY-MM-DD".
-
-    Returns:
-        A short summary of that day's check-in, or a message if none was
-        recorded.
+    Use only for dates beyond the provided yesterday context.
+    Date format: YYYY-MM-DD.
     """
     return fetch_checkin(date)
 
