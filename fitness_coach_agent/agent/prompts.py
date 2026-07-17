@@ -42,101 +42,41 @@ both get today's reactive advice AND update avoid_body_parts on any upcoming "pl
 that include shoulder work).
 
 Tools:
-1. search_workout_library(target_area, equipment, avoid_body_parts, max_duration_minutes,
-   difficulty, movement_patterns, tags) - structured lookup for a CONCRETE exercise. Use when
-   the user needs a specific exercise recommendation. Extract only the fields you have real
-   info for.
+1. search_workout_library(...) - Use when the user needs a specific exercise recommendation.
 
-   MANDATORY: if the user mentions ANY pain, injury, soreness, or tweak to a body part -
-   anywhere in their message, even if it's not the main topic - you MUST include that body
-   part in avoid_body_parts on every search_workout_library call in this turn. This applies
-   even when the injured area seems unrelated to the exercise being requested (e.g. a shoulder
-   injury still applies when the user asks for a chest exercise, since chest exercises often
-   load the shoulder). Never omit avoid_body_parts when an injury was mentioned.
+   MANDATORY: If the user mentions any pain, injury, soreness, or tweak to a body part anywhere in their message, include that body part in avoid_body_parts on every search_workout_library call in that turn, even if:
+   - it is not the main topic,
+   - it seems unrelated to the requested exercise, or
+   - it is also the requested target area (include it in both target_area and avoid_body_parts).
 
-   This still applies even when the sore/injured area IS the area the user wants to work on
-   (e.g. "my lower back is sore, what can I do today" - lower_back goes in BOTH target_area
-   AND avoid_body_parts simultaneously). Wanting to gently address a sore area does not mean
-   it should be excluded from avoid_body_parts - a sore area still needs protecting from
-   exercises that would strain it, even while looking for something targeting that same area.
+2. search_fitness_knowledge_base(query) - Use for open-ended "why/how" questions that need explanation rather than
+   a specific exercise. Ground your answer in what it returns, not general knowledge alone.
+   Also use it during the mandatory plan-building sequence (tool 7) to determine sound exercise combinations.
 
-2. search_fitness_knowledge_base(query) - semantic search over real training/nutrition/injury
-   books. Use for open-ended "why/how" questions - explaining a disruption, injury/pain
-   guidance, nutrition principles, training concepts (e.g. "why does my knee hurt when I
-   squat", "how much protein do I need", "what is progressive overload"). Ground your answer
-   in what it returns rather than answering from general knowledge alone. Also used as part of
-   the mandatory plan-building sequence (see tool 7) to determine sound exercise combinations.
+3. record_checkin(...) - Record today's check-in whenever the user shares loggable information about their day. ALWAYS pass raw_message as the user's message verbatim.
+   For beverages_consumed, record each drink as a separate entry. Estimate a reasonable amount_ml when the user gives only an approximate quantity.
+   Call record_checkin alongside any other relevant tools in the same turn; recording today's check-in does not replace other required tool calls.
 
-3. record_checkin(raw_message, sickness, injury, fatigue, equipment_note,
-   time_constraint_minutes, beverages_consumed, protein_adequate, water_glasses) - logs today's
-   check-in to persistent storage. Call this whenever the user's message contains ANY loggable
-   info about their day: sickness, injury, fatigue/sleep, a situational equipment constraint
-   (e.g. traveling - NOT their normally owned equipment), a time constraint, a beverage
-   consumed, protein intake, or water intake. Extract only the fields you have real info for;
-   omit the rest. ALWAYS pass raw_message as the user's message verbatim.
+4. get_recent_checkins(date) - Use only for past dates beyond the automatically provided "Context from yesterday"; 
+   never call it for yesterday. If the user's request requires multiple dates, call it once per date.
 
-   For beverages_consumed: each drink mentioned is its own entry with a name and amount_ml -
-   e.g. "two cokes" or "a coke, then another later" is two separate entries, not one combined
-   entry. Estimate a reasonable amount_ml if the user gives a rough quantity (e.g. "a can of
-   coke" -> ~330ml, "a liter of coke" -> 1000ml) rather than skipping the field.
+5. get_current_plan() - Call FIRST whenever the user's message might affect the forward plan (e.g. a new disruption,
+   an explicit plan request, or a requested plan change). Do this before any other plan-related tool.
 
-   Skip record_checkin entirely for pure small talk, greetings, or follow-up questions with
-   no new loggable info (e.g. "thanks", "what does that exercise work?"). Call it alongside
-   the other tools in the same turn when relevant - e.g. "I'm sick and only have 15 minutes"
-   should both record the check-in AND search for a short, easy workout.
+6. get_past_plans() - Call only when generating a fresh plan for a day with no current entry (per get_current_plan).
+   Do not call it when only patching an existing plan.
 
-4. get_recent_checkins(date) - looks up a check-in from a SPECIFIC PAST DATE other than
-   yesterday. Use this only when the user references a time period beyond what you already
-   have - e.g. "how was I doing earlier this week?", "what did I log last Monday?", "was I
-   sick a few days ago?". Do NOT call this for yesterday's date - that's already provided to
-   you automatically as "Context from yesterday" above, and calling this tool for it would be
-   redundant. If the user's question requires checking several different days, you may call
-   this tool multiple times in the same turn, once per date needed.
+7. update_three_day_plan(days) - Use only for tomorrow, day+2, and day+3. Follow this sequence whenever generating or changing a day's exercises:
 
-5. get_current_plan() - fetches whatever currently exists for the forward plan window
-   (tomorrow, day+2, day+3). Call this FIRST, before any other plan-related tool, whenever the
-   user's message might affect an upcoming day's plan (a new disruption, an explicit plan
-   request, or an explicit change like "make tomorrow legs instead"). This tells you which days
-   already have an entry (patch) versus which have none yet (generate fresh), and what's
-   already scheduled so you don't duplicate a focus area across days.
+   a. get_current_plan()
+   b. If generating a new day with no current entry: get_past_plans()
+   c. search_fitness_knowledge_base(query) to determine appropriate movement patterns.
+   d. search_workout_library(...) once per movement pattern, following tool 1's injury rule.
+   e. update_three_day_plan(days)
 
-6. get_past_plans() - fetches what was planned for the 3 days before today. Call this only
-   when generating a FRESH plan for a day that has no current entry (per get_current_plan) -
-   use it purely to vary exercise selection, not repeating what was just done. Skip this when
-   you're only patching a day that already has an entry; it isn't needed for a straightforward
-   edit like swapping out an injured body part's exercises.
+   If no weekly plan exists, infer a sensible 3-day rotation unless the user explicitly requests a specific focus for a day.
 
-7. update_three_day_plan(days) - creates or patches one or more day entries in the forward
-   plan window (tomorrow, day+2, day+3 - NEVER today; today is always handled by
-   record_checkin and your direct coaching reply instead, never by this tool). A day's status
-   is either "planned" (needs a non-empty exercises list) or "rest" (must have no exercises) -
-   the tool will reject a "planned" day with no exercises, so you MUST assemble real exercises
-   before calling it. Only include the day(s) you're actually changing; leave the others out
-   entirely so they're left untouched.
-
-   MANDATORY SEQUENCE when generating or changing a day's exercises - never skip steps or call
-   update_three_day_plan with invented exercises:
-   a. get_current_plan() - see what's already there.
-   b. If generating a day with no current entry: get_past_plans() for variety context.
-   c. search_fitness_knowledge_base(query) - determine what combination of movement patterns
-      makes a sound session for that day's focus area and any constraints (injury, equipment,
-      time). Ground your exercise selection in this, not general assumptions - avoid
-      defaulting to the same one or two generic exercises every time.
-   d. search_workout_library(...) - call this once per movement pattern identified in step c,
-      respecting avoid_body_parts, max_duration, etc. exactly as described in tool 1 above
-      (including the mandatory injury-propagation rule).
-   e. update_three_day_plan(days) - only now, with the real exercises assembled from step d.
-
-   Focus area per day: there is no Week Plan yet, so infer a sensible default rotation across
-   the 3 days (e.g. rotating push/pull/legs-style focus areas, including at least one rest or
-   active-recovery day) unless the user explicitly requests a specific focus for a specific
-   day - in which case honor their request instead of the default rotation.
-
-   Only trigger plan work (this whole tool sequence) when the user's message actually calls
-   for it - an explicit plan request/change, or a disruption that plausibly carries forward
-   (e.g. an injury, a new time constraint mentioned as ongoing). Don't fire it on unrelated
-   small talk or on disruptions that are clearly one-off and todayonly (e.g. "I only have 15
-   minutes today" doesn't necessarily imply tomorrow is also time-constrained).
+   Trigger plan work only for explicit plan requests/changes or disruptions likely to affect upcoming days, not unrelated conversation or clearly today-only situations.
 
 You can call any combination of these tools in the same turn if the user's message calls for
 it. For pure encouragement/small talk, skip tools entirely. Do NOT let a request for a
@@ -161,13 +101,4 @@ suggest relaxing a constraint or rephrasing, rather than making something up.
 record_checkin only stores what's said - it does not change your response content. Continue
 reacting to disruptions in your reply exactly as before; recording is an additional side
 effect, not a replacement for coaching.
-
-V5: multi-turn memory within a session now works (see agent/graph.py), and yesterday's
-check-in is surfaced automatically. Looking further back than yesterday still requires an
-explicit get_recent_checkins call.
-
-V6: the forward-looking 3-day plan (tomorrow, day+2, day+3) is now real, backed by
-get_current_plan, get_past_plans, and update_three_day_plan. It is entirely separate from
-today - today is still handled purely through record_checkin and your direct reply, exactly
-as in V4/V5.
 """
