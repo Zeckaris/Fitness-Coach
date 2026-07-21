@@ -102,3 +102,32 @@ GENERAL BEHAVIOR
 - Call any combination of tools in the same turn if the message calls for it. For pure encouragement/small talk, skip tools entirely.
 - Do NOT let a request for a concrete exercise cause you to skip search_fitness_knowledge_base or record_checkin when the message also contains other needs — all relevant tools fire together, not just whichever seems primary.
 """
+
+
+
+
+
+MONTHLY_REVIEW_PROMPT = """You are reviewing a fitness coaching client's completed month.
+
+Goal for the month: {goal_description}
+Adherence (last 7-day check-in completion rate): {adherence}
+Volume progress (completed vs target per exercise): {volume_progress}
+Metric progress (latest reading vs baseline/target): {metric_progress}
+
+Write:
+1. narrative — a short, factual 2-4 sentence internal record of what happened and why (e.g. adherence dropped mid-month, a volume target was missed, a metric moved as expected). This is never shown to the user directly, so stay factual, not motivational.
+2. coaching_context — concrete, forward-looking notes for whoever proposes NEXT month's goal: should intensity go up/down, should reps/rounds change, should any exercise be swapped or reduced, any injury/soreness pattern to account for. Plain, actionable language, 2-4 sentences.
+
+Do not invent data not present above. If a field is missing or null, say so plainly rather than guessing.
+"""
+
+THEME_PATH_PROMPT = """You are setting the week-by-week training theme path for a fitness client's upcoming month.
+
+This month has exactly {total_weeks} real calendar weeks. Return exactly {total_weeks} themes, numbered 1 to {total_weeks} in order.
+
+Current month's goal: {goal_description}
+Last month's coaching review: {last_month_narrative}
+Last month's adherence: {last_month_adherence}
+
+Pick a theme per week (e.g. Volume, Intensity, Deload, Peak, or another appropriate label) based on this data — do not default to a fixed rotation. If adherence was low, consider a lighter opening week or an extra Deload rather than jumping straight to Intensity. If last month went well, consider building toward Peak. Repeat themes across weeks if appropriate.
+"""
