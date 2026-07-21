@@ -8,6 +8,7 @@ from datetime import datetime, timedelta
 from zoneinfo import ZoneInfo
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+os.environ["STREAMLIT_WATCHER_TYPE"] = "none"
 
 from dotenv import load_dotenv
 load_dotenv()
@@ -22,6 +23,7 @@ from tools.plans import LOCAL_TZ, DEFAULT_USER_ID
 from tools.progress import calculate_progress
 from tools.month_plans import format_month_plan, _current_month_id
 from tools.week_plans import format_week_plan, _find_week_doc_for_date
+from agent.monthly_review import run_monthly_review
 
 
 
@@ -602,12 +604,7 @@ with st.sidebar:
 
     if st.button("📅 Set Week Themes", help="Run the monthly review pipeline to set week themes for the current month"):
         try:
-            result = subprocess.run(
-                [sys.executable, "-m", "agent.monthly_review"],
-                capture_output=True,
-                text=True,
-                timeout=60,
-            )
+            result = run_monthly_review() 
             if result.returncode == 0:
                 st.success("Week themes set! You can now ask the coach to generate your weekly plan.")
                 if result.stdout:
