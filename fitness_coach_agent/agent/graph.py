@@ -33,6 +33,7 @@ from tools.month_plans import (
     get_current_goal_summary,
     stage_month_goal,
     confirm_month_goal,
+    get_previous_month_review_context
 )
 
 GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY")
@@ -60,6 +61,7 @@ TOOLS = [
     get_today_workout_status,
     get_current_week_plan,
     get_current_month_plan,
+    get_previous_month_review_context,
     stage_month_goal,
     confirm_month_goal,
     update_week_plan,
@@ -99,24 +101,21 @@ def backlog_sync_node(state: CoachState) -> dict:
 
 
 def goal_context_node(state: CoachState) -> dict:
-    """
-    Deterministic, non-LLM node. Fetches a one-line confirmed-goal
-    summary and tomorrow's week-block focus, once per session. Uses
-    tomorrow's date (not today's) since week_plans blocks are
-    forward-looking, same convention as update_three_day_plan.
-    """
     if state.get("goal_context_checked"):
         return {}
 
     tomorrow = (datetime.now(LOCAL_TZ) + timedelta(days=1)).strftime("%Y-%m-%d")
     goal_summary = get_current_goal_summary()
     week_focus = get_week_focus_for_date(tomorrow)
+    prev_review = get_previous_month_review_context()
 
     parts = []
     if goal_summary:
         parts.append(f"Current goal: {goal_summary}")
     if week_focus:
         parts.append(f"This week's focus: {week_focus}")
+    if prev_review:
+        parts.append(f"Last month's review context: {prev_review}")
 
     return {
         "goal_context_checked": True,
