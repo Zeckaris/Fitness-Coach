@@ -1,55 +1,36 @@
 """
-Document ingestion pipeline for the RAG knowledge base.
+Document ingestion pipeline for the RAG knowledge base — V4.
 
-V3 scope: load PDFs from data/documents/ -> chunk -> embed -> store in
-AstraDB.
+Changes from V3:
+- Uses rag.preprocessor instead of raw PyPDFLoader
+- Pre-processing includes: cleaning, table structuring, exercise restructuring,
+  semantic chunking with token budget (300-500 tokens target)
+- Same output format: Document objects with .page_content and .metadata
 """
 
 from pathlib import Path
 
-from langchain_community.document_loaders import PyPDFLoader
-from langchain_text_splitters import RecursiveCharacterTextSplitter
-
+from rag.preprocessor import preprocess_all_pdfs
 from rag.vectorstore import get_vectorstore
 
 DOCUMENTS_DIR = Path(__file__).resolve().parent.parent / "data" / "documents"
 
-# Chunk size/overlap in characters 1000/200 
-CHUNK_SIZE = 1000
-CHUNK_OVERLAP = 200
-
 
 def load_and_chunk_documents() -> list:
     """
-    loads each one page by page, tags every page with its source
-    filename, then splits into overlapping chunks. Metadata (source, page)
-    survives the split, so every chunk knows which book/page it came from.
+    V4: Uses preprocessor pipeline instead of raw PyPDFLoader.
+
+    The preprocessor handles:
+      - PDF loading (via PyPDFLoader internally)
+      - Text cleaning (headers, footers, captions, citations)
+      - Table detection and markdown conversion
+      - Exercise guide restructuring
+      - Semantic chunking with ~400-500 token budget
+      - Metadata enrichment (source, doc_type, chunk_index, etc.)
+
+    Returns Document objects ready for embedding.
     """
-    splitter = RecursiveCharacterTextSplitter(
-        chunk_size=CHUNK_SIZE,
-        chunk_overlap=CHUNK_OVERLAP,
-    )
-
-    all_chunks = []
-    pdf_paths = sorted(DOCUMENTS_DIR.rglob("*.pdf"))
-
-    if not pdf_paths:
-        print(f"No PDFs found under {DOCUMENTS_DIR}")
-        return all_chunks
-
-    for pdf_path in pdf_paths:
-        print(f"Loading {pdf_path.name}...")
-        loader = PyPDFLoader(str(pdf_path))
-        pages = loader.load()
-
-        source_name = pdf_path.stem
-        for page in pages:
-            page.metadata["source"] = source_name
-
-        chunks = splitter.split_documents(pages)
-        print(f"  -> {len(pages)} pages -> {len(chunks)} chunks")
-        all_chunks.extend(chunks)
-
+    all_chunks = preprocess_all_pdfs(DOCUMENTS_DIR)
     return all_chunks
 
 
