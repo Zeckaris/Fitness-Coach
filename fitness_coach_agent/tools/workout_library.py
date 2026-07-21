@@ -21,7 +21,7 @@ _WORKOUTS = _load_workouts()
 # Controlled vocabulary, derived from what's actually in data/workouts.json.
 TargetArea = Literal[
     "abs", "back", "biceps", "calves", "chest", "forearms",
-    "glutes", "hamstrings", "lower_back", "quads", "shoulders", "triceps",
+    "glutes", "hamstrings", "lower_back", "quads", "shoulders", "triceps","full_body", "core"
 ]
 Equipment = Literal["none", "dumbbells", "chair"]
 Difficulty = Literal["beginner", "intermediate"]
