@@ -1,0 +1,3183 @@
+[
+  {
+    "id": "warmup_001",
+    "name": "Joint Mobility Warm-Up",
+    "type": "mobility",
+    "primary_target_area": "full_body",
+    "secondary_target_areas": [],
+    "movement_patterns": [
+      "dynamic_movement",
+      "stretch"
+    ],
+    "equipment": "none",
+    "required_space": "minimal",
+    "difficulty": "beginner",
+    "duration_minutes": 5,
+    "avoid_if_injured": [
+      "shoulder",
+      "hip",
+      "knee",
+      "ankle",
+      "lower_back",
+      "neck"
+    ],
+    "description": "5-10 minutes. Use video or your own dynamic warm up to prepare joints and muscles for exercise.",
+    "tags": [
+      "no_equipment",
+      "warmup",
+      "beginner_friendly"
+    ]
+  },
+  {
+    "id": "quads_002",
+    "name": "Bodyweight Squats",
+    "type": "strength",
+    "primary_target_area": "quads",
+    "secondary_target_areas": [
+      "glutes",
+      "hamstrings"
+    ],
+    "movement_patterns": [
+      "squat",
+      "lower_body_push"
+    ],
+    "equipment": "none",
+    "required_space": "minimal",
+    "difficulty": "beginner",
+    "duration_minutes": 5,
+    "avoid_if_injured": [
+      "knee",
+      "hip",
+      "ankle",
+      "lower_back"
+    ],
+    "description": "3 sets of 8-10 reps. Sit back, heels down, knees open, squat low, hold onto counter as needed. Rest 30-45 seconds between sets.",
+    "tags": [
+      "no_equipment",
+      "travel",
+      "beginner_friendly"
+    ]
+  },
+  {
+    "id": "chest_003",
+    "name": "Modified Push-Up",
+    "type": "strength",
+    "primary_target_area": "chest",
+    "secondary_target_areas": [
+      "triceps",
+      "shoulders"
+    ],
+    "movement_patterns": [
+      "push",
+      "horizontal_push"
+    ],
+    "equipment": "none",
+    "required_space": "minimal",
+    "difficulty": "beginner",
+    "duration_minutes": 5,
+    "avoid_if_injured": [
+      "palm",
+      "wrist",
+      "elbow",
+      "shoulder",
+      "chest",
+      "core"
+    ],
+    "description": "3 sets of 8-10 reps. Use a counter or piece of sturdy furniture for an elevated push-up. Rest 30-45 seconds between sets.",
+    "tags": [
+      "no_equipment",
+      "travel",
+      "beginner_friendly"
+    ]
+  },
+  {
+    "id": "back_004",
+    "name": "Door Frame Row",
+    "type": "strength",
+    "primary_target_area": "back",
+    "secondary_target_areas": [
+      "biceps",
+      "shoulders"
+    ],
+    "movement_patterns": [
+      "pull",
+      "horizontal_pull"
+    ],
+    "equipment": "none",
+    "required_space": "minimal",
+    "difficulty": "beginner",
+    "duration_minutes": 5,
+    "avoid_if_injured": [
+      "shoulder",
+      "elbow",
+      "wrist",
+      "hand",
+      "upper_back"
+    ],
+    "description": "3 sets of 8-10 reps. Squeeze shoulder blades together, stop if grip starts to fatigue. Rest 30-45 seconds between sets.",
+    "tags": [
+      "no_equipment",
+      "travel",
+      "beginner_friendly"
+    ]
+  },
+  {
+    "id": "quads_005",
+    "name": "Split Squat",
+    "type": "strength",
+    "primary_target_area": "quads",
+    "secondary_target_areas": [
+      "glutes",
+      "hamstrings"
+    ],
+    "movement_patterns": [
+      "lunge",
+      "single_leg"
+    ],
+    "equipment": "none",
+    "required_space": "minimal",
+    "difficulty": "beginner",
+    "duration_minutes": 5,
+    "avoid_if_injured": [
+      "knee",
+      "hip",
+      "ankle",
+      "lower_back"
+    ],
+    "description": "3 sets of 6-8 reps per leg. Back straight, hold on for balance if needed. Rest 20-30 seconds between sets.",
+    "tags": [
+      "no_equipment",
+      "travel",
+      "single_leg",
+      "beginner_friendly"
+    ]
+  },
+  {
+    "id": "abs_006",
+    "name": "Penguin Crunch",
+    "type": "strength",
+    "primary_target_area": "abs",
+    "secondary_target_areas": [
+      "obliques"
+    ],
+    "movement_patterns": [
+      "flexion",
+      "core_stability"
+    ],
+    "equipment": "none",
+    "required_space": "minimal",
+    "difficulty": "beginner",
+    "duration_minutes": 4,
+    "avoid_if_injured": [
+      "lower_back",
+      "neck",
+      "hip",
+      "core"
+    ],
+    "description": "3 sets of 15 reps per side. Tuck chin slightly, tap heels alternating sides. Rest 15-30 seconds between sets.",
+    "tags": [
+      "no_equipment",
+      "travel",
+      "beginner_friendly"
+    ]
+  },
+  {
+    "id": "glutes_007",
+    "name": "Glute Bridge",
+    "type": "strength",
+    "primary_target_area": "glutes",
+    "secondary_target_areas": [
+      "hamstrings",
+      "lower_back"
+    ],
+    "movement_patterns": [
+      "hip_extension",
+      "posterior_chain"
+    ],
+    "equipment": "none",
+    "required_space": "minimal",
+    "difficulty": "beginner",
+    "duration_minutes": 4,
+    "avoid_if_injured": [
+      "lower_back",
+      "hip",
+      "knee",
+      "hamstring"
+    ],
+    "description": "3 sets of 10-12 reps. Lift hips up all the way, squeeze glutes at the top. Rest 15-30 seconds between sets.",
+    "tags": [
+      "no_equipment",
+      "travel",
+      "beginner_friendly",
+      "glute_activation"
+    ]
+  },
+  {
+    "id": "abs_008",
+    "name": "Plank",
+    "type": "strength",
+    "primary_target_area": "abs",
+    "secondary_target_areas": [
+      "shoulders",
+      "lower_back"
+    ],
+    "movement_patterns": [
+      "anti_extension",
+      "core_stability",
+      "isometric"
+    ],
+    "equipment": "none",
+    "required_space": "minimal",
+    "difficulty": "beginner",
+    "duration_minutes": 3,
+    "avoid_if_injured": [
+      "wrist",
+      "shoulder",
+      "lower_back",
+      "neck",
+      "core"
+    ],
+    "description": "2-3 sets, hold for 20-45 seconds each. Hold plank on elbows, keep body in a straight line. Rest 15-30 seconds between sets.",
+    "tags": [
+      "no_equipment",
+      "travel",
+      "beginner_friendly",
+      "isometric"
+    ]
+  },
+  {
+    "id": "abs_009",
+    "name": "Bird Dog",
+    "type": "strength",
+    "primary_target_area": "abs",
+    "secondary_target_areas": [
+      "lower_back",
+      "shoulders",
+      "glutes"
+    ],
+    "movement_patterns": [
+      "extension",
+      "core_stability"
+    ],
+    "equipment": "none",
+    "required_space": "minimal",
+    "difficulty": "beginner",
+    "duration_minutes": 4,
+    "avoid_if_injured": [
+      "lower_back",
+      "shoulder",
+      "hip",
+      "knee",
+      "wrist"
+    ],
+    "description": "2-3 sets of 10 reps per side. Keep hips and shoulders square, extend opposite arm and leg. Rest 15-30 seconds between sets.",
+    "tags": [
+      "no_equipment",
+      "travel",
+      "beginner_friendly"
+    ]
+  },
+  {
+    "id": "chest_010",
+    "name": "Push-Ups",
+    "type": "strength",
+    "primary_target_area": "chest",
+    "secondary_target_areas": [
+      "triceps",
+      "shoulders"
+    ],
+    "movement_patterns": [
+      "push",
+      "horizontal_push"
+    ],
+    "equipment": "none",
+    "required_space": "minimal",
+    "difficulty": "intermediate",
+    "duration_minutes": 5,
+    "avoid_if_injured": [
+      "palm",
+      "wrist",
+      "elbow",
+      "shoulder",
+      "chest",
+      "core",
+      "toe"
+    ],
+    "description": "4 sets of 8-10 reps. Lower chest to ground, keep body straight. Rest 30 seconds between sets.",
+    "tags": [
+      "no_equipment",
+      "travel",
+      "bodyweight"
+    ]
+  },
+  {
+    "id": "back_011",
+    "name": "Table Row",
+    "type": "strength",
+    "primary_target_area": "back",
+    "secondary_target_areas": [
+      "biceps",
+      "rear_shoulders"
+    ],
+    "movement_patterns": [
+      "pull",
+      "horizontal_pull"
+    ],
+    "equipment": "bench_or_table",
+    "required_space": "minimal",
+    "difficulty": "intermediate",
+    "duration_minutes": 5,
+    "avoid_if_injured": [
+      "lower_back",
+      "shoulder",
+      "elbow",
+      "wrist",
+      "upper_back"
+    ],
+    "description": "4 sets of 8-10 reps. Only perform on sturdy table. If not sturdy, use door frame row. Rest 30 seconds between sets.",
+    "tags": [
+      "minimal_equipment",
+      "travel"
+    ]
+  },
+  {
+    "id": "quads_012",
+    "name": "Backward Lunge",
+    "type": "strength",
+    "primary_target_area": "quads",
+    "secondary_target_areas": [
+      "glutes",
+      "hamstrings"
+    ],
+    "movement_patterns": [
+      "lunge",
+      "single_leg"
+    ],
+    "equipment": "none",
+    "required_space": "minimal",
+    "difficulty": "intermediate",
+    "duration_minutes": 5,
+    "avoid_if_injured": [
+      "knee",
+      "hip",
+      "ankle",
+      "lower_back"
+    ],
+    "description": "3 sets of 10 reps per leg. Back straight, alternate each rep. Rest 30 seconds between sets.",
+    "tags": [
+      "no_equipment",
+      "travel",
+      "single_leg"
+    ]
+  },
+  {
+    "id": "abs_013",
+    "name": "Sit-Up",
+    "type": "strength",
+    "primary_target_area": "abs",
+    "secondary_target_areas": [
+      "hip_flexors"
+    ],
+    "movement_patterns": [
+      "flexion",
+      "core_stability"
+    ],
+    "equipment": "none",
+    "required_space": "minimal",
+    "difficulty": "intermediate",
+    "duration_minutes": 4,
+    "avoid_if_injured": [
+      "lower_back",
+      "neck",
+      "hip",
+      "core"
+    ],
+    "description": "3 sets of 15-20 reps. Curl up, don't hinge at the hips. Rest 15-30 seconds between sets.",
+    "tags": [
+      "no_equipment",
+      "travel",
+      "bodyweight"
+    ]
+  },
+  {
+    "id": "hamstrings_014",
+    "name": "Single Leg Deadlift",
+    "type": "strength",
+    "primary_target_area": "hamstrings",
+    "secondary_target_areas": [
+      "glutes",
+      "lower_back"
+    ],
+    "movement_patterns": [
+      "hip_hinge",
+      "posterior_chain",
+      "single_leg"
+    ],
+    "equipment": "none",
+    "required_space": "minimal",
+    "difficulty": "intermediate",
+    "duration_minutes": 5,
+    "avoid_if_injured": [
+      "lower_back",
+      "hamstring",
+      "hip",
+      "knee",
+      "ankle"
+    ],
+    "description": "3 sets of 8-10 reps per leg. Keep back straight, hinge at hips. Rest 15-30 seconds between sets.",
+    "tags": [
+      "no_equipment",
+      "travel",
+      "single_leg",
+      "posterior_chain"
+    ]
+  },
+  {
+    "id": "abs_015",
+    "name": "Up/Down Plank",
+    "type": "strength",
+    "primary_target_area": "abs",
+    "secondary_target_areas": [
+      "obliques",
+      "shoulders",
+      "triceps"
+    ],
+    "movement_patterns": [
+      "push",
+      "core_stability"
+    ],
+    "equipment": "none",
+    "required_space": "minimal",
+    "difficulty": "intermediate",
+    "duration_minutes": 4,
+    "avoid_if_injured": [
+      "wrist",
+      "shoulder",
+      "elbow",
+      "lower_back",
+      "core"
+    ],
+    "description": "2-3 sets of 8-10 reps. Keep hips and shoulders square, move from elbows to hands and back. Rest 15-30 seconds between sets.",
+    "tags": [
+      "no_equipment",
+      "travel",
+      "core"
+    ]
+  },
+  {
+    "id": "lower_back_016",
+    "name": "Back Extension",
+    "type": "strength",
+    "primary_target_area": "lower_back",
+    "secondary_target_areas": [
+      "glutes",
+      "hamstrings"
+    ],
+    "movement_patterns": [
+      "extension",
+      "posterior_chain"
+    ],
+    "equipment": "none",
+    "required_space": "minimal",
+    "difficulty": "intermediate",
+    "duration_minutes": 4,
+    "avoid_if_injured": [
+      "lower_back",
+      "neck",
+      "hip",
+      "hamstring"
+    ],
+    "description": "2-3 sets of 10-12 reps. Lengthen as you lift, squeeze lower back and glutes. Rest 15-30 seconds between sets.",
+    "tags": [
+      "no_equipment",
+      "travel",
+      "posterior_chain"
+    ]
+  },
+  {
+    "id": "quads_017",
+    "name": "Jump Squats",
+    "type": "cardio",
+    "primary_target_area": "quads",
+    "secondary_target_areas": [
+      "glutes",
+      "hamstrings",
+      "calves"
+    ],
+    "movement_patterns": [
+      "squat",
+      "jump",
+      "lower_body_push"
+    ],
+    "equipment": "none",
+    "required_space": "minimal",
+    "difficulty": "advanced",
+    "duration_minutes": 5,
+    "avoid_if_injured": [
+      "knee",
+      "ankle",
+      "hip",
+      "lower_back",
+      "calf"
+    ],
+    "description": "4 sets of 8 reps. Land softly, make each jump count, don't go too fast. Rest 30 seconds between sets.",
+    "tags": [
+      "no_equipment",
+      "cardio",
+      "high_intensity"
+    ]
+  },
+  {
+    "id": "chest_018",
+    "name": "Feet Elevated Push-Ups",
+    "type": "strength",
+    "primary_target_area": "chest",
+    "secondary_target_areas": [
+      "triceps",
+      "shoulders"
+    ],
+    "movement_patterns": [
+      "push",
+      "horizontal_push"
+    ],
+    "equipment": "bench_or_table",
+    "required_space": "minimal",
+    "difficulty": "advanced",
+    "duration_minutes": 5,
+    "avoid_if_injured": [
+      "palm",
+      "wrist",
+      "elbow",
+      "shoulder",
+      "chest",
+      "core",
+      "toe"
+    ],
+    "description": "4 sets of 8-10 reps. Lower chest to ground with feet elevated on sturdy surface. Rest 30 seconds between sets.",
+    "tags": [
+      "minimal_equipment",
+      "bodyweight"
+    ]
+  },
+  {
+    "id": "quads_019",
+    "name": "Single Leg Squat",
+    "type": "strength",
+    "primary_target_area": "quads",
+    "secondary_target_areas": [
+      "glutes",
+      "hamstrings"
+    ],
+    "movement_patterns": [
+      "squat",
+      "single_leg",
+      "lower_body_push"
+    ],
+    "equipment": "none",
+    "required_space": "minimal",
+    "difficulty": "advanced",
+    "duration_minutes": 5,
+    "avoid_if_injured": [
+      "knee",
+      "hip",
+      "ankle",
+      "lower_back"
+    ],
+    "description": "3 sets of 3-8 reps per leg. Hold on for balance as needed, keep heel flat. Rest 30 seconds between sets.",
+    "tags": [
+      "no_equipment",
+      "single_leg",
+      "bodyweight"
+    ]
+  },
+  {
+    "id": "abs_020",
+    "name": "V-Up",
+    "type": "strength",
+    "primary_target_area": "abs",
+    "secondary_target_areas": [
+      "hip_flexors"
+    ],
+    "movement_patterns": [
+      "flexion",
+      "core_stability"
+    ],
+    "equipment": "none",
+    "required_space": "minimal",
+    "difficulty": "advanced",
+    "duration_minutes": 4,
+    "avoid_if_injured": [
+      "lower_back",
+      "neck",
+      "hip",
+      "core"
+    ],
+    "description": "3 sets of 8-10 reps. Keep hips tucked under, lift torso and legs simultaneously to form V shape. Rest 15-30 seconds between sets.",
+    "tags": [
+      "no_equipment",
+      "travel",
+      "core"
+    ]
+  },
+  {
+    "id": "glutes_021",
+    "name": "Single Leg Elevated Glute Bridge",
+    "type": "strength",
+    "primary_target_area": "glutes",
+    "secondary_target_areas": [
+      "hamstrings",
+      "lower_back"
+    ],
+    "movement_patterns": [
+      "hip_extension",
+      "posterior_chain",
+      "single_leg"
+    ],
+    "equipment": "bench_or_table",
+    "required_space": "minimal",
+    "difficulty": "advanced",
+    "duration_minutes": 5,
+    "avoid_if_injured": [
+      "lower_back",
+      "hip",
+      "knee",
+      "hamstring"
+    ],
+    "description": "3 sets of 8-10 reps per leg. Lift hips to full extension with one foot elevated. Rest 15-30 seconds between sets.",
+    "tags": [
+      "minimal_equipment",
+      "single_leg",
+      "glute_activation"
+    ]
+  },
+  {
+    "id": "abs_022",
+    "name": "Reverse Crunches",
+    "type": "strength",
+    "primary_target_area": "abs",
+    "secondary_target_areas": [
+      "obliques",
+      "hip_flexors"
+    ],
+    "movement_patterns": [
+      "hip_flexion",
+      "core_stability"
+    ],
+    "equipment": "none",
+    "required_space": "minimal",
+    "difficulty": "advanced",
+    "duration_minutes": 4,
+    "avoid_if_injured": [
+      "lower_back",
+      "neck",
+      "hip",
+      "core"
+    ],
+    "description": "3 sets of 12-15 reps. Lift with abs, don't swing, bring knees toward chest. Rest 15-30 seconds between sets.",
+    "tags": [
+      "no_equipment",
+      "travel",
+      "core"
+    ]
+  },
+  {
+    "id": "abs_023",
+    "name": "Rotating Side Plank",
+    "type": "strength",
+    "primary_target_area": "abs",
+    "secondary_target_areas": [
+      "obliques",
+      "shoulders"
+    ],
+    "movement_patterns": [
+      "core_stability",
+      "rotation"
+    ],
+    "equipment": "none",
+    "required_space": "minimal",
+    "difficulty": "advanced",
+    "duration_minutes": 4,
+    "avoid_if_injured": [
+      "wrist",
+      "shoulder",
+      "elbow",
+      "lower_back",
+      "core",
+      "neck"
+    ],
+    "description": "3 sets of 45-60 seconds. Keep core straight, rotate from side plank to front plank. Rest 15-30 seconds between sets.",
+    "tags": [
+      "no_equipment",
+      "travel",
+      "core"
+    ]
+  },
+  {
+    "id": "triceps_024",
+    "name": "Triceps Dip",
+    "type": "strength",
+    "primary_target_area": "triceps",
+    "secondary_target_areas": [
+      "shoulders",
+      "chest"
+    ],
+    "movement_patterns": [
+      "push",
+      "elbow_extension"
+    ],
+    "equipment": "chair",
+    "required_space": "minimal",
+    "difficulty": "beginner",
+    "duration_minutes": 5,
+    "avoid_if_injured": [
+      "shoulder",
+      "elbow",
+      "wrist",
+      "chest"
+    ],
+    "description": "3 sets of 10-12 reps. Go as low as comfortable, keep back close to chair. Rest 30-45 seconds between sets.",
+    "tags": [
+      "minimal_equipment",
+      "travel",
+      "beginner_friendly"
+    ]
+  },
+  {
+    "id": "triceps_025",
+    "name": "Elevated Feet Triceps Dip",
+    "type": "strength",
+    "primary_target_area": "triceps",
+    "secondary_target_areas": [
+      "shoulders",
+      "chest"
+    ],
+    "movement_patterns": [
+      "push",
+      "elbow_extension"
+    ],
+    "equipment": "chair",
+    "required_space": "minimal",
+    "difficulty": "intermediate",
+    "duration_minutes": 5,
+    "avoid_if_injured": [
+      "shoulder",
+      "elbow",
+      "wrist",
+      "chest"
+    ],
+    "description": "3 sets of 10-12 reps. Elevate feet on chair, go as low as comfortable. Rest 30-45 seconds between sets.",
+    "tags": [
+      "minimal_equipment",
+      "travel"
+    ]
+  },
+  {
+    "id": "lower_back_026",
+    "name": "Tabletop Extension",
+    "type": "strength",
+    "primary_target_area": "lower_back",
+    "secondary_target_areas": [
+      "glutes",
+      "hamstrings",
+      "shoulders"
+    ],
+    "movement_patterns": [
+      "extension",
+      "posterior_chain"
+    ],
+    "equipment": "none",
+    "required_space": "minimal",
+    "difficulty": "intermediate",
+    "duration_minutes": 4,
+    "avoid_if_injured": [
+      "lower_back",
+      "shoulder",
+      "neck",
+      "hip"
+    ],
+    "description": "2-3 sets of 10 reps per side. Lift hips to full height from tabletop position. Rest 15-30 seconds between sets.",
+    "tags": [
+      "no_equipment",
+      "travel",
+      "posterior_chain"
+    ]
+  },
+  {
+    "id": "chest_027",
+    "name": "One-Arm Push-Up",
+    "type": "strength",
+    "primary_target_area": "chest",
+    "secondary_target_areas": [
+      "triceps",
+      "shoulders",
+      "core"
+    ],
+    "movement_patterns": [
+      "push",
+      "horizontal_push"
+    ],
+    "equipment": "none",
+    "required_space": "minimal",
+    "difficulty": "advanced",
+    "duration_minutes": 5,
+    "avoid_if_injured": [
+      "palm",
+      "wrist",
+      "elbow",
+      "shoulder",
+      "chest",
+      "core",
+      "lower_back"
+    ],
+    "description": "3 sets of 3-5 reps per side. Follow progression in video, keep body stable. Rest 30 seconds between sets.",
+    "tags": [
+      "no_equipment",
+      "bodyweight"
+    ]
+  },
+  {
+    "id": "abs_028",
+    "name": "Side Lying Crunches",
+    "type": "strength",
+    "primary_target_area": "abs",
+    "secondary_target_areas": [
+      "obliques"
+    ],
+    "movement_patterns": [
+      "flexion",
+      "core_stability"
+    ],
+    "equipment": "none",
+    "required_space": "minimal",
+    "difficulty": "advanced",
+    "duration_minutes": 4,
+    "avoid_if_injured": [
+      "lower_back",
+      "neck",
+      "hip",
+      "core",
+      "shoulder"
+    ],
+    "description": "3 sets of 15 reps per side. Use just the oblique, crunch sideways. Rest 15-30 seconds between sets.",
+    "tags": [
+      "no_equipment",
+      "travel",
+      "core"
+    ]
+  },
+  {
+    "id": "chest_101",
+    "name": "Bench Press (Machine)",
+    "type": "strength",
+    "primary_target_area": "chest",
+    "secondary_target_areas": [
+      "shoulders",
+      "triceps"
+    ],
+    "movement_patterns": [
+      "push",
+      "horizontal_push"
+    ],
+    "equipment": "chest_press_machine",
+    "required_space": "gym",
+    "difficulty": "beginner",
+    "duration_minutes": 6,
+    "avoid_if_injured": [
+      "shoulder",
+      "elbow",
+      "wrist",
+      "chest",
+      "upper_back"
+    ],
+    "description": "3 sets of 8-12 reps. Adjust seat so handles are even with chest, press away without locking elbows. Rest 60 seconds between sets.",
+    "tags": [
+      "machine",
+      "gym",
+      "beginner_friendly"
+    ]
+  },
+  {
+    "id": "chest_102",
+    "name": "Cable Bench Press",
+    "type": "strength",
+    "primary_target_area": "chest",
+    "secondary_target_areas": [
+      "shoulders",
+      "triceps"
+    ],
+    "movement_patterns": [
+      "push",
+      "horizontal_push"
+    ],
+    "equipment": "cable_machine",
+    "required_space": "gym",
+    "difficulty": "beginner",
+    "duration_minutes": 6,
+    "avoid_if_injured": [
+      "shoulder",
+      "elbow",
+      "wrist",
+      "chest",
+      "upper_back"
+    ],
+    "description": "3 sets of 10-12 reps. Adjust Functional Training Arms to chest height, press away from chest. Can be performed one arm at a time. Rest 60 seconds between sets.",
+    "tags": [
+      "machine",
+      "gym",
+      "beginner_friendly"
+    ]
+  },
+  {
+    "id": "chest_103",
+    "name": "Converging Bench Press",
+    "type": "strength",
+    "primary_target_area": "chest",
+    "secondary_target_areas": [
+      "shoulders",
+      "triceps"
+    ],
+    "movement_patterns": [
+      "push",
+      "horizontal_push",
+      "horizontal_adduction"
+    ],
+    "equipment": "cable_machine",
+    "required_space": "gym",
+    "difficulty": "intermediate",
+    "duration_minutes": 6,
+    "avoid_if_injured": [
+      "shoulder",
+      "elbow",
+      "wrist",
+      "chest",
+      "upper_back"
+    ],
+    "description": "3 sets of 10-12 reps. Arms converge to the middle as you press. Adjust arms to chest height. Rest 60 seconds between sets.",
+    "tags": [
+      "machine",
+      "gym"
+    ]
+  },
+  {
+    "id": "chest_104",
+    "name": "Incline Bench Press (Machine)",
+    "type": "strength",
+    "primary_target_area": "chest",
+    "secondary_target_areas": [
+      "shoulders",
+      "triceps"
+    ],
+    "movement_patterns": [
+      "push",
+      "vertical_push"
+    ],
+    "equipment": "chest_press_machine",
+    "required_space": "gym",
+    "difficulty": "beginner",
+    "duration_minutes": 6,
+    "avoid_if_injured": [
+      "shoulder",
+      "elbow",
+      "wrist",
+      "chest",
+      "upper_back"
+    ],
+    "description": "3 sets of 8-12 reps. Adjust seat back to incline position, handles even with chest, press upward at angle. Rest 60 seconds between sets.",
+    "tags": [
+      "machine",
+      "gym",
+      "beginner_friendly"
+    ]
+  },
+  {
+    "id": "chest_105",
+    "name": "Converging Incline Press",
+    "type": "strength",
+    "primary_target_area": "chest",
+    "secondary_target_areas": [
+      "shoulders",
+      "triceps"
+    ],
+    "movement_patterns": [
+      "push",
+      "vertical_push",
+      "horizontal_adduction"
+    ],
+    "equipment": "cable_machine",
+    "required_space": "gym",
+    "difficulty": "intermediate",
+    "duration_minutes": 6,
+    "avoid_if_injured": [
+      "shoulder",
+      "elbow",
+      "wrist",
+      "chest",
+      "upper_back"
+    ],
+    "description": "3 sets of 10-12 reps. Press upward at 45-degree angle while bringing hands together. Rest 60 seconds between sets.",
+    "tags": [
+      "machine",
+      "gym"
+    ]
+  },
+  {
+    "id": "chest_106",
+    "name": "Decline Bench Press (Machine)",
+    "type": "strength",
+    "primary_target_area": "chest",
+    "secondary_target_areas": [
+      "shoulders",
+      "triceps"
+    ],
+    "movement_patterns": [
+      "push",
+      "horizontal_push"
+    ],
+    "equipment": "chest_press_machine",
+    "required_space": "gym",
+    "difficulty": "intermediate",
+    "duration_minutes": 6,
+    "avoid_if_injured": [
+      "shoulder",
+      "elbow",
+      "wrist",
+      "chest",
+      "upper_back"
+    ],
+    "description": "3 sets of 8-12 reps. Adjust seat back to shoulder position, lean back, press away without locking elbows. Rest 60 seconds between sets.",
+    "tags": [
+      "machine",
+      "gym"
+    ]
+  },
+  {
+    "id": "chest_107",
+    "name": "Cable Decline Bench Press",
+    "type": "strength",
+    "primary_target_area": "chest",
+    "secondary_target_areas": [
+      "shoulders",
+      "triceps"
+    ],
+    "movement_patterns": [
+      "push",
+      "horizontal_push"
+    ],
+    "equipment": "cable_machine",
+    "required_space": "gym",
+    "difficulty": "intermediate",
+    "duration_minutes": 6,
+    "avoid_if_injured": [
+      "shoulder",
+      "elbow",
+      "wrist",
+      "chest",
+      "upper_back"
+    ],
+    "description": "3 sets of 10-12 reps. Press away from chest parallel to the floor while leaning back. Rest 60 seconds between sets.",
+    "tags": [
+      "machine",
+      "gym"
+    ]
+  },
+  {
+    "id": "chest_108",
+    "name": "Converging Decline Bench Press",
+    "type": "strength",
+    "primary_target_area": "chest",
+    "secondary_target_areas": [
+      "shoulders",
+      "triceps"
+    ],
+    "movement_patterns": [
+      "push",
+      "horizontal_push",
+      "horizontal_adduction"
+    ],
+    "equipment": "cable_machine",
+    "required_space": "gym",
+    "difficulty": "intermediate",
+    "duration_minutes": 6,
+    "avoid_if_injured": [
+      "shoulder",
+      "elbow",
+      "wrist",
+      "chest",
+      "upper_back"
+    ],
+    "description": "3 sets of 10-12 reps. Press parallel to floor while converging to the middle. Rest 60 seconds between sets.",
+    "tags": [
+      "machine",
+      "gym"
+    ]
+  },
+  {
+    "id": "chest_109",
+    "name": "Self Stabilizing Chest Press",
+    "type": "strength",
+    "primary_target_area": "chest",
+    "secondary_target_areas": [
+      "shoulders",
+      "triceps",
+      "core"
+    ],
+    "movement_patterns": [
+      "push",
+      "horizontal_push",
+      "core_stability"
+    ],
+    "equipment": "cable_machine",
+    "required_space": "gym",
+    "difficulty": "intermediate",
+    "duration_minutes": 6,
+    "avoid_if_injured": [
+      "shoulder",
+      "elbow",
+      "wrist",
+      "chest",
+      "lower_back",
+      "core"
+    ],
+    "description": "3 sets of 10-12 reps. Sit forward without back support, use much lower weight. Core stabilizers engaged. Rest 60 seconds between sets.",
+    "tags": [
+      "machine",
+      "gym",
+      "core"
+    ]
+  },
+  {
+    "id": "chest_110",
+    "name": "Cable Pec Fly",
+    "type": "strength",
+    "primary_target_area": "chest",
+    "secondary_target_areas": [
+      "shoulders"
+    ],
+    "movement_patterns": [
+      "horizontal_adduction",
+      "isolation"
+    ],
+    "equipment": "cable_machine",
+    "required_space": "gym",
+    "difficulty": "intermediate",
+    "duration_minutes": 5,
+    "avoid_if_injured": [
+      "shoulder",
+      "elbow",
+      "wrist",
+      "chest"
+    ],
+    "description": "3 sets of 12-15 reps. Arms in widest position, bring together in circular motion. Can be done one arm at a time. Rest 45 seconds between sets.",
+    "tags": [
+      "machine",
+      "gym",
+      "isolation"
+    ]
+  },
+  {
+    "id": "chest_111",
+    "name": "Cable Incline Fly",
+    "type": "strength",
+    "primary_target_area": "chest",
+    "secondary_target_areas": [
+      "shoulders"
+    ],
+    "movement_patterns": [
+      "horizontal_adduction",
+      "isolation"
+    ],
+    "equipment": "cable_machine",
+    "required_space": "gym",
+    "difficulty": "intermediate",
+    "duration_minutes": 5,
+    "avoid_if_injured": [
+      "shoulder",
+      "elbow",
+      "wrist",
+      "chest"
+    ],
+    "description": "3 sets of 12-15 reps. Bring arms together and upward in circular motion. Can be done one arm at a time. Rest 45 seconds between sets.",
+    "tags": [
+      "machine",
+      "gym",
+      "isolation"
+    ]
+  },
+  {
+    "id": "chest_112",
+    "name": "Cable Low Fly",
+    "type": "strength",
+    "primary_target_area": "chest",
+    "secondary_target_areas": [
+      "shoulders",
+      "triceps"
+    ],
+    "movement_patterns": [
+      "horizontal_adduction",
+      "isolation"
+    ],
+    "equipment": "cable_machine",
+    "required_space": "gym",
+    "difficulty": "intermediate",
+    "duration_minutes": 5,
+    "avoid_if_injured": [
+      "shoulder",
+      "elbow",
+      "wrist",
+      "chest"
+    ],
+    "description": "3 sets of 12-15 reps. Bring arms up and together to chest height from low position. Return slowly. Rest 45 seconds between sets.",
+    "tags": [
+      "machine",
+      "gym",
+      "isolation"
+    ]
+  },
+  {
+    "id": "shoulders_113",
+    "name": "Shoulder Press (Machine)",
+    "type": "strength",
+    "primary_target_area": "shoulders",
+    "secondary_target_areas": [
+      "triceps"
+    ],
+    "movement_patterns": [
+      "vertical_push",
+      "overhead_press"
+    ],
+    "equipment": "shoulder_press_machine",
+    "required_space": "gym",
+    "difficulty": "beginner",
+    "duration_minutes": 6,
+    "avoid_if_injured": [
+      "shoulder",
+      "neck",
+      "elbow",
+      "wrist",
+      "upper_back"
+    ],
+    "description": "3 sets of 8-12 reps. Adjust seat so handles are at shoulder height, press overhead without locking elbows. Rest 60 seconds between sets.",
+    "tags": [
+      "machine",
+      "gym",
+      "beginner_friendly"
+    ]
+  },
+  {
+    "id": "shoulders_114",
+    "name": "Cable Shoulder Press",
+    "type": "strength",
+    "primary_target_area": "shoulders",
+    "secondary_target_areas": [
+      "triceps"
+    ],
+    "movement_patterns": [
+      "vertical_push",
+      "overhead_press"
+    ],
+    "equipment": "cable_machine",
+    "required_space": "gym",
+    "difficulty": "beginner",
+    "duration_minutes": 6,
+    "avoid_if_injured": [
+      "shoulder",
+      "neck",
+      "elbow",
+      "wrist",
+      "upper_back"
+    ],
+    "description": "3 sets of 10-12 reps. Adjust arms to vertical position, press arms overhead. Can be done one arm at a time. Rest 60 seconds between sets.",
+    "tags": [
+      "machine",
+      "gym",
+      "beginner_friendly"
+    ]
+  },
+  {
+    "id": "shoulders_115",
+    "name": "Converging Shoulder Press",
+    "type": "strength",
+    "primary_target_area": "shoulders",
+    "secondary_target_areas": [
+      "triceps"
+    ],
+    "movement_patterns": [
+      "vertical_push",
+      "overhead_press",
+      "horizontal_adduction"
+    ],
+    "equipment": "cable_machine",
+    "required_space": "gym",
+    "difficulty": "intermediate",
+    "duration_minutes": 6,
+    "avoid_if_injured": [
+      "shoulder",
+      "neck",
+      "elbow",
+      "wrist",
+      "upper_back"
+    ],
+    "description": "3 sets of 10-12 reps. Bring arms together during the overhead press. Rest 60 seconds between sets.",
+    "tags": [
+      "machine",
+      "gym"
+    ]
+  },
+  {
+    "id": "shoulders_116",
+    "name": "Cable Lateral Raise",
+    "type": "strength",
+    "primary_target_area": "shoulders",
+    "secondary_target_areas": [],
+    "movement_patterns": [
+      "abduction",
+      "isolation"
+    ],
+    "equipment": "cable_machine",
+    "required_space": "gym",
+    "difficulty": "beginner",
+    "duration_minutes": 5,
+    "avoid_if_injured": [
+      "shoulder",
+      "neck",
+      "elbow",
+      "wrist"
+    ],
+    "description": "3 sets of 12-15 reps. Keep arms straight, raise hands outward and upward. Can be done one arm at a time. Rest 45 seconds between sets.",
+    "tags": [
+      "machine",
+      "gym",
+      "isolation",
+      "beginner_friendly"
+    ]
+  },
+  {
+    "id": "shoulders_117",
+    "name": "Cable Front Raise",
+    "type": "strength",
+    "primary_target_area": "shoulders",
+    "secondary_target_areas": [],
+    "movement_patterns": [
+      "flexion",
+      "isolation"
+    ],
+    "equipment": "cable_machine",
+    "required_space": "gym",
+    "difficulty": "beginner",
+    "duration_minutes": 5,
+    "avoid_if_injured": [
+      "shoulder",
+      "neck",
+      "elbow",
+      "wrist",
+      "lower_back"
+    ],
+    "description": "3 sets of 12-15 reps. Keep arms straight, raise hands forward and upward. Can be done one arm at a time. Rest 45 seconds between sets.",
+    "tags": [
+      "machine",
+      "gym",
+      "isolation",
+      "beginner_friendly"
+    ]
+  },
+  {
+    "id": "shoulders_118",
+    "name": "Standing Cable Lateral Raise",
+    "type": "strength",
+    "primary_target_area": "shoulders",
+    "secondary_target_areas": [],
+    "movement_patterns": [
+      "abduction",
+      "isolation"
+    ],
+    "equipment": "cable_machine",
+    "required_space": "gym",
+    "difficulty": "intermediate",
+    "duration_minutes": 5,
+    "avoid_if_injured": [
+      "shoulder",
+      "neck",
+      "elbow",
+      "wrist",
+      "lower_back"
+    ],
+    "description": "3 sets of 12-15 reps per arm. Stand next to machine, raise arm outward and upward. Rest 45 seconds between sets.",
+    "tags": [
+      "machine",
+      "gym",
+      "isolation"
+    ]
+  },
+  {
+    "id": "shoulders_119",
+    "name": "Standing Front Raise",
+    "type": "strength",
+    "primary_target_area": "shoulders",
+    "secondary_target_areas": [],
+    "movement_patterns": [
+      "flexion",
+      "isolation"
+    ],
+    "equipment": "cable_machine",
+    "required_space": "gym",
+    "difficulty": "intermediate",
+    "duration_minutes": 5,
+    "avoid_if_injured": [
+      "shoulder",
+      "neck",
+      "elbow",
+      "wrist",
+      "lower_back"
+    ],
+    "description": "3 sets of 12-15 reps. Use chain on low pulley, raise bar forward and upward to chest height. Rest 45 seconds between sets.",
+    "tags": [
+      "machine",
+      "gym",
+      "isolation"
+    ]
+  },
+  {
+    "id": "shoulders_120",
+    "name": "Upright Row",
+    "type": "strength",
+    "primary_target_area": "shoulders",
+    "secondary_target_areas": [
+      "upper_back"
+    ],
+    "movement_patterns": [
+      "pull",
+      "isolation"
+    ],
+    "equipment": "cable_machine",
+    "required_space": "gym",
+    "difficulty": "intermediate",
+    "duration_minutes": 5,
+    "avoid_if_injured": [
+      "shoulder",
+      "neck",
+      "elbow",
+      "wrist",
+      "upper_back"
+    ],
+    "description": "3 sets of 10-12 reps. Use chain on low pulley, pull bar upward to shoulder level. Rest 45 seconds between sets.",
+    "tags": [
+      "machine",
+      "gym",
+      "isolation"
+    ]
+  },
+  {
+    "id": "shoulders_121",
+    "name": "External Rotator",
+    "type": "strength",
+    "primary_target_area": "shoulders",
+    "secondary_target_areas": [],
+    "movement_patterns": [
+      "rotation",
+      "isolation"
+    ],
+    "equipment": "cable_machine",
+    "required_space": "gym",
+    "difficulty": "beginner",
+    "duration_minutes": 4,
+    "avoid_if_injured": [
+      "shoulder",
+      "elbow",
+      "wrist"
+    ],
+    "description": "3 sets of 12-15 reps per arm. Rotate arm away from midsection like opening a door. Rest 30 seconds between sets.",
+    "tags": [
+      "machine",
+      "gym",
+      "isolation",
+      "beginner_friendly"
+    ]
+  },
+  {
+    "id": "shoulders_122",
+    "name": "Internal Rotator",
+    "type": "strength",
+    "primary_target_area": "shoulders",
+    "secondary_target_areas": [],
+    "movement_patterns": [
+      "rotation",
+      "isolation"
+    ],
+    "equipment": "cable_machine",
+    "required_space": "gym",
+    "difficulty": "beginner",
+    "duration_minutes": 4,
+    "avoid_if_injured": [
+      "shoulder",
+      "elbow",
+      "wrist"
+    ],
+    "description": "3 sets of 12-15 reps per arm. Rotate arm toward midsection like closing a door. Rest 30 seconds between sets.",
+    "tags": [
+      "machine",
+      "gym",
+      "isolation",
+      "beginner_friendly"
+    ]
+  },
+  {
+    "id": "back_123",
+    "name": "Lat Pulldown",
+    "type": "strength",
+    "primary_target_area": "back",
+    "secondary_target_areas": [
+      "biceps",
+      "shoulders"
+    ],
+    "movement_patterns": [
+      "pull",
+      "vertical_pull"
+    ],
+    "equipment": "lat_pulldown_machine",
+    "required_space": "gym",
+    "difficulty": "beginner",
+    "duration_minutes": 6,
+    "avoid_if_injured": [
+      "shoulder",
+      "elbow",
+      "wrist",
+      "neck",
+      "upper_back"
+    ],
+    "description": "3 sets of 10-12 reps. Wide overhand grip, pull straight down to upper chest. Can use underhand or narrow grip. Rest 60 seconds between sets.",
+    "tags": [
+      "machine",
+      "gym",
+      "beginner_friendly"
+    ]
+  },
+  {
+    "id": "back_124",
+    "name": "Low Cable Row",
+    "type": "strength",
+    "primary_target_area": "back",
+    "secondary_target_areas": [
+      "biceps",
+      "rear_shoulders"
+    ],
+    "movement_patterns": [
+      "pull",
+      "horizontal_pull"
+    ],
+    "equipment": "cable_machine",
+    "required_space": "gym",
+    "difficulty": "beginner",
+    "duration_minutes": 6,
+    "avoid_if_injured": [
+      "lower_back",
+      "shoulder",
+      "elbow",
+      "wrist",
+      "upper_back"
+    ],
+    "description": "3 sets of 10-12 reps. Sit on floor facing low pulley, pull to midsection, squeeze shoulder blades. Rest 60 seconds between sets.",
+    "tags": [
+      "machine",
+      "gym",
+      "beginner_friendly"
+    ]
+  },
+  {
+    "id": "back_125",
+    "name": "Mid Row (Machine)",
+    "type": "strength",
+    "primary_target_area": "back",
+    "secondary_target_areas": [
+      "biceps",
+      "rear_shoulders"
+    ],
+    "movement_patterns": [
+      "pull",
+      "horizontal_pull"
+    ],
+    "equipment": "cable_row_machine",
+    "required_space": "gym",
+    "difficulty": "beginner",
+    "duration_minutes": 6,
+    "avoid_if_injured": [
+      "lower_back",
+      "shoulder",
+      "elbow",
+      "wrist",
+      "upper_back"
+    ],
+    "description": "3 sets of 10-12 reps. Pull back as far as possible, squeeze shoulder blades together. Rest 60 seconds between sets.",
+    "tags": [
+      "machine",
+      "gym",
+      "beginner_friendly"
+    ]
+  },
+  {
+    "id": "back_126",
+    "name": "One Arm Row",
+    "type": "strength",
+    "primary_target_area": "back",
+    "secondary_target_areas": [
+      "biceps",
+      "shoulders"
+    ],
+    "movement_patterns": [
+      "pull",
+      "horizontal_pull"
+    ],
+    "equipment": "cable_machine",
+    "required_space": "gym",
+    "difficulty": "intermediate",
+    "duration_minutes": 5,
+    "avoid_if_injured": [
+      "lower_back",
+      "shoulder",
+      "elbow",
+      "wrist",
+      "upper_back",
+      "hip"
+    ],
+    "description": "3 sets of 10-12 reps per arm. Bend at waist, pull to midsection with neutral grip. Rest 45 seconds between sets.",
+    "tags": [
+      "machine",
+      "gym"
+    ]
+  },
+  {
+    "id": "back_127",
+    "name": "Front Lat Pullover",
+    "type": "strength",
+    "primary_target_area": "back",
+    "secondary_target_areas": [
+      "biceps",
+      "shoulders"
+    ],
+    "movement_patterns": [
+      "pull",
+      "vertical_pull"
+    ],
+    "equipment": "cable_machine",
+    "required_space": "gym",
+    "difficulty": "intermediate",
+    "duration_minutes": 5,
+    "avoid_if_injured": [
+      "shoulder",
+      "elbow",
+      "wrist",
+      "neck",
+      "upper_back"
+    ],
+    "description": "3 sets of 10-12 reps. Keep arms straight, pull bar down from high pulley. Rest 60 seconds between sets.",
+    "tags": [
+      "machine",
+      "gym"
+    ]
+  },
+  {
+    "id": "back_128",
+    "name": "Seated Cable Mid Row",
+    "type": "strength",
+    "primary_target_area": "back",
+    "secondary_target_areas": [
+      "biceps",
+      "shoulders"
+    ],
+    "movement_patterns": [
+      "pull",
+      "horizontal_pull"
+    ],
+    "equipment": "cable_row_machine",
+    "required_space": "gym",
+    "difficulty": "beginner",
+    "duration_minutes": 6,
+    "avoid_if_injured": [
+      "lower_back",
+      "shoulder",
+      "elbow",
+      "wrist",
+      "upper_back"
+    ],
+    "description": "3 sets of 10-12 reps. Lean back slightly, pull back as far as possible, keep upper torso stationary. Rest 60 seconds between sets.",
+    "tags": [
+      "machine",
+      "gym",
+      "beginner_friendly"
+    ]
+  },
+  {
+    "id": "back_129",
+    "name": "Self Stabilizing Mid Row",
+    "type": "strength",
+    "primary_target_area": "back",
+    "secondary_target_areas": [
+      "biceps",
+      "rear_shoulders"
+    ],
+    "movement_patterns": [
+      "pull",
+      "horizontal_pull",
+      "core_stability"
+    ],
+    "equipment": "cable_machine",
+    "required_space": "gym",
+    "difficulty": "intermediate",
+    "duration_minutes": 5,
+    "avoid_if_injured": [
+      "lower_back",
+      "shoulder",
+      "elbow",
+      "wrist",
+      "upper_back",
+      "core"
+    ],
+    "description": "3 sets of 10-12 reps. Stand in front of machine without back support, pull bar back. Rest 60 seconds between sets.",
+    "tags": [
+      "machine",
+      "gym",
+      "core"
+    ]
+  },
+  {
+    "id": "biceps_130",
+    "name": "Cable Arm Curl",
+    "type": "strength",
+    "primary_target_area": "biceps",
+    "secondary_target_areas": [
+      "forearms"
+    ],
+    "movement_patterns": [
+      "pull",
+      "elbow_flexion",
+      "isolation"
+    ],
+    "equipment": "cable_machine",
+    "required_space": "gym",
+    "difficulty": "beginner",
+    "duration_minutes": 5,
+    "avoid_if_injured": [
+      "biceps",
+      "elbow",
+      "wrist",
+      "shoulder"
+    ],
+    "description": "3 sets of 12 reps. Keep elbows stationary, curl handles upward. Can vary grip and width. Rest 45 seconds between sets.",
+    "tags": [
+      "machine",
+      "gym",
+      "isolation",
+      "beginner_friendly"
+    ]
+  },
+  {
+    "id": "biceps_131",
+    "name": "Standing Bar Curl",
+    "type": "strength",
+    "primary_target_area": "biceps",
+    "secondary_target_areas": [
+      "forearms"
+    ],
+    "movement_patterns": [
+      "pull",
+      "elbow_flexion",
+      "isolation"
+    ],
+    "equipment": "cable_machine",
+    "required_space": "gym",
+    "difficulty": "beginner",
+    "duration_minutes": 5,
+    "avoid_if_injured": [
+      "biceps",
+      "elbow",
+      "wrist",
+      "shoulder",
+      "lower_back"
+    ],
+    "description": "3 sets of 10-12 reps. Use chain on low pulley, curl bar upward keeping elbows stationary. Rest 45 seconds between sets.",
+    "tags": [
+      "machine",
+      "gym",
+      "isolation",
+      "beginner_friendly"
+    ]
+  },
+  {
+    "id": "biceps_132",
+    "name": "Overhead Biceps Curl",
+    "type": "strength",
+    "primary_target_area": "biceps",
+    "secondary_target_areas": [
+      "forearms"
+    ],
+    "movement_patterns": [
+      "pull",
+      "elbow_flexion",
+      "isolation"
+    ],
+    "equipment": "cable_machine",
+    "required_space": "gym",
+    "difficulty": "intermediate",
+    "duration_minutes": 5,
+    "avoid_if_injured": [
+      "biceps",
+      "elbow",
+      "wrist",
+      "shoulder",
+      "neck"
+    ],
+    "description": "3 sets of 10-12 reps. Curl straight bar behind head from high pulley, keep upper arm stationary. Rest 45 seconds between sets.",
+    "tags": [
+      "machine",
+      "gym",
+      "isolation"
+    ]
+  },
+  {
+    "id": "biceps_133",
+    "name": "Arm Curl From Mid Pulley",
+    "type": "strength",
+    "primary_target_area": "biceps",
+    "secondary_target_areas": [
+      "forearms"
+    ],
+    "movement_patterns": [
+      "pull",
+      "elbow_flexion",
+      "isolation"
+    ],
+    "equipment": "cable_machine",
+    "required_space": "gym",
+    "difficulty": "intermediate",
+    "duration_minutes": 5,
+    "avoid_if_injured": [
+      "biceps",
+      "elbow",
+      "wrist",
+      "shoulder"
+    ],
+    "description": "3 sets of 10-12 reps. Sit facing back of machine, pull from mid pulley toward face while leaning back. Rest 45 seconds between sets.",
+    "tags": [
+      "machine",
+      "gym",
+      "isolation"
+    ]
+  },
+  {
+    "id": "triceps_134",
+    "name": "Triceps Pushdown",
+    "type": "strength",
+    "primary_target_area": "triceps",
+    "secondary_target_areas": [
+      "forearms"
+    ],
+    "movement_patterns": [
+      "push",
+      "elbow_extension",
+      "isolation"
+    ],
+    "equipment": "cable_machine",
+    "required_space": "gym",
+    "difficulty": "beginner",
+    "duration_minutes": 5,
+    "avoid_if_injured": [
+      "elbow",
+      "wrist",
+      "shoulder"
+    ],
+    "description": "3 sets of 12-15 reps. Push bar downward, flexing at elbow, use full range of motion. Rest 45 seconds between sets.",
+    "tags": [
+      "machine",
+      "gym",
+      "isolation",
+      "beginner_friendly"
+    ]
+  },
+  {
+    "id": "triceps_135",
+    "name": "Triceps Extension (Mid Pulley)",
+    "type": "strength",
+    "primary_target_area": "triceps",
+    "secondary_target_areas": [
+      "forearms"
+    ],
+    "movement_patterns": [
+      "push",
+      "elbow_extension",
+      "isolation"
+    ],
+    "equipment": "cable_machine",
+    "required_space": "gym",
+    "difficulty": "intermediate",
+    "duration_minutes": 5,
+    "avoid_if_injured": [
+      "elbow",
+      "wrist",
+      "shoulder"
+    ],
+    "description": "3 sets of 10-12 reps. Hold upper arm horizontal, extend lower arm at elbow. Rest 45 seconds between sets.",
+    "tags": [
+      "machine",
+      "gym",
+      "isolation"
+    ]
+  },
+  {
+    "id": "triceps_136",
+    "name": "Triceps Extension From High Pulley",
+    "type": "strength",
+    "primary_target_area": "triceps",
+    "secondary_target_areas": [
+      "forearms"
+    ],
+    "movement_patterns": [
+      "push",
+      "elbow_extension",
+      "isolation"
+    ],
+    "equipment": "cable_machine",
+    "required_space": "gym",
+    "difficulty": "intermediate",
+    "duration_minutes": 5,
+    "avoid_if_injured": [
+      "elbow",
+      "wrist",
+      "shoulder",
+      "neck"
+    ],
+    "description": "3 sets of 10-12 reps. Lean slightly forward, hold upper arm horizontal, extend at elbow. Rest 45 seconds between sets.",
+    "tags": [
+      "machine",
+      "gym",
+      "isolation"
+    ]
+  },
+  {
+    "id": "triceps_137",
+    "name": "Triceps Kickback",
+    "type": "strength",
+    "primary_target_area": "triceps",
+    "secondary_target_areas": [
+      "forearms"
+    ],
+    "movement_patterns": [
+      "push",
+      "elbow_extension",
+      "isolation"
+    ],
+    "equipment": "cable_machine",
+    "required_space": "gym",
+    "difficulty": "intermediate",
+    "duration_minutes": 5,
+    "avoid_if_injured": [
+      "elbow",
+      "wrist",
+      "shoulder",
+      "lower_back"
+    ],
+    "description": "3 sets of 12-15 reps per arm. Bend at waist, lock upper arm at side, extend at elbow. Rest 45 seconds between sets.",
+    "tags": [
+      "machine",
+      "gym",
+      "isolation"
+    ]
+  },
+  {
+    "id": "abs_138",
+    "name": "Ab Crunch (Machine)",
+    "type": "strength",
+    "primary_target_area": "abs",
+    "secondary_target_areas": [],
+    "movement_patterns": [
+      "flexion",
+      "core_stability"
+    ],
+    "equipment": "cable_machine",
+    "required_space": "gym",
+    "difficulty": "beginner",
+    "duration_minutes": 5,
+    "avoid_if_injured": [
+      "lower_back",
+      "neck",
+      "core"
+    ],
+    "description": "3 sets of 15-20 reps. Use ab strap over shoulders, crunch forward and downward using abs. Rest 45 seconds between sets.",
+    "tags": [
+      "machine",
+      "gym",
+      "beginner_friendly"
+    ]
+  },
+  {
+    "id": "abs_139",
+    "name": "Reverse Crunch (Seated Knee Raise)",
+    "type": "strength",
+    "primary_target_area": "abs",
+    "secondary_target_areas": [
+      "hip_flexors"
+    ],
+    "movement_patterns": [
+      "hip_flexion",
+      "core_stability"
+    ],
+    "equipment": "none",
+    "required_space": "minimal",
+    "difficulty": "beginner",
+    "duration_minutes": 4,
+    "avoid_if_injured": [
+      "lower_back",
+      "hip",
+      "core",
+      "neck"
+    ],
+    "description": "3 sets of 12-15 reps. Extend legs to horizontal, draw knees toward chest. Rest 30 seconds between sets.",
+    "tags": [
+      "no_equipment",
+      "beginner_friendly"
+    ]
+  },
+  {
+    "id": "abs_140",
+    "name": "Oblique Twist (Cable)",
+    "type": "strength",
+    "primary_target_area": "abs",
+    "secondary_target_areas": [
+      "obliques"
+    ],
+    "movement_patterns": [
+      "rotation",
+      "core_stability"
+    ],
+    "equipment": "cable_machine",
+    "required_space": "gym",
+    "difficulty": "intermediate",
+    "duration_minutes": 5,
+    "avoid_if_injured": [
+      "lower_back",
+      "shoulder",
+      "hip",
+      "core",
+      "neck"
+    ],
+    "description": "3 sets of 12-15 reps per side. Lock hips, twist upper torso. Rest 45 seconds between sets.",
+    "tags": [
+      "machine",
+      "gym",
+      "core"
+    ]
+  },
+  {
+    "id": "abs_141",
+    "name": "Side Bends (Cable)",
+    "type": "strength",
+    "primary_target_area": "abs",
+    "secondary_target_areas": [
+      "obliques"
+    ],
+    "movement_patterns": [
+      "lateral_flexion",
+      "core_stability"
+    ],
+    "equipment": "cable_machine",
+    "required_space": "gym",
+    "difficulty": "beginner",
+    "duration_minutes": 4,
+    "avoid_if_injured": [
+      "lower_back",
+      "hip",
+      "core",
+      "shoulder"
+    ],
+    "description": "3 sets of 12-15 reps per side. Lock hips, bend upper torso to opposite side. Rest 30 seconds between sets.",
+    "tags": [
+      "machine",
+      "gym",
+      "beginner_friendly"
+    ]
+  },
+  {
+    "id": "quads_142",
+    "name": "Leg Extension (Machine)",
+    "type": "strength",
+    "primary_target_area": "quads",
+    "secondary_target_areas": [],
+    "movement_patterns": [
+      "knee_extension",
+      "isolation"
+    ],
+    "equipment": "leg_extension_machine",
+    "required_space": "gym",
+    "difficulty": "beginner",
+    "duration_minutes": 5,
+    "avoid_if_injured": [
+      "knee",
+      "ankle"
+    ],
+    "description": "3 sets of 12-15 reps. Align knees with pivot point, extend legs to horizontal. Can do one leg at a time. Rest 45 seconds between sets.",
+    "tags": [
+      "machine",
+      "gym",
+      "isolation",
+      "beginner_friendly"
+    ]
+  },
+  {
+    "id": "hamstrings_143",
+    "name": "Standing Leg Curl",
+    "type": "strength",
+    "primary_target_area": "hamstrings",
+    "secondary_target_areas": [
+      "calves"
+    ],
+    "movement_patterns": [
+      "knee_flexion",
+      "isolation"
+    ],
+    "equipment": "leg_curl_machine",
+    "required_space": "gym",
+    "difficulty": "beginner",
+    "duration_minutes": 5,
+    "avoid_if_injured": [
+      "knee",
+      "hamstring",
+      "calf",
+      "hip"
+    ],
+    "description": "3 sets of 12 reps per leg. Bend knee backward and upward, use one leg at a time. Rest 45 seconds between sets.",
+    "tags": [
+      "machine",
+      "gym",
+      "isolation",
+      "beginner_friendly"
+    ]
+  },
+  {
+    "id": "hamstrings_144",
+    "name": "Seated Leg Curl",
+    "type": "strength",
+    "primary_target_area": "hamstrings",
+    "secondary_target_areas": [
+      "calves"
+    ],
+    "movement_patterns": [
+      "knee_flexion",
+      "isolation"
+    ],
+    "equipment": "leg_curl_machine",
+    "required_space": "gym",
+    "difficulty": "beginner",
+    "duration_minutes": 5,
+    "avoid_if_injured": [
+      "knee",
+      "hamstring",
+      "calf",
+      "hip"
+    ],
+    "description": "3 sets of 12 reps. Bend at knee pushing roller pads down, point toes for hamstring focus. Rest 45 seconds between sets.",
+    "tags": [
+      "machine",
+      "gym",
+      "isolation",
+      "beginner_friendly"
+    ]
+  },
+  {
+    "id": "quads_145",
+    "name": "Leg Press (Machine)",
+    "type": "strength",
+    "primary_target_area": "quads",
+    "secondary_target_areas": [
+      "glutes",
+      "hamstrings",
+      "calves"
+    ],
+    "movement_patterns": [
+      "squat",
+      "lower_body_push"
+    ],
+    "equipment": "leg_press_machine",
+    "required_space": "gym",
+    "difficulty": "beginner",
+    "duration_minutes": 6,
+    "avoid_if_injured": [
+      "knee",
+      "hip",
+      "ankle",
+      "lower_back"
+    ],
+    "description": "3 sets of 10-15 reps. Place feet on foot plates, press outward to full extension without locking knees. Rest 60 seconds between sets.",
+    "tags": [
+      "machine",
+      "gym",
+      "lower_body",
+      "beginner_friendly"
+    ]
+  },
+  {
+    "id": "calves_146",
+    "name": "Calf Raise (Machine)",
+    "type": "strength",
+    "primary_target_area": "calves",
+    "secondary_target_areas": [],
+    "movement_patterns": [
+      "plantar_flexion",
+      "isolation"
+    ],
+    "equipment": "leg_press_machine",
+    "required_space": "gym",
+    "difficulty": "beginner",
+    "duration_minutes": 4,
+    "avoid_if_injured": [
+      "calf",
+      "ankle",
+      "foot",
+      "knee"
+    ],
+    "description": "3 sets of 15-20 reps. Push outward flexing at ankle, do not lock knees. Angle feet to target different areas. Rest 30 seconds between sets.",
+    "tags": [
+      "machine",
+      "gym",
+      "isolation",
+      "beginner_friendly"
+    ]
+  },
+  {
+    "id": "glutes_147",
+    "name": "Hip Adduction",
+    "type": "strength",
+    "primary_target_area": "glutes",
+    "secondary_target_areas": [
+      "quads"
+    ],
+    "movement_patterns": [
+      "adduction",
+      "isolation"
+    ],
+    "equipment": "cable_machine",
+    "required_space": "gym",
+    "difficulty": "beginner",
+    "duration_minutes": 4,
+    "avoid_if_injured": [
+      "hip",
+      "knee",
+      "groin"
+    ],
+    "description": "3 sets of 12-15 reps per leg. Pull leg toward and across support leg using full range of motion. Rest 30 seconds between sets.",
+    "tags": [
+      "machine",
+      "gym",
+      "isolation",
+      "beginner_friendly"
+    ]
+  },
+  {
+    "id": "glutes_148",
+    "name": "Hip Abduction",
+    "type": "strength",
+    "primary_target_area": "glutes",
+    "secondary_target_areas": [
+      "quads"
+    ],
+    "movement_patterns": [
+      "abduction",
+      "isolation"
+    ],
+    "equipment": "cable_machine",
+    "required_space": "gym",
+    "difficulty": "beginner",
+    "duration_minutes": 4,
+    "avoid_if_injured": [
+      "hip",
+      "knee",
+      "groin"
+    ],
+    "description": "3 sets of 12-15 reps per leg. Pull leg outward away from support leg using full range of motion. Rest 30 seconds between sets.",
+    "tags": [
+      "machine",
+      "gym",
+      "isolation",
+      "beginner_friendly"
+    ]
+  },
+  {
+    "id": "glutes_149",
+    "name": "Glute Kick",
+    "type": "strength",
+    "primary_target_area": "glutes",
+    "secondary_target_areas": [
+      "hamstrings"
+    ],
+    "movement_patterns": [
+      "hip_extension",
+      "isolation"
+    ],
+    "equipment": "cable_machine",
+    "required_space": "gym",
+    "difficulty": "beginner",
+    "duration_minutes": 5,
+    "avoid_if_injured": [
+      "hip",
+      "knee",
+      "lower_back",
+      "hamstring"
+    ],
+    "description": "3 sets of 12-15 reps per leg. Pelvis tilted forward, extend hip and pull leg backward. Rest 45 seconds between sets.",
+    "tags": [
+      "machine",
+      "gym",
+      "isolation",
+      "beginner_friendly",
+      "glute_activation"
+    ]
+  },
+  {
+    "id": "functional_150",
+    "name": "Golf Swing (Cable)",
+    "type": "strength",
+    "primary_target_area": "core",
+    "secondary_target_areas": [
+      "shoulders",
+      "back",
+      "hips"
+    ],
+    "movement_patterns": [
+      "rotation",
+      "dynamic_movement"
+    ],
+    "equipment": "cable_machine",
+    "required_space": "gym",
+    "difficulty": "intermediate",
+    "duration_minutes": 5,
+    "avoid_if_injured": [
+      "shoulder",
+      "elbow",
+      "wrist",
+      "lower_back",
+      "hip",
+      "knee"
+    ],
+    "description": "3 sets of 10-12 reps per side. Assume golf stance, swing as if swinging a club. Vary arm height for different emphasis. Rest 45 seconds between sets.",
+    "tags": [
+      "machine",
+      "gym",
+      "sports_specific"
+    ]
+  },
+  {
+    "id": "functional_151",
+    "name": "Tennis Swing (Cable)",
+    "type": "strength",
+    "primary_target_area": "core",
+    "secondary_target_areas": [
+      "shoulders",
+      "back",
+      "hips"
+    ],
+    "movement_patterns": [
+      "rotation",
+      "dynamic_movement"
+    ],
+    "equipment": "cable_machine",
+    "required_space": "gym",
+    "difficulty": "intermediate",
+    "duration_minutes": 5,
+    "avoid_if_injured": [
+      "shoulder",
+      "elbow",
+      "wrist",
+      "lower_back",
+      "hip",
+      "knee"
+    ],
+    "description": "3 sets of 10-12 reps per side. Assume tennis backhand or forehand stance, swing as if hitting ball. Vary arm height. Rest 45 seconds between sets.",
+    "tags": [
+      "machine",
+      "gym",
+      "sports_specific"
+    ]
+  },
+  {
+    "id": "functional_152",
+    "name": "Baseball Pitch (Cable)",
+    "type": "strength",
+    "primary_target_area": "shoulders",
+    "secondary_target_areas": [
+      "core",
+      "back",
+      "triceps"
+    ],
+    "movement_patterns": [
+      "push",
+      "dynamic_movement"
+    ],
+    "equipment": "cable_machine",
+    "required_space": "gym",
+    "difficulty": "intermediate",
+    "duration_minutes": 5,
+    "avoid_if_injured": [
+      "shoulder",
+      "elbow",
+      "wrist",
+      "lower_back",
+      "neck"
+    ],
+    "description": "3 sets of 10-12 reps per side. Stand in front of machine, throw as if throwing a baseball. Use high pulley for downward emphasis. Rest 45 seconds between sets.",
+    "tags": [
+      "machine",
+      "gym",
+      "sports_specific"
+    ]
+  },
+  {
+    "id": "abs_201",
+    "name": "Hollow Body Hold",
+    "type": "strength",
+    "primary_target_area": "abs",
+    "secondary_target_areas": [
+      "hip_flexors",
+      "lower_back",
+      "shoulders"
+    ],
+    "movement_patterns": [
+      "anti_extension",
+      "core_stability",
+      "isometric"
+    ],
+    "equipment": "none",
+    "required_space": "minimal",
+    "difficulty": "intermediate",
+    "duration_minutes": 4,
+    "avoid_if_injured": [
+      "lower_back",
+      "neck",
+      "hip",
+      "core",
+      "shoulder"
+    ],
+    "description": "3 sets, hold for 20-40 seconds each. Lie on back, arms overhead, legs straight. Lift shoulders and legs off floor, creating a banana shape. Rest 30 seconds between sets.",
+    "tags": [
+      "no_equipment",
+      "travel",
+      "core",
+      "isometric"
+    ]
+  },
+  {
+    "id": "abs_202",
+    "name": "Ab Wheel Rollout",
+    "type": "strength",
+    "primary_target_area": "abs",
+    "secondary_target_areas": [
+      "lower_back",
+      "shoulders",
+      "hip_flexors"
+    ],
+    "movement_patterns": [
+      "anti_extension",
+      "core_stability"
+    ],
+    "equipment": "ab_wheel",
+    "required_space": "minimal",
+    "difficulty": "advanced",
+    "duration_minutes": 5,
+    "avoid_if_injured": [
+      "lower_back",
+      "shoulder",
+      "wrist",
+      "elbow",
+      "core",
+      "neck"
+    ],
+    "description": "3 sets of 8-12 reps. Kneel with ab wheel at knees, roll forward extending body, then pull back using core. Rest 60 seconds between sets.",
+    "tags": [
+      "equipment_needed",
+      "core",
+      "posterior_chain"
+    ]
+  },
+  {
+    "id": "abs_203",
+    "name": "Dragon Flag",
+    "type": "strength",
+    "primary_target_area": "abs",
+    "secondary_target_areas": [
+      "lower_back",
+      "hip_flexors",
+      "shoulders"
+    ],
+    "movement_patterns": [
+      "anti_extension",
+      "core_stability"
+    ],
+    "equipment": "bench_or_table",
+    "required_space": "minimal",
+    "difficulty": "advanced",
+    "duration_minutes": 5,
+    "avoid_if_injured": [
+      "lower_back",
+      "neck",
+      "shoulder",
+      "elbow",
+      "wrist",
+      "core",
+      "hip"
+    ],
+    "description": "3 sets of 5-8 reps. Lie on bench, grip behind head. Lift entire body off bench keeping it rigid, lower with control. Rest 60 seconds between sets.",
+    "tags": [
+      "minimal_equipment",
+      "core",
+      "bodyweight"
+    ]
+  },
+  {
+    "id": "abs_204",
+    "name": "Pallof Press",
+    "type": "strength",
+    "primary_target_area": "abs",
+    "secondary_target_areas": [
+      "obliques",
+      "shoulders"
+    ],
+    "movement_patterns": [
+      "anti_extension",
+      "core_stability",
+      "isolation"
+    ],
+    "equipment": "cable_machine",
+    "required_space": "gym",
+    "difficulty": "intermediate",
+    "duration_minutes": 5,
+    "avoid_if_injured": [
+      "lower_back",
+      "shoulder",
+      "elbow",
+      "wrist",
+      "core",
+      "hip"
+    ],
+    "description": "3 sets of 12 reps per side. Stand sideways to cable at chest height, press arms straight out resisting rotation. Rest 45 seconds between sets.",
+    "tags": [
+      "machine",
+      "gym",
+      "core",
+      "isolation"
+    ]
+  },
+  {
+    "id": "abs_205",
+    "name": "Turkish Get-Up",
+    "type": "strength",
+    "primary_target_area": "abs",
+    "secondary_target_areas": [
+      "shoulders",
+      "glutes",
+      "quads",
+      "core_stabilizers"
+    ],
+    "movement_patterns": [
+      "core_stability",
+      "dynamic_movement",
+      "full_body"
+    ],
+    "equipment": "dumbbells",
+    "required_space": "minimal",
+    "difficulty": "advanced",
+    "duration_minutes": 8,
+    "avoid_if_injured": [
+      "shoulder",
+      "wrist",
+      "elbow",
+      "knee",
+      "hip",
+      "lower_back",
+      "neck",
+      "core"
+    ],
+    "description": "3 sets of 3-5 reps per side. Lie with weight overhead, rise to standing through steps keeping weight stable. Rest 90 seconds between sets.",
+    "tags": [
+      "equipment_needed",
+      "full_body",
+      "core"
+    ]
+  },
+  {
+    "id": "abs_206",
+    "name": "L-Sit",
+    "type": "strength",
+    "primary_target_area": "abs",
+    "secondary_target_areas": [
+      "hip_flexors",
+      "triceps",
+      "shoulders"
+    ],
+    "movement_patterns": [
+      "core_stability",
+      "isometric"
+    ],
+    "equipment": "none",
+    "required_space": "minimal",
+    "difficulty": "advanced",
+    "duration_minutes": 4,
+    "avoid_if_injured": [
+      "wrist",
+      "shoulder",
+      "elbow",
+      "hip",
+      "core",
+      "lower_back"
+    ],
+    "description": "3 sets, hold for 10-30 seconds each. Sit on floor or dip bars, press hands down, lift legs straight out forming an L. Rest 45 seconds between sets.",
+    "tags": [
+      "no_equipment",
+      "travel",
+      "core",
+      "isometric",
+      "bodyweight"
+    ]
+  },
+  {
+    "id": "abs_207",
+    "name": "Cable Woodchop",
+    "type": "strength",
+    "primary_target_area": "abs",
+    "secondary_target_areas": [
+      "obliques",
+      "shoulders",
+      "hips"
+    ],
+    "movement_patterns": [
+      "rotation",
+      "core_stability"
+    ],
+    "equipment": "cable_machine",
+    "required_space": "gym",
+    "difficulty": "intermediate",
+    "duration_minutes": 5,
+    "avoid_if_injured": [
+      "lower_back",
+      "shoulder",
+      "elbow",
+      "wrist",
+      "core",
+      "hip",
+      "neck"
+    ],
+    "description": "3 sets of 12 reps per side. Stand sideways to cable machine, pull handle diagonally across body from high to low or reverse. Rest 45 seconds between sets.",
+    "tags": [
+      "machine",
+      "gym",
+      "core",
+      "sports_specific"
+    ]
+  },
+  {
+    "id": "abs_208",
+    "name": "Hanging Leg Raise",
+    "type": "strength",
+    "primary_target_area": "abs",
+    "secondary_target_areas": [
+      "hip_flexors",
+      "forearms"
+    ],
+    "movement_patterns": [
+      "hip_flexion",
+      "core_stability"
+    ],
+    "equipment": "pull_up_bar",
+    "required_space": "minimal",
+    "difficulty": "intermediate",
+    "duration_minutes": 5,
+    "avoid_if_injured": [
+      "shoulder",
+      "elbow",
+      "wrist",
+      "hand",
+      "neck",
+      "lower_back",
+      "core",
+      "hip"
+    ],
+    "description": "3 sets of 10-15 reps. Hang from pull-up bar, raise legs to 90 degrees or toes to bar using core control. Rest 60 seconds between sets.",
+    "tags": [
+      "equipment_needed",
+      "core",
+      "bodyweight"
+    ]
+  },
+  {
+    "id": "cardio_209",
+    "name": "High Knees",
+    "type": "cardio",
+    "primary_target_area": "full_body",
+    "secondary_target_areas": [
+      "calves",
+      "quads",
+      "hip_flexors",
+      "core"
+    ],
+    "movement_patterns": [
+      "jump",
+      "dynamic_movement"
+    ],
+    "equipment": "none",
+    "required_space": "minimal",
+    "difficulty": "beginner",
+    "duration_minutes": 3,
+    "avoid_if_injured": [
+      "knee",
+      "ankle",
+      "hip",
+      "lower_back",
+      "calf",
+      "toe"
+    ],
+    "description": "3 rounds of 30 seconds. Run in place driving knees above hip height, pump arms. Rest 30 seconds between rounds.",
+    "tags": [
+      "no_equipment",
+      "cardio",
+      "warmup",
+      "high_intensity"
+    ]
+  },
+  {
+    "id": "cardio_210",
+    "name": "Butt Kicks",
+    "type": "cardio",
+    "primary_target_area": "full_body",
+    "secondary_target_areas": [
+      "hamstrings",
+      "calves",
+      "quads"
+    ],
+    "movement_patterns": [
+      "dynamic_movement"
+    ],
+    "equipment": "none",
+    "required_space": "minimal",
+    "difficulty": "beginner",
+    "duration_minutes": 3,
+    "avoid_if_injured": [
+      "knee",
+      "hamstring",
+      "ankle",
+      "hip",
+      "calf",
+      "toe"
+    ],
+    "description": "3 rounds of 45 seconds. Run in place kicking heels toward glutes with quick turnover. Rest 30 seconds between rounds.",
+    "tags": [
+      "no_equipment",
+      "cardio",
+      "warmup"
+    ]
+  },
+  {
+    "id": "cardio_211",
+    "name": "Box Jumps",
+    "type": "cardio",
+    "primary_target_area": "full_body",
+    "secondary_target_areas": [
+      "quads",
+      "glutes",
+      "calves",
+      "core"
+    ],
+    "movement_patterns": [
+      "jump",
+      "squat",
+      "lower_body_push"
+    ],
+    "equipment": "bench_or_table",
+    "required_space": "minimal",
+    "difficulty": "intermediate",
+    "duration_minutes": 5,
+    "avoid_if_injured": [
+      "knee",
+      "ankle",
+      "hip",
+      "lower_back",
+      "calf",
+      "toe"
+    ],
+    "description": "3 sets of 10 reps. Stand facing plyo box, squat and jump onto box landing softly, step down. Rest 60 seconds between sets.",
+    "tags": [
+      "minimal_equipment",
+      "cardio",
+      "high_intensity",
+      "lower_body"
+    ]
+  },
+  {
+    "id": "cardio_212",
+    "name": "Battle Ropes",
+    "type": "cardio",
+    "primary_target_area": "full_body",
+    "secondary_target_areas": [
+      "shoulders",
+      "core",
+      "forearms"
+    ],
+    "movement_patterns": [
+      "dynamic_movement",
+      "full_body"
+    ],
+    "equipment": "none",
+    "required_space": "minimal",
+    "difficulty": "intermediate",
+    "duration_minutes": 5,
+    "avoid_if_injured": [
+      "shoulder",
+      "elbow",
+      "wrist",
+      "lower_back",
+      "core",
+      "neck"
+    ],
+    "description": "3 rounds of 30 seconds. Hold rope ends, alternate whipping waves up and down explosively. Rest 30 seconds between rounds.",
+    "tags": [
+      "no_equipment",
+      "cardio",
+      "high_intensity",
+      "full_body"
+    ]
+  },
+  {
+    "id": "cardio_213",
+    "name": "Sled Push",
+    "type": "cardio",
+    "primary_target_area": "full_body",
+    "secondary_target_areas": [
+      "quads",
+      "glutes",
+      "calves",
+      "shoulders",
+      "core"
+    ],
+    "movement_patterns": [
+      "push",
+      "lower_body_push",
+      "full_body"
+    ],
+    "equipment": "none",
+    "required_space": "gym",
+    "difficulty": "intermediate",
+    "duration_minutes": 6,
+    "avoid_if_injured": [
+      "knee",
+      "hip",
+      "ankle",
+      "lower_back",
+      "shoulder",
+      "elbow",
+      "wrist",
+      "calf"
+    ],
+    "description": "3 sets of 20-30 meters. Load sled with weight, drive forward pushing through legs with arms extended. Rest 90 seconds between sets.",
+    "tags": [
+      "gym",
+      "cardio",
+      "high_intensity",
+      "lower_body"
+    ]
+  },
+  {
+    "id": "cardio_214",
+    "name": "Kettlebell Swing",
+    "type": "cardio",
+    "primary_target_area": "full_body",
+    "secondary_target_areas": [
+      "glutes",
+      "hamstrings",
+      "lower_back",
+      "shoulders",
+      "core"
+    ],
+    "movement_patterns": [
+      "hip_hinge",
+      "dynamic_movement",
+      "posterior_chain"
+    ],
+    "equipment": "dumbbells",
+    "required_space": "minimal",
+    "difficulty": "intermediate",
+    "duration_minutes": 5,
+    "avoid_if_injured": [
+      "lower_back",
+      "hamstring",
+      "hip",
+      "knee",
+      "shoulder",
+      "wrist",
+      "elbow"
+    ],
+    "description": "3 sets of 15-20 reps. Hinge at hips, swing weight to chest height using hip snap not arms. Rest 60 seconds between sets.",
+    "tags": [
+      "equipment_needed",
+      "cardio",
+      "posterior_chain",
+      "high_intensity"
+    ]
+  },
+  {
+    "id": "cardio_215",
+    "name": "Rowing Machine Sprint",
+    "type": "cardio",
+    "primary_target_area": "full_body",
+    "secondary_target_areas": [
+      "back",
+      "quads",
+      "glutes",
+      "core",
+      "shoulders"
+    ],
+    "movement_patterns": [
+      "pull",
+      "push",
+      "dynamic_movement",
+      "full_body"
+    ],
+    "equipment": "none",
+    "required_space": "gym",
+    "difficulty": "intermediate",
+    "duration_minutes": 8,
+    "avoid_if_injured": [
+      "lower_back",
+      "shoulder",
+      "elbow",
+      "wrist",
+      "knee",
+      "hip",
+      "ankle"
+    ],
+    "description": "4-6 rounds of 250m sprints at max effort. Set rower to damper 3-5. Rest 1 minute between rounds.",
+    "tags": [
+      "gym",
+      "cardio",
+      "high_intensity",
+      "full_body"
+    ]
+  },
+  {
+    "id": "cardio_216",
+    "name": "Assault Bike Sprint",
+    "type": "cardio",
+    "primary_target_area": "full_body",
+    "secondary_target_areas": [
+      "quads",
+      "glutes",
+      "calves",
+      "shoulders",
+      "core"
+    ],
+    "movement_patterns": [
+      "dynamic_movement",
+      "full_body"
+    ],
+    "equipment": "none",
+    "required_space": "gym",
+    "difficulty": "advanced",
+    "duration_minutes": 8,
+    "avoid_if_injured": [
+      "knee",
+      "hip",
+      "ankle",
+      "shoulder",
+      "elbow",
+      "wrist",
+      "lower_back",
+      "calf"
+    ],
+    "description": "8-10 rounds of 20 seconds max effort. Pedal arms and legs simultaneously at max effort. Rest 40 seconds between rounds.",
+    "tags": [
+      "gym",
+      "cardio",
+      "high_intensity",
+      "full_body"
+    ]
+  },
+  {
+    "id": "cardio_217",
+    "name": "Steady-State Jogging",
+    "type": "cardio",
+    "primary_target_area": "full_body",
+    "secondary_target_areas": [
+      "quads",
+      "calves",
+      "glutes",
+      "hamstrings",
+      "core"
+    ],
+    "movement_patterns": [
+      "dynamic_movement"
+    ],
+    "equipment": "none",
+    "required_space": "minimal",
+    "difficulty": "beginner",
+    "duration_minutes": 30,
+    "avoid_if_injured": [
+      "knee",
+      "ankle",
+      "hip",
+      "lower_back",
+      "calf",
+      "foot",
+      "toe",
+      "hamstring"
+    ],
+    "description": "Maintain a comfortable conversational pace for 20-45 minutes. Keep cadence light, land mid-foot. Builds aerobic base and endurance.",
+    "tags": [
+      "no_equipment",
+      "cardio",
+      "beginner_friendly",
+      "endurance"
+    ]
+  },
+  {
+    "id": "cardio_218",
+    "name": "Interval Sprinting",
+    "type": "cardio",
+    "primary_target_area": "full_body",
+    "secondary_target_areas": [
+      "quads",
+      "calves",
+      "glutes",
+      "hamstrings",
+      "core"
+    ],
+    "movement_patterns": [
+      "dynamic_movement",
+      "full_body"
+    ],
+    "equipment": "none",
+    "required_space": "minimal",
+    "difficulty": "advanced",
+    "duration_minutes": 15,
+    "avoid_if_injured": [
+      "knee",
+      "ankle",
+      "hip",
+      "hamstring",
+      "calf",
+      "foot",
+      "toe",
+      "lower_back"
+    ],
+    "description": "Sprint at 90-100% effort for 30 seconds, then walk or jog for 60-90 seconds to recover. Repeat 8-12 rounds. Maximizes calorie burn and speed.",
+    "tags": [
+      "no_equipment",
+      "cardio",
+      "high_intensity",
+      "speed"
+    ]
+  },
+  {
+    "id": "cardio_219",
+    "name": "Tempo Run",
+    "type": "cardio",
+    "primary_target_area": "full_body",
+    "secondary_target_areas": [
+      "quads",
+      "calves",
+      "glutes",
+      "hamstrings",
+      "core"
+    ],
+    "movement_patterns": [
+      "dynamic_movement"
+    ],
+    "equipment": "none",
+    "required_space": "minimal",
+    "difficulty": "intermediate",
+    "duration_minutes": 25,
+    "avoid_if_injured": [
+      "knee",
+      "ankle",
+      "hip",
+      "lower_back",
+      "calf",
+      "foot",
+      "toe",
+      "hamstring"
+    ],
+    "description": "Run at a comfortably hard pace \u2014 faster than jogging, slower than sprinting \u2014 for 15-30 minutes. Sustains lactate threshold.",
+    "tags": [
+      "no_equipment",
+      "cardio",
+      "endurance"
+    ]
+  },
+  {
+    "id": "cardio_220",
+    "name": "Hill Sprints",
+    "type": "cardio",
+    "primary_target_area": "full_body",
+    "secondary_target_areas": [
+      "quads",
+      "glutes",
+      "calves",
+      "hamstrings",
+      "core"
+    ],
+    "movement_patterns": [
+      "dynamic_movement",
+      "lower_body_push"
+    ],
+    "equipment": "none",
+    "required_space": "minimal",
+    "difficulty": "advanced",
+    "duration_minutes": 15,
+    "avoid_if_injured": [
+      "knee",
+      "ankle",
+      "hip",
+      "hamstring",
+      "calf",
+      "foot",
+      "toe",
+      "lower_back"
+    ],
+    "description": "Sprint up a steep incline for 20-40 meters, walk down to recover. 6-10 rounds. Builds explosive power and leg strength.",
+    "tags": [
+      "no_equipment",
+      "cardio",
+      "high_intensity",
+      "lower_body"
+    ]
+  },
+  {
+    "id": "cardio_221",
+    "name": "Fartlek Run",
+    "type": "cardio",
+    "primary_target_area": "full_body",
+    "secondary_target_areas": [
+      "quads",
+      "calves",
+      "glutes",
+      "hamstrings",
+      "core"
+    ],
+    "movement_patterns": [
+      "dynamic_movement"
+    ],
+    "equipment": "none",
+    "required_space": "minimal",
+    "difficulty": "intermediate",
+    "duration_minutes": 30,
+    "avoid_if_injured": [
+      "knee",
+      "ankle",
+      "hip",
+      "lower_back",
+      "calf",
+      "foot",
+      "toe",
+      "hamstring"
+    ],
+    "description": "Mix jogging, running, and sprinting at random intervals during a continuous run. Example: jog 5 min, run hard 2 min, sprint 30 sec, repeat.",
+    "tags": [
+      "no_equipment",
+      "cardio",
+      "endurance",
+      "speed"
+    ]
+  }
+]
