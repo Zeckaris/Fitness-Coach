@@ -4,6 +4,7 @@ ensure_week_plan_exists is read-only; it never creates.
 """
 
 from datetime import datetime, timedelta
+import calendar
 from zoneinfo import ZoneInfo
 from typing import List, Optional
 
@@ -28,19 +29,30 @@ def _get_week_id_for_date(date_str: str) -> str:
     return sunday.strftime("%Y-%m-%d")
 
 
+def _weeks_in_month(month_id: str) -> int:
+    """Number of 7-day windows in this month, day-1 anchored (4 or 5)."""
+    year, month = map(int, month_id.split("-"))
+    days_in_month = calendar.monthrange(year, month)[1]
+    return -(-days_in_month // 7)  # ceil division
+
+
 def _get_week_number_from_date(date_str: str) -> int:
-    """Determine week number (1-4) from date within the month."""
+    """Determine week number within the month, using the real week count (4 or 5)."""
     date_obj = datetime.strptime(date_str, "%Y-%m-%d").date()
     month_start = date_obj.replace(day=1)
     days_since_month_start = (date_obj - month_start).days
-    return min(4, (days_since_month_start // 7) + 1)
+    total_weeks = _weeks_in_month(date_obj.strftime("%Y-%m"))
+    return min(total_weeks, (days_since_month_start // 7) + 1)
 
 
-def _calculate_week_targets(month_goal: dict, week_number: int, total_weeks: int = 4) -> dict:
+def _calculate_week_targets(month_goal: dict, week_number: int, total_weeks: Optional[int] = None) -> dict:
     """Calculate remaining volume targets for a given week."""
     volume_targets = month_goal.get("volume_targets") or []
     if not volume_targets:
         return {}
+
+    if total_weeks is None:
+        total_weeks = _weeks_in_month(_current_month_id())
 
     from db.mongo_client import get_plans_collection
     plans = get_plans_collection()
