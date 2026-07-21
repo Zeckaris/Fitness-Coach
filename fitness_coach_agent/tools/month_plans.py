@@ -2,7 +2,7 @@
 
 import json
 import os
-from datetime import datetime
+from datetime import datetime, timedelta
 from zoneinfo import ZoneInfo
 from typing import List, Optional, Literal
 
@@ -25,6 +25,23 @@ with open(_WORKOUTS_PATH, "r") as f:
     _WORKOUTS = json.load(f)
 
 _VALID_EXERCISE_NAMES = {w["name"] for w in _WORKOUTS}
+
+
+def _previous_month_id() -> str:
+    today = datetime.now(LOCAL_TZ).date()
+    first_day = today.replace(day=1)
+    prev_month = first_day - timedelta(days=1)
+    return prev_month.strftime("%Y-%m")
+
+
+def get_previous_month_review_context() -> Optional[str]:
+    """Coaching context from last month's close-out, for goal_context_node. None if none exists."""
+    collection = get_month_plans_collection()
+    doc = collection.find_one({"user_id": DEFAULT_USER_ID, "month_id": _previous_month_id()})
+    if not doc:
+        return None
+    close_out = doc.get("close_out_summary") or {}
+    return close_out.get("coaching_context") or None
 
 
 def _current_month_id() -> str:
