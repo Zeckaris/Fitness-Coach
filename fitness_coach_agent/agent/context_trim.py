@@ -16,7 +16,7 @@ from langchain_core.messages import AIMessage, ToolMessage, HumanMessage
 UNTRIMMED_TOOLS = {
     "record_checkin",
     "update_three_day_plan",
-    "get_recent_checkins",
+    "update_week_plan",
 }
 
 
@@ -31,7 +31,7 @@ def _placeholder_for(tool_name: str, args: dict, content: str) -> str:
     the payload forward.
     """
     if tool_name == "search_workout_library":
-        names = [n.strip() for n in re.findall(r"^- ([^(]+) \(", content, flags=re.MULTILINE)]
+        names = [n.strip() for n in re.findall(r"^- ([^(]+)", content, flags=re.MULTILINE)]
         shown = ", ".join(names) if names else "no matches"
         return (
             f"[Earlier search_workout_library call: suggested {shown} - "
@@ -93,7 +93,7 @@ def _trim_turn(turn: list) -> list:
                 paired.append(turn[j])
                 j += 1
 
-            out.append(msg)  # tool-call request: always kept, never rewritten
+            out.append(msg) 
             for tm in paired:
                 call = call_by_id.get(tm.tool_call_id, {})
                 tool_name = call.get("name", getattr(tm, "name", ""))
