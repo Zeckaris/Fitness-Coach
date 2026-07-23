@@ -68,7 +68,7 @@ TOOLS = [
 ]
 
 def get_llm()->ChatGoogleGenerativeAI:
-    llm = ChatGoogleGenerativeAI( model="gemini-3.5-flash", temperature=0.4, api_key=GEMINI_API_KEY)
+    llm = ChatGoogleGenerativeAI( model="gemini-3.5-flash-lite", temperature=0.4, api_key=GEMINI_API_KEY)
     return llm.bind_tools(TOOLS)
 
 
