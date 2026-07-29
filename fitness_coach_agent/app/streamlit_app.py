@@ -19,11 +19,13 @@ from streamlit.components.v1 import html
 
 from agent.graph import build_graph
 from db.mongo_client import get_plans_collection, get_month_plans_collection
-from tools.plans import LOCAL_TZ, DEFAULT_USER_ID
+from tools.plans import LOCAL_TZ
 from tools.progress import calculate_progress
 from tools.month_plans import format_month_plan, _current_month_id
 from tools.week_plans import format_week_plan, _find_week_doc_for_date
 from agent.monthly_review import run_monthly_review
+from app.components.auth_ui import ensure_logged_in, render_logout_button
+from auth.context import get_current_user_id
 
 
 
@@ -56,7 +58,7 @@ def get_forward_plan_docs() -> list:
     docs = []
     for offset in (1, 2, 3):
         date = (today + timedelta(days=offset)).strftime("%Y-%m-%d")
-        doc = collection.find_one({"user_id": DEFAULT_USER_ID, "date": date})
+        doc = collection.find_one({"user_id": get_current_user_id(), "date": date})
         docs.append((date, doc))
     return docs
 
@@ -64,7 +66,7 @@ def get_forward_plan_docs() -> list:
 def get_today_plan() -> dict | None:
     """Fetch today's plan if it exists."""
     collection = get_plans_collection()
-    return collection.find_one({"user_id": DEFAULT_USER_ID, "date": get_today_str()})
+    return collection.find_one({"user_id": get_current_user_id(), "date": get_today_str()})
 
 
 def create_today_plan(exercises: list, focus_area: str = "full_body", duration_minutes: int = 45) -> dict:
@@ -72,7 +74,7 @@ def create_today_plan(exercises: list, focus_area: str = "full_body", duration_m
     collection = get_plans_collection()
     today = get_today_str()
     doc = {
-        "user_id": DEFAULT_USER_ID,
+        "user_id": get_current_user_id(),
         "date": today,
         "focus_area": focus_area,
         "status": "planned",
@@ -83,7 +85,7 @@ def create_today_plan(exercises: list, focus_area: str = "full_body", duration_m
         "updated_at": datetime.now(ZoneInfo("UTC")),
     }
     collection.update_one(
-        {"user_id": DEFAULT_USER_ID, "date": today},
+        {"user_id": get_current_user_id(), "date": today},
         {"$set": doc},
         upsert=True,
     )
@@ -94,7 +96,7 @@ def update_today_exercise_completion(exercise_idx: int, field: str, value):
     collection = get_plans_collection()
     today = get_today_str()
     collection.update_one(
-        {"user_id": DEFAULT_USER_ID, "date": today},
+        {"user_id": get_current_user_id(), "date": today},
         {"$set": {f"exercises.{exercise_idx}.{field}": value}},
     )
 
@@ -104,7 +106,7 @@ def finish_today_plan():
     collection = get_plans_collection()
     today = get_today_str()
     collection.update_one(
-        {"user_id": DEFAULT_USER_ID, "date": today},
+        {"user_id": get_current_user_id(), "date": today},
         {"$set": {"status": "completed", "completed_at": datetime.now(ZoneInfo("UTC"))}},
     )
 
@@ -153,7 +155,7 @@ def render_progress_dashboard():
 
 def render_month_goal():
     collection = get_month_plans_collection()
-    doc = collection.find_one({"user_id": DEFAULT_USER_ID, "month_id": _current_month_id()})
+    doc = collection.find_one({"user_id": get_current_user_id(), "month_id": _current_month_id()})
 
     with st.container(border=True):
         st.markdown("### 🎯 Monthly Goal")
@@ -583,6 +585,7 @@ def render_chat():
 #  Main App 
 
 st.set_page_config(page_title="AI Fitness Coach", page_icon="🏋️", layout="wide")
+ensure_logged_in()
 
 if "graph" not in st.session_state:
     st.session_state.graph = build_graph()
@@ -593,11 +596,10 @@ if "history" not in st.session_state:
 if "active_tab" not in st.session_state:
     st.session_state.active_tab = "Chat"
 
-st.title("🏋️ AI Fitness Coach")
-st.caption("Workout sessions, guided flow, progress dashboard, week/month horizons.")
 
 with st.sidebar:
     st.button("🆕 New Conversation", on_click=start_new_conversation)
+    render_logout_button()
     st.caption(f"Session: {st.session_state.thread_id[:8]}")
     st.divider()
     st.markdown("**Review Pipelines**")
@@ -619,7 +621,7 @@ with st.sidebar:
     st.markdown("**Quick Actions**")
     if st.button("🗑️ Clear Today's Plan", use_container_width=True):
         collection = get_plans_collection()
-        collection.delete_one({"user_id": DEFAULT_USER_ID, "date": get_today_str()})
+        collection.delete_one({"user_id": get_current_user_id(), "date": get_today_str()})
         st.session_state.workout_state = {
             "status": "idle", "current_exercise_idx": 0,
             "current_set": 1, "timer_end": None, "rest_seconds": 30,
