@@ -10,8 +10,8 @@ from langchain_core.tools import tool
 from pydantic import BaseModel, Field, model_validator
 
 from db.mongo_client import get_month_plans_collection
+from auth.context import get_current_user_id
 
-DEFAULT_USER_ID = "default_user"
 LOCAL_TZ = ZoneInfo("Africa/Addis_Ababa")
 
 
@@ -37,7 +37,7 @@ def _previous_month_id() -> str:
 def get_previous_month_review_context() -> Optional[str]:
     """Coaching context from last month's close-out, for goal_context_node. None if none exists."""
     collection = get_month_plans_collection()
-    doc = collection.find_one({"user_id": DEFAULT_USER_ID, "month_id": _previous_month_id()})
+    doc = collection.find_one({"user_id": get_current_user_id(), "month_id": _previous_month_id()})
     if not doc:
         return None
     close_out = doc.get("close_out_summary") or {}
@@ -105,7 +105,7 @@ def stage_month_goal(
     collection = get_month_plans_collection()
     month_id = _current_month_id()
 
-    existing = collection.find_one({"user_id": DEFAULT_USER_ID, "month_id": month_id})
+    existing = collection.find_one({"user_id": get_current_user_id(), "month_id": month_id})
     if existing and existing.get("goal", {}).get("status") == "confirmed":
         return f"Goal already confirmed for {month_id}. Cannot change."
 
@@ -135,7 +135,7 @@ def stage_month_goal(
     }
 
     collection.update_one(
-        {"user_id": DEFAULT_USER_ID, "month_id": month_id},
+        {"user_id": get_current_user_id(), "month_id": month_id},
         {
             "$set": {"goal": goal, "updated_at": now},
             "$setOnInsert": {"created_at": now, "week_plan_path": []},
@@ -151,13 +151,13 @@ def confirm_month_goal() -> str:
     collection = get_month_plans_collection()
     month_id = _current_month_id()
 
-    existing = collection.find_one({"user_id": DEFAULT_USER_ID, "month_id": month_id})
+    existing = collection.find_one({"user_id": get_current_user_id(), "month_id": month_id})
     if not existing or existing.get("goal", {}).get("status") != "pending":
         return "No staged goal waiting for confirmation."
 
     now = datetime.now(ZoneInfo("UTC"))
     collection.update_one(
-        {"user_id": DEFAULT_USER_ID, "month_id": month_id},
+        {"user_id": get_current_user_id(), "month_id": month_id},
         {"$set": {"goal.status": "confirmed", "goal.confirmed_at": now, "updated_at": now}},
     )
     return f"Goal confirmed for {month_id}. Locked for the month."
@@ -194,7 +194,7 @@ def format_month_plan(doc: Optional[dict]) -> str:
 def get_current_goal_summary() -> Optional[str]:
     """One-line confirmed goal summary for goal_context_node. Returns None if none."""
     collection = get_month_plans_collection()
-    doc = collection.find_one({"user_id": DEFAULT_USER_ID, "month_id": _current_month_id()})
+    doc = collection.find_one({"user_id": get_current_user_id(), "month_id": _current_month_id()})
     goal = doc.get("goal") if doc else None
 
     if not goal or goal.get("status") != "confirmed":
@@ -206,7 +206,7 @@ def get_current_goal_summary() -> Optional[str]:
 def get_current_month_plan() -> str:
     """Fetch month goal + week themes. Use when user asks for detail beyond context."""
     collection = get_month_plans_collection()
-    doc = collection.find_one({"user_id": DEFAULT_USER_ID, "month_id": _current_month_id()})
+    doc = collection.find_one({"user_id": get_current_user_id(), "month_id": _current_month_id()})
     return format_month_plan(doc)
 
 
@@ -226,7 +226,7 @@ def update_month_plan(week_plan_path: List[WeekThemeInput]) -> str:
     month_id = _current_month_id()
 
     result = collection.update_one(
-        {"user_id": DEFAULT_USER_ID, "month_id": month_id, "goal": {"$exists": True}},
+        {"user_id": get_current_user_id(), "month_id": month_id, "goal": {"$exists": True}},
         {
             "$set": {
                 "week_plan_path": [t.model_dump() for t in week_plan_path],

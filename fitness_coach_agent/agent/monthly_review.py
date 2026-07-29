@@ -23,8 +23,8 @@ from tools.month_plans import _current_month_id
 from tools.week_plans import _weeks_in_month
 from tools.progress import calculate_progress
 from agent.prompts import MONTHLY_REVIEW_PROMPT, THEME_PATH_PROMPT
+from auth.context import get_current_user_id
 
-DEFAULT_USER_ID = "default_user"
 LOCAL_TZ = ZoneInfo("Africa/Addis_Ababa")
 GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY")
 
@@ -75,7 +75,7 @@ def _generate_review(summary: dict) -> dict:
 def close_out_month(month_id: str) -> dict:
     """Compute final adherence/metric delta, then LLM-generate narrative + coaching context."""
     month_plans = get_month_plans_collection()
-    doc = month_plans.find_one({"user_id": DEFAULT_USER_ID, "month_id": month_id})
+    doc = month_plans.find_one({"user_id": get_current_user_id(), "month_id": month_id})
     if not doc:
         return {"status": "no_doc"}
 
@@ -97,7 +97,7 @@ def close_out_month(month_id: str) -> dict:
     summary["coaching_context"] = review["coaching_context"]
 
     month_plans.update_one(
-        {"user_id": DEFAULT_USER_ID, "month_id": month_id},
+        {"user_id": get_current_user_id(), "month_id": month_id},
         {"$set": {"close_out_summary": summary, "updated_at": datetime.now(ZoneInfo("UTC"))}},
     )
     return summary
@@ -141,19 +141,19 @@ def refresh_week_themes() -> str:
     """Set this month's theme path, length = actual calendar weeks in the month."""
     month_plans = get_month_plans_collection()
     current_month = _current_month_id()
-    doc = month_plans.find_one({"user_id": DEFAULT_USER_ID, "month_id": current_month})
+    doc = month_plans.find_one({"user_id": get_current_user_id(), "month_id": current_month})
 
     if not doc or not doc.get("goal") or doc["goal"].get("status") != "confirmed":
         return "No confirmed goal for this month. Set a goal first."
 
     total_weeks = _weeks_in_month(current_month)
-    prev_doc = month_plans.find_one({"user_id": DEFAULT_USER_ID, "month_id": _previous_month_id()})
+    prev_doc = month_plans.find_one({"user_id": get_current_user_id(), "month_id": _previous_month_id()})
     prev_close_out = (prev_doc or {}).get("close_out_summary") or {}
 
     week_plan_path = generate_theme_path(prev_close_out, doc["goal"], total_weeks)
 
     month_plans.update_one(
-        {"user_id": DEFAULT_USER_ID, "month_id": current_month},
+        {"user_id": get_current_user_id(), "month_id": current_month},
         {"$set": {
             "week_plan_path": week_plan_path,
             "updated_at": datetime.now(ZoneInfo("UTC"))

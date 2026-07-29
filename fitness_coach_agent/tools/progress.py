@@ -8,8 +8,8 @@ from langchain_core.tools import tool
 
 from db.mongo_client import get_plans_collection, get_month_plans_collection
 from tools.metrics import get_latest_metric
+from auth.context import get_current_user_id
 
-DEFAULT_USER_ID = "default_user"
 LOCAL_TZ = ZoneInfo("Africa/Addis_Ababa")
 ADHERENCE_WINDOW_DAYS = 7
 
@@ -32,7 +32,7 @@ def _calculate_adherence() -> dict:
     today_str = today.strftime("%Y-%m-%d")
 
     docs = plans.find({
-        "user_id": DEFAULT_USER_ID,
+        "user_id": get_current_user_id(),
         "status": {"$in": ["planned", "completed"]},
         "date": {"$gte": window_start, "$lte": today_str},
     })
@@ -66,7 +66,7 @@ def _calculate_volume_progress(goal: dict, month_id: str) -> list:
     results = []
     for vt in volume_targets:
         docs = plans.find({
-            "user_id": DEFAULT_USER_ID,
+            "user_id": get_current_user_id(),
             "date": {"$regex": f"^{month_id}"},
             "exercises.name": vt["exercise"],
         })
@@ -126,7 +126,7 @@ def calculate_progress(month_id: str = None) -> dict:
         month_id = _current_month_id()
 
     month_plans = get_month_plans_collection()
-    doc = month_plans.find_one({"user_id": DEFAULT_USER_ID, "month_id": month_id})
+    doc = month_plans.find_one({"user_id": get_current_user_id(), "month_id": month_id})
     goal = doc.get("goal") if doc else None
     has_confirmed_goal = bool(goal) and goal.get("status") == "confirmed"
 

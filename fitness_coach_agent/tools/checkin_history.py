@@ -12,8 +12,9 @@ from typing import Optional
 from langchain_core.tools import tool
 
 from db.mongo_client import get_checkins_collection
+from auth.context import get_current_user_id
 
-DEFAULT_USER_ID = "default_user"
+
 
 # Hardcoded until per-user timezone support exists.
 # Must match tools/checkins.py's LOCAL_TZ.
@@ -70,7 +71,7 @@ def fetch_checkin(date: str) -> str:
     never depends on the LLM deciding to call anything.
     """
     collection = get_checkins_collection()
-    doc = collection.find_one({"user_id": DEFAULT_USER_ID, "date": date})
+    doc = collection.find_one({"user_id": get_current_user_id(), "date": date})
     return format_checkin(doc, date)
 
 

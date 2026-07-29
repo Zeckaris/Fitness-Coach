@@ -12,8 +12,8 @@ from langchain_core.tools import tool
 from pydantic import BaseModel, Field
 
 from db.mongo_client import get_week_plans_collection, get_month_plans_collection
+from auth.context import get_current_user_id
 
-DEFAULT_USER_ID = "default_user"
 LOCAL_TZ = ZoneInfo("Africa/Addis_Ababa")
 
 
@@ -65,7 +65,7 @@ def _calculate_week_targets(month_goal: dict, week_number: int, total_weeks: Opt
         unit = vt["unit"]
 
         docs = plans.find({
-            "user_id": DEFAULT_USER_ID,
+            "user_id": get_current_user_id(),
             "date": {"$regex": f"^{month_id}"},
             "exercises.name": exercise,
         })
@@ -98,7 +98,7 @@ def ensure_week_plan_exists(target_date: str) -> bool:
     week_plans = get_week_plans_collection()
 
     existing = week_plans.find_one({
-        "user_id": DEFAULT_USER_ID,
+        "user_id": get_current_user_id(),
         "week_id": week_id
     })
     return existing is not None
@@ -106,10 +106,10 @@ def ensure_week_plan_exists(target_date: str) -> bool:
 
 def _find_week_doc_for_date(date_str: str) -> Optional[dict]:
     collection = get_week_plans_collection()
-    doc = collection.find_one({"user_id": DEFAULT_USER_ID, "blocks.dates": date_str})
+    doc = collection.find_one({"user_id": get_current_user_id(), "blocks.dates": date_str})
     if doc:
         return doc
-    return collection.find_one({"user_id": DEFAULT_USER_ID}, sort=[("week_id", -1)])
+    return collection.find_one({"user_id": get_current_user_id()}, sort=[("week_id", -1)])
 
 
 def get_week_focus_for_date(date_str: str) -> Optional[str]:
@@ -175,7 +175,7 @@ def update_week_plan(
     # Guard: week_plan_path must be set by monthly review
     month_plans = get_month_plans_collection()
     month_doc = month_plans.find_one({
-        "user_id": DEFAULT_USER_ID,
+        "user_id": get_current_user_id(),
         "month_id": _current_month_id()
     })
     week_plan_path = month_doc.get("week_plan_path") if month_doc else None
@@ -191,7 +191,7 @@ def update_week_plan(
     collection = get_week_plans_collection()
     now = datetime.now(ZoneInfo("UTC"))
     collection.update_one(
-        {"user_id": DEFAULT_USER_ID, "week_id": week_id},
+        {"user_id": get_current_user_id(), "week_id": week_id},
         {
             "$set": {
                 "blocks": [b.model_dump() for b in blocks],

@@ -8,8 +8,8 @@ from zoneinfo import ZoneInfo
 from langchain_core.tools import tool
 
 from db.mongo_client import get_plans_collection
+from auth.context import get_current_user_id
 
-DEFAULT_USER_ID = "default_user"
 LOCAL_TZ = ZoneInfo("Africa/Addis_Ababa")
 
 
@@ -25,7 +25,7 @@ def get_today_workout_status() -> str:
     """
     collection = get_plans_collection()
     today = _today_str()
-    doc = collection.find_one({"user_id": DEFAULT_USER_ID, "date": today})
+    doc = collection.find_one({"user_id": get_current_user_id(), "date": today})
 
     if not doc:
         return "no_plan: No workout is planned for today."

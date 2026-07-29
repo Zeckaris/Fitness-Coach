@@ -11,8 +11,8 @@ from pydantic import BaseModel, Field, model_validator
 
 from db.mongo_client import get_plans_collection, get_month_plans_collection, get_week_plans_collection
 from tools.week_plans import ensure_week_plan_exists
+from auth.context import get_current_user_id
 
-DEFAULT_USER_ID = "default_user"
 
 LOCAL_TZ = ZoneInfo("Africa/Addis_Ababa")
 
@@ -43,7 +43,7 @@ def _current_month_id() -> str:
 def _has_confirmed_goal() -> bool:
     """Check if current month has a confirmed goal."""
     month_plans = get_month_plans_collection()
-    doc = month_plans.find_one({"user_id": DEFAULT_USER_ID, "month_id": _current_month_id()})
+    doc = month_plans.find_one({"user_id": get_current_user_id(), "month_id": _current_month_id()})
     if not doc:
         return False
     goal = doc.get("goal")
@@ -229,7 +229,7 @@ def update_three_day_plan(days: List[DayPlanInput]) -> str:
 
     for day in days:
         set_fields = {
-            "user_id": DEFAULT_USER_ID,
+            "user_id": get_current_user_id(),
             "date": day.date,
             "updated_at": datetime.now(ZoneInfo("UTC")),
             "focus_area": day.focus_area,
@@ -242,7 +242,7 @@ def update_three_day_plan(days: List[DayPlanInput]) -> str:
         }
 
         collection.update_one(
-            {"user_id": DEFAULT_USER_ID, "date": day.date},
+            {"user_id": get_current_user_id(), "date": day.date},
             {
                 "$set": set_fields,
                 "$setOnInsert": {"created_at": datetime.now(ZoneInfo("UTC"))},

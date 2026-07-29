@@ -15,9 +15,9 @@ from langchain_core.tools import tool
 from pydantic import BaseModel, Field
 
 from db.mongo_client import get_checkins_collection
+from auth.context import get_current_user_id
 
-# Placeholder until multi-user support exists.
-DEFAULT_USER_ID = "default_user"
+
 
 # Hardcoded until per-user timezone support exists (see module docstring).
 LOCAL_TZ = ZoneInfo("Africa/Addis_Ababa")
@@ -107,7 +107,7 @@ def record_checkin(
     scalar_updates = {k: v for k, v in scalar_values.items() if v is not None}
 
     set_fields = {
-        "user_id": DEFAULT_USER_ID,
+        "user_id": get_current_user_id(),
         "date": date,
         "timestamp": datetime.now(ZoneInfo("UTC")),
         "raw_message": raw_message,
@@ -132,7 +132,7 @@ def record_checkin(
         }
 
     collection.update_one(
-        {"user_id": DEFAULT_USER_ID, "date": date},
+        {"user_id": get_current_user_id(), "date": date},
         update_doc,
         upsert=True,
     )

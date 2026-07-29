@@ -7,8 +7,8 @@ from langchain_core.tools import tool
 from pydantic import BaseModel, Field
 
 from db.mongo_client import get_plans_collection, get_backlog_collection
+from auth.context import get_current_user_id
 
-DEFAULT_USER_ID = "default_user"
 LOCAL_TZ = ZoneInfo("Africa/Addis_Ababa")
 
 
@@ -20,7 +20,7 @@ def sync_backlog() -> None:
     now = datetime.now(ZoneInfo("UTC"))
 
     past_days = plans.find({
-        "user_id": DEFAULT_USER_ID,
+        "user_id": get_current_user_id(),
         "status": "planned",
         "date": {"$lt": today_str},
     })
@@ -39,7 +39,7 @@ def sync_backlog() -> None:
                 is_incomplete = not completed_bool
 
             existing = backlog.find_one({
-                "user_id": DEFAULT_USER_ID,
+                "user_id": get_current_user_id(),
                 "exercise_name": ex["name"],
                 "status": {"$in": ["open", "reinserted"]},
             })
@@ -47,7 +47,7 @@ def sync_backlog() -> None:
             if is_incomplete:
                 if existing is None:
                     backlog.insert_one({
-                        "user_id": DEFAULT_USER_ID,
+                        "user_id": get_current_user_id(),
                         "source_date": day["date"],
                         "exercise_name": ex["name"],
                         "focus": ex.get("focus"),
@@ -109,7 +109,7 @@ def format_backlog_item(doc: dict) -> str:
 def get_backlog() -> str:
     """Open backlog items. Call during plan generation (step c), after get_past_plans. Cap at 2 per day."""
     backlog = get_backlog_collection()
-    items = list(backlog.find({"user_id": DEFAULT_USER_ID, "status": "open"}).sort("attempts", -1))
+    items = list(backlog.find({"user_id": get_current_user_id(), "status": "open"}).sort("attempts", -1))
     if not items:
         return "No open backlog items."
     return "\n".join(format_backlog_item(i) for i in items)
@@ -125,7 +125,7 @@ def mark_backlog_reinserted(exercise_name: str, reinserted_date: str) -> str:
     """Mark backlog item reinserted after placing it in a plan."""
     backlog = get_backlog_collection()
     result = backlog.update_one(
-        {"user_id": DEFAULT_USER_ID, "exercise_name": exercise_name, "status": "open"},
+        {"user_id": get_current_user_id(), "exercise_name": exercise_name, "status": "open"},
         {"$set": {
             "status": "reinserted",
             "reinserted_date": reinserted_date,
