@@ -13,20 +13,21 @@ load_dotenv()
 
 
 from pydantic import BaseModel, Field
-from langchain_google_genai import ChatGoogleGenerativeAI
 import logging
 from langfuse.langchain import CallbackHandler
 
 from db.mongo_client import get_month_plans_collection
+from db.guards import mongo_guarded, MONGO_FALLBACK_MESSAGE
 from tools.backlog import sync_backlog
 from tools.month_plans import _current_month_id
 from tools.week_plans import _weeks_in_month
 from tools.progress import calculate_progress
 from agent.prompts import MONTHLY_REVIEW_PROMPT, THEME_PATH_PROMPT
 from auth.context import get_current_user_id
+from agent.llm import build_review_llm
+from agent.error_handling import call_structured_llm_with_reprompt, StructuredOutputFailed
 
 LOCAL_TZ = ZoneInfo("Africa/Addis_Ababa")
-GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY")
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
@@ -41,10 +42,6 @@ def _previous_month_id() -> str:
     return prev_month.strftime("%Y-%m")
 
 
-def _review_llm():
-    return ChatGoogleGenerativeAI(model="gemini-3.5-flash", temperature=0.3, api_key=GEMINI_API_KEY)
-
-
 class MonthlyReviewOutput(BaseModel):
     narrative: str = Field(description="2-4 sentence internal record of what happened last month and why.")
     coaching_context: str = Field(
@@ -57,23 +54,42 @@ def _generate_review(summary: dict) -> dict:
     if summary.get("goal_status") != "confirmed":
         return {"narrative": "No confirmed goal last month; nothing to review.", "coaching_context": ""}
 
+    prompt = MONTHLY_REVIEW_PROMPT.format(
+        goal_description=summary.get("goal_description") or "unspecified",
+        adherence=summary.get("adherence"),
+        volume_progress=summary.get("volume_progress"),
+        metric_progress=summary.get("metric_progress"),
+    )
+
     try:
-        llm = _review_llm().with_structured_output(MonthlyReviewOutput)
-        prompt = MONTHLY_REVIEW_PROMPT.format(
-            goal_description=summary.get("goal_description") or "unspecified",
-            adherence=summary.get("adherence"),
-            volume_progress=summary.get("volume_progress"),
-            metric_progress=summary.get("metric_progress"),
+        result = call_structured_llm_with_reprompt(
+            build_review_llm, prompt, MonthlyReviewOutput,
+            config={"callbacks": [langfuse_handler]},
         )
-        result = llm.invoke(prompt, config={"callbacks": [langfuse_handler]})
         return {"narrative": result.narrative, "coaching_context": result.coaching_context}
-    except Exception:
-        logger.exception("Monthly review narrative generation failed")
-        raise
+    except StructuredOutputFailed:
+        logger.exception("Monthly review narrative generation failed after retry + re-prompt")
+        return {
+            "narrative": "This month's review couldn't be generated automatically.",
+            "coaching_context": "",
+        }
 
 
+@mongo_guarded
 def close_out_month(month_id: str) -> dict:
-    """Compute final adherence/metric delta, then LLM-generate narrative + coaching context."""
+    """
+    Compute final adherence/metric delta, then LLM-generate narrative + coaching context.
+
+    @mongo_guarded per V9.2: hard-fails cleanly on a Mongo dependency
+    failure (no silent partial write — the guard stops the function
+    before update_one runs if find_one already failed, or before any
+    later step if update_one itself fails). NOTE: on that failure path
+    this returns MONGO_FALLBACK_MESSAGE (a str), not the usual dict
+    shape ({"status": ...} / {"narrative": ..., ...}) — currently
+    harmless since run_monthly_review() discards this function's return
+    value, but if a future caller starts reading fields off the result,
+    it needs to handle the str case explicitly.
+    """
     month_plans = get_month_plans_collection()
     doc = month_plans.find_one({"user_id": get_current_user_id(), "month_id": month_id})
     if not doc:
@@ -113,18 +129,21 @@ class ThemePathOutput(BaseModel):
 
 
 def generate_theme_path(prev_close_out: dict, current_goal: dict, total_weeks: int) -> List[dict]:
+    prompt = THEME_PATH_PROMPT.format(
+        total_weeks=total_weeks,
+        goal_description=current_goal.get("description", "unspecified"),
+        last_month_narrative=prev_close_out.get("narrative", "No prior review available."),
+        last_month_adherence=prev_close_out.get("adherence"),
+    )
+
     try:
-        llm = _review_llm().with_structured_output(ThemePathOutput)
-        prompt = THEME_PATH_PROMPT.format(
-            total_weeks=total_weeks,
-            goal_description=current_goal.get("description", "unspecified"),
-            last_month_narrative=prev_close_out.get("narrative", "No prior review available."),
-            last_month_adherence=prev_close_out.get("adherence"),
+        result = call_structured_llm_with_reprompt(
+            build_review_llm, prompt, ThemePathOutput,
+            config={"callbacks": [langfuse_handler]},
         )
-        result = llm.invoke(prompt, config={"callbacks": [langfuse_handler]})
         themes = sorted(result.week_plan_path, key=lambda t: t.week_number)
-    except Exception:
-        logger.exception("Theme path generation failed (total_weeks=%s), using fallback", total_weeks)
+    except StructuredOutputFailed:
+        logger.exception("Theme path generation failed after retry + re-prompt (total_weeks=%s), using fallback", total_weeks)
         themes = []
 
     # Validate and pad if needed
@@ -137,6 +156,8 @@ def generate_theme_path(prev_close_out: dict, current_goal: dict, total_weeks: i
 
     return [{"week_number": i + 1, "theme": t.theme} for i, t in enumerate(themes)]
 
+
+@mongo_guarded
 def refresh_week_themes() -> str:
     """Set this month's theme path, length = actual calendar weeks in the month."""
     month_plans = get_month_plans_collection()
@@ -164,6 +185,16 @@ def refresh_week_themes() -> str:
 
 
 def run_monthly_review() -> str:
+    """
+    Manual Streamlit admin action (not yet scheduled — see V9.4).
+    sync_backlog() is deliberately unguarded here too (same reasoning as
+    backlog_sync_node in agent/graph.py): a Mongo failure should halt
+    this whole run rather than proceed with a stale backlog. This
+    function's own try/except re-raises rather than swallowing, so the
+    Streamlit component calling this is the actual boundary that should
+    catch LLMCallFailed / StructuredOutputFailed / Mongo failures and
+    show a plain status message instead of a stack trace.
+    """
     try:
         sync_backlog()
         prev_month = _previous_month_id()

@@ -54,18 +54,15 @@ with st.sidebar:
     st.markdown("**Review Pipelines**")
 
     if st.button("📅 Set Week Themes", help="Run the monthly review pipeline to set week themes for the current month"):
-        try:
-            result = run_monthly_review()
-            if result.returncode == 0:
-                st.success("Week themes set! You can now ask the coach to generate your weekly plan.")
-                if result.stdout:
-                    st.code(result.stdout)
-            else:
-                st.error("Monthly review failed:" + chr(10) + result.stderr)
-        except Exception as e:
-            st.error(f"Could not run monthly review: {e}")
-        st.rerun()
-
+            try:
+                result = run_monthly_review()
+                st.success(result)
+            except Exception:
+                st.error(
+                    "Monthly review couldn't be completed right now — please try again in a moment."
+                )
+            st.rerun()
+            
     st.divider()
     st.markdown("**Quick Actions**")
     if st.button("🗑️ Clear Today's Plan", use_container_width=True):
