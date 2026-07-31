@@ -9,7 +9,7 @@ from zoneinfo import ZoneInfo
 from langgraph.graph import StateGraph, START, END
 from langgraph.prebuilt import ToolNode, tools_condition
 from langchain_google_genai import ChatGoogleGenerativeAI
-from langchain_core.messages import SystemMessage
+from langchain_core.messages import SystemMessage, AIMessage
 from langfuse.langchain import CallbackHandler
 from pymongo import MongoClient
 from langgraph.checkpoint.mongodb import MongoDBSaver
@@ -17,6 +17,8 @@ from agent.context_trim import trim
 
 from agent.state import CoachState
 from agent.prompts import SYSTEM_PROMPT
+from agent.llm import build_coach_llm
+from agent.error_handling import call_llm_with_retry, LLMCallFailed
 from tools.workout_library import search_workout_library
 from tools.knowledge_base import search_fitness_knowledge_base
 from tools.checkins import record_checkin
@@ -36,7 +38,7 @@ from tools.month_plans import (
     get_previous_month_review_context
 )
 
-GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY")
+GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY_2")
 MONGO_URI = os.environ.get("MONGO_URI")
 MONGO_DB_NAME = os.environ.get("MONGO_DB_NAME")
 
@@ -67,22 +69,34 @@ TOOLS = [
     update_week_plan,
 ]
 
-def get_llm()->ChatGoogleGenerativeAI:
-    llm = ChatGoogleGenerativeAI( model="gemini-3.5-flash", temperature=0.4, api_key=GEMINI_API_KEY)
-    return llm.bind_tools(TOOLS)
 
-
+def _coach_llm_factory(api_key: str):
+    return build_coach_llm(api_key).bind_tools(TOOLS)
 
 def history_check_node(state: CoachState) -> dict:
     """
     Deterministic, non-LLM node. Runs before coach_node on every invoke.
     Fires the yesterday-check exactly once per session (per thread_id) -
     controlled by history_checked in state, never by LLM judgment.
+
+    "Non-critical, continue" per the V9.2 design: on failure, swallows
+    the exception and returns the SAME shape as the success path
+    (history_checked=True, yesterday_context=None), so
+    backlog_sync_node and everything downstream proceed exactly as if
+    no check-in history existed for yesterday.
     """
     if state.get("history_checked"):
         return {}
 
-    summary = fetch_checkin(yesterday_str())
+    try:
+        summary = fetch_checkin(yesterday_str())
+    except Exception:
+        logger.exception("history_check_node: fetch_checkin failed, continuing without yesterday context")
+        return {
+            "history_checked": True,
+            "yesterday_context": None,
+        }
+
     return {
         "history_checked": True,
         "yesterday_context": summary,
@@ -125,8 +139,6 @@ def goal_context_node(state: CoachState) -> dict:
 
 
 def coach_node(state: CoachState) -> dict:
-    llm = get_llm()
-
     system_content = SYSTEM_PROMPT
     yesterday_context = state.get("yesterday_context")
     if yesterday_context:
@@ -137,10 +149,15 @@ def coach_node(state: CoachState) -> dict:
         system_content += f"\n\n{goal_context}"
 
     messages = [SystemMessage(content=system_content)] + trim(state["messages"])
-    response = llm.invoke(messages)
-    return {
-        "messages": [response]
-    }
+
+    try:
+        response = call_llm_with_retry(_coach_llm_factory, messages)
+    except LLMCallFailed:
+        response = AIMessage(
+            content="I'm having trouble thinking this through right now — give me a moment and try again."
+        )
+
+    return {"messages": [response]}
 
 
 
