@@ -1,9 +1,5 @@
 """
 MongoDB connection for check-in persistence.
-
-V4 scope: one function, get_checkins_collection(), returns a configured
-pymongo Collection for storing daily check-ins. Mirrors rag/vectorstore.py's
-connection pattern.
 """
 
 import os
