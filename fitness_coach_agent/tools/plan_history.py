@@ -16,6 +16,7 @@ from zoneinfo import ZoneInfo
 from langchain_core.tools import tool
 
 from db.mongo_client import get_plans_collection
+from db.guards import mongo_guarded
 from auth.context import get_current_user_id
 
 
@@ -76,6 +77,7 @@ def _fetch_window(dates: list) -> str:
 
 
 @tool
+@mongo_guarded
 def get_current_plan() -> str:
     """
     Fetch saved plans for tomorrow, day+2, and day+3.
@@ -87,6 +89,7 @@ def get_current_plan() -> str:
 
 
 @tool
+@mongo_guarded
 def get_past_plans() -> str:
     """
     Fetch plans from the previous 3 days.

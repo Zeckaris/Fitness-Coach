@@ -10,6 +10,7 @@ from langchain_core.tools import tool
 from pydantic import BaseModel, Field, model_validator
 
 from db.mongo_client import get_plans_collection, get_month_plans_collection, get_week_plans_collection
+from db.guards import mongo_guarded
 from tools.week_plans import ensure_week_plan_exists
 from auth.context import get_current_user_id
 
@@ -201,6 +202,7 @@ class UpdateForwardPlanInput(BaseModel):
 
 
 @tool(args_schema=UpdateForwardPlanInput)
+@mongo_guarded
 def update_three_day_plan(days: List[DayPlanInput]) -> str:
     """
     Create or patch forward plan entries (tomorrow, day+2, day+3).

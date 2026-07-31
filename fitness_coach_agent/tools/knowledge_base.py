@@ -1,21 +1,18 @@
 """
-search_fitness_knowledge_base — V3 RAG retrieval tool.
-
-Semantic search over the fitness knowledge base.
-
-Use for explanations about training, nutrition, mobility, injury, and
-programming concepts. Not for retrieving specific exercises.
+search_fitness_knowledge_base — RAG retrieval tool.
 """
 
 from langchain_core.tools import tool
 
 from rag.vectorstore import get_vectorstore
+from db.guards import astradb_guarded
 
 # Number of chunks to retrieve per query.
 TOP_K = 4
 
 
 @tool
+@astradb_guarded
 def search_fitness_knowledge_base(query: str) -> str:
     """
     Search the fitness knowledge base for relevant guidance.

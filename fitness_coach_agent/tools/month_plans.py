@@ -10,6 +10,7 @@ from langchain_core.tools import tool
 from pydantic import BaseModel, Field, model_validator
 
 from db.mongo_client import get_month_plans_collection
+from db.guards import mongo_guarded
 from auth.context import get_current_user_id
 
 LOCAL_TZ = ZoneInfo("Africa/Addis_Ababa")
@@ -93,6 +94,7 @@ class StageMonthGoalInput(BaseModel):
 
 
 @tool(args_schema=StageMonthGoalInput)
+@mongo_guarded
 def stage_month_goal(
     description: str,
     metric_name: Optional[str] = None,
@@ -146,6 +148,7 @@ def stage_month_goal(
 
 
 @tool
+@mongo_guarded
 def confirm_month_goal() -> str:
     """Lock staged goal. Call ONLY after explicit user yes."""
     collection = get_month_plans_collection()
@@ -203,6 +206,7 @@ def get_current_goal_summary() -> Optional[str]:
 
 
 @tool
+@mongo_guarded
 def get_current_month_plan() -> str:
     """Fetch month goal + week themes. Use when user asks for detail beyond context."""
     collection = get_month_plans_collection()
@@ -220,6 +224,7 @@ class UpdateMonthPlanInput(BaseModel):
 
 
 @tool(args_schema=UpdateMonthPlanInput)
+@mongo_guarded
 def update_month_plan(week_plan_path: List[WeekThemeInput]) -> str:
     """Pipeline-only. Replace week theme path. Refuses if no goal exists."""
     collection = get_month_plans_collection()

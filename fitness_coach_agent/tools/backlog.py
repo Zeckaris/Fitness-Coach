@@ -1,4 +1,4 @@
-"""Backlog tools — V7."""
+"""Backlog tools"""
 
 from datetime import datetime, timedelta
 from zoneinfo import ZoneInfo
@@ -7,13 +7,20 @@ from langchain_core.tools import tool
 from pydantic import BaseModel, Field
 
 from db.mongo_client import get_plans_collection, get_backlog_collection
+from db.guards import mongo_guarded
 from auth.context import get_current_user_id
 
 LOCAL_TZ = ZoneInfo("Africa/Addis_Ababa")
 
 
 def sync_backlog() -> None:
-    """Sweep past planned days for incomplete exercises. Idempotent."""
+    """Sweep past planned days for incomplete exercises. Idempotent.
+    NOT @mongo_guarded: backlog_sync_node (agent/graph.py) is a
+    "critical, halt" node per the V9.2 design — its failure must
+    propagate up to the .invoke() call site in app/components/chat.py,
+    not be swallowed here. Also called from run_monthly_review(), which
+    has its own outer try/except that re-raises to the Streamlit
+    boundary — same reasoning applies there."""
     plans = get_plans_collection()
     backlog = get_backlog_collection()
     today_str = datetime.now(LOCAL_TZ).date().strftime("%Y-%m-%d")
@@ -106,6 +113,7 @@ def format_backlog_item(doc: dict) -> str:
 
 
 @tool
+@mongo_guarded
 def get_backlog() -> str:
     """Open backlog items. Call during plan generation (step c), after get_past_plans. Cap at 2 per day."""
     backlog = get_backlog_collection()
@@ -121,6 +129,7 @@ class MarkBacklogReinsertedInput(BaseModel):
 
 
 @tool(args_schema=MarkBacklogReinsertedInput)
+@mongo_guarded
 def mark_backlog_reinserted(exercise_name: str, reinserted_date: str) -> str:
     """Mark backlog item reinserted after placing it in a plan."""
     backlog = get_backlog_collection()

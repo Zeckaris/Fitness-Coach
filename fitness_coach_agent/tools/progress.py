@@ -7,6 +7,7 @@ from typing import Optional
 from langchain_core.tools import tool
 
 from db.mongo_client import get_plans_collection, get_month_plans_collection
+from db.guards import mongo_guarded
 from tools.metrics import get_latest_metric
 from auth.context import get_current_user_id
 
@@ -178,6 +179,7 @@ def format_progress(data: dict) -> str:
 
 
 @tool
+@mongo_guarded
 def get_progress_summary() -> str:
     """Adherence (last 7 days) + goal progress. Use when user asks how they are doing."""
     return format_progress(calculate_progress())

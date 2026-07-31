@@ -15,6 +15,7 @@ from langchain_core.tools import tool
 from pydantic import BaseModel, Field
 
 from db.mongo_client import get_checkins_collection
+from db.guards import mongo_guarded
 from auth.context import get_current_user_id
 
 
@@ -75,6 +76,7 @@ def _today_str() -> str:
 
 
 @tool(args_schema=CheckinInput)
+@mongo_guarded
 def record_checkin(
     raw_message: str,
     sickness: Optional[str] = None,

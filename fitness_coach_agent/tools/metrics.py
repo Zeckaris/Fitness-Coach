@@ -7,6 +7,7 @@ from langchain_core.tools import tool
 from pydantic import BaseModel, Field
 
 from db.mongo_client import get_metrics_collection
+from db.guards import mongo_guarded
 from auth.context import get_current_user_id
 
 
@@ -19,6 +20,7 @@ class LogMetricInput(BaseModel):
 
 
 @tool(args_schema=LogMetricInput)
+@mongo_guarded
 def log_metric(metric_name: str, value: float, unit: str, date: str = None) -> str:
     """Log a measurement. Call when user shares weight, distance, lift numbers, etc."""
     collection = get_metrics_collection()

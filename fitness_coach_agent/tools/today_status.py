@@ -8,6 +8,7 @@ from zoneinfo import ZoneInfo
 from langchain_core.tools import tool
 
 from db.mongo_client import get_plans_collection
+from db.guards import mongo_guarded
 from auth.context import get_current_user_id
 
 LOCAL_TZ = ZoneInfo("Africa/Addis_Ababa")
@@ -18,6 +19,7 @@ def _today_str() -> str:
 
 
 @tool
+@mongo_guarded
 def get_today_workout_status() -> str:
     """
     Check whether today's workout was completed, is still planned, is a rest
