@@ -1,7 +1,3 @@
-"""
-agent/llm.py — Shared Gemini client construction (V9.2).
-"""
-
 from langchain_google_genai import ChatGoogleGenerativeAI
 
 COACH_MODEL = "gemini-3.5-flash-lite"

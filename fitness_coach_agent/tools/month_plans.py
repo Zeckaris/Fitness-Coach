@@ -205,6 +205,15 @@ def get_current_goal_summary() -> Optional[str]:
     return goal.get("description")
 
 
+def has_theme_path_for_current_month() -> bool:
+    """Read-only check: does the current month already have a week theme
+    path set? False is a legitimate result (not yet generated), so this
+    is NOT @mongo_guarded"""
+    collection = get_month_plans_collection()
+    doc = collection.find_one({"user_id": get_current_user_id(), "month_id": _current_month_id()})
+    return bool(doc and doc.get("week_plan_path"))
+
+
 @tool
 @mongo_guarded
 def get_current_month_plan() -> str:

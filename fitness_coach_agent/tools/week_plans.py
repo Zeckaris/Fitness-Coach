@@ -94,12 +94,6 @@ def ensure_week_plan_exists(target_date: str) -> bool:
     """
     Read-only check: does a week plan exist covering target_date?
     Never creates. The agent must use update_week_plan to create one.
-    NOT @mongo_guarded: `False` here is a legitimate result ("no week
-    plan for this date"), so a Mongo-failure fallback of False would be
-    indistinguishable from that and misreport a dependency outage as
-    "generate a plan first." The caller (update_three_day_plan, in
-    tools/plans.py) already wraps this call inside its own
-    @mongo_guarded, so the exception propagates there correctly.
     """
     week_id = _get_week_id_for_date(target_date)
     week_plans = get_week_plans_collection()
@@ -176,27 +170,31 @@ class UpdateWeekPlanInput(BaseModel):
     rationale: Optional[str] = Field(default=None)
 
 
-@tool(args_schema=UpdateWeekPlanInput)
-@mongo_guarded
-def update_week_plan(
+def save_week_plan(
     week_id: str,
     blocks: List[BlockInput],
     week_volume_targets: Optional[List[VolumeTargetInput]] = None,
     rationale: Optional[str] = None,
+    require_theme_path: bool = True,
 ) -> str:
-    """Create or replace the weekly block structure."""
-    # Guard: week_plan_path must be set by monthly review
-    month_plans = get_month_plans_collection()
-    month_doc = month_plans.find_one({
-        "user_id": get_current_user_id(),
-        "month_id": _current_month_id()
-    })
-    week_plan_path = month_doc.get("week_plan_path") if month_doc else None
-    if not week_plan_path:
-        return (
-            "ERROR: Week themes have not been set yet. "
-            'Click the "📅 Set Week Themes" button in the app first, then ask me to generate your weekly plan.'
-        )
+    """
+    Validates and saves a weekly plan.
+
+    Optionally requires a week theme path before saving. Validation
+    ensures exactly 2 blocks are provided before writing the plan.
+    """
+    if require_theme_path:
+        month_plans = get_month_plans_collection()
+        month_doc = month_plans.find_one({
+            "user_id": get_current_user_id(),
+            "month_id": _current_month_id()
+        })
+        week_plan_path = month_doc.get("week_plan_path") if month_doc else None
+        if not week_plan_path:
+            return (
+                "ERROR: Week themes have not been set yet. "
+                'Click the "📅 Set Week Themes" button in the app first, then ask me to generate your weekly plan.'
+            )
 
     if len(blocks) != 2:
         return "Need exactly 2 blocks."
@@ -217,6 +215,18 @@ def update_week_plan(
         upsert=True,
     )
     return f"Week plan saved for {week_id}."
+
+
+@tool(args_schema=UpdateWeekPlanInput)
+@mongo_guarded
+def update_week_plan(
+    week_id: str,
+    blocks: List[BlockInput],
+    week_volume_targets: Optional[List[VolumeTargetInput]] = None,
+    rationale: Optional[str] = None,
+) -> str:
+    """Create or replace the weekly block structure."""
+    return save_week_plan(week_id, blocks, week_volume_targets, rationale)
 
 
 if __name__ == "__main__":
