@@ -23,7 +23,7 @@ from tools.workout_library import search_workout_library
 from tools.knowledge_base import search_fitness_knowledge_base
 from tools.checkins import record_checkin
 from tools.checkin_history import get_recent_checkins, fetch_checkin, yesterday_str
-from tools.plans import update_three_day_plan
+from tools.plans import update_three_day_plan, generate_today_plan
 from tools.plan_history import get_current_plan, get_past_plans
 from tools.backlog import sync_backlog, get_backlog, mark_backlog_reinserted
 from tools.metrics import log_metric
@@ -37,6 +37,9 @@ from tools.month_plans import (
     confirm_month_goal,
     get_previous_month_review_context
 )
+from agent.monthly_review import refresh_week_themes
+
+
 
 GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY_2")
 MONGO_URI = os.environ.get("MONGO_URI")
@@ -45,7 +48,6 @@ MONGO_DB_NAME = os.environ.get("MONGO_DB_NAME")
 LOCAL_TZ = ZoneInfo("Africa/Addis_Ababa")
 
 langfuse_handler = CallbackHandler()
-
 
 
 TOOLS = [
@@ -67,23 +69,19 @@ TOOLS = [
     stage_month_goal,
     confirm_month_goal,
     update_week_plan,
+    generate_today_plan,
+    refresh_week_themes,
 ]
-
 
 def _coach_llm_factory(api_key: str):
     return build_coach_llm(api_key).bind_tools(TOOLS)
 
 def history_check_node(state: CoachState) -> dict:
     """
-    Deterministic, non-LLM node. Runs before coach_node on every invoke.
-    Fires the yesterday-check exactly once per session (per thread_id) -
-    controlled by history_checked in state, never by LLM judgment.
+    Fetches yesterday's check-in context once per session.
 
-    "Non-critical, continue" per the V9.2 design: on failure, swallows
-    the exception and returns the SAME shape as the success path
-    (history_checked=True, yesterday_context=None), so
-    backlog_sync_node and everything downstream proceed exactly as if
-    no check-in history existed for yesterday.
+    Returns the retrieved context if available. On failure, marks the
+    history check as complete and continues without yesterday context.
     """
     if state.get("history_checked"):
         return {}
@@ -163,26 +161,11 @@ def coach_node(state: CoachState) -> dict:
 
 def build_graph():
     """
-    Builds and compiles the graph:
+    Builds and compiles the LangGraph workflow.
 
-        START -> history_check_node -> backlog_sync_node -> goal_context_node
-              -> coach_node -> [tools_condition] -> tools -> coach_node -> ...
-                                        |
-                                        v
-                                       END
-
-    The three pre-nodes each run before coach_node on every invoke.
-    history_check_node and goal_context_node are guarded by their own
-    checked-flags in state (once per session). backlog_sync_node runs
-    unguarded on every invoke to keep backlog fresh.
-
-    None of them touch state["messages"], so none permanently grow the
-    conversation's token footprint.
-
-    A MongoDB-backed checkpointer persists CoachState per thread_id, so a
-    conversation's message history and all checked-flags survive across
-    invokes (and app restarts) as long as the same thread_id is passed in
-    the invoke config.
+    The workflow runs the history, backlog, and goal context nodes before
+    the coach node, then loops between the coach and tool nodes as needed.
+    Uses a MongoDB-backed checkpointer to persist conversation state.
     """
 
     workflow= StateGraph(CoachState)

@@ -95,15 +95,16 @@ TOOLS
 
     Requires user to have clicked "📅 Set Week Themes" first.
 
-15. get_today_workout_status() — Check whether today's workout was completed, is still planned, is a rest day, or doesn't exist. Call when user asks about today's workout or whether they completed it.
-
+15. get_today_workout_status() — Check whether today's workout was completed, is still planned, is a rest day, or doesn't exist. Call when user asks about today's workout or whether they completed it. If result is "no_plan", call generate_today_plan() immediately in the same turn — do not just relay "no plan" and stop.
 GENERAL BEHAVIOR
+
+16. generate_today_plan() — ONLY call after get_today_workout_status() returns "no_plan". Builds today's plan plus the forward tomorrow/day+2/day+3 window in one shot, so the user is caught back up to normal cadence. Create-only: refuses if any document already exists for today, so it's always safe to call on "no_plan" — it will never overwrite an established day. Requires confirmed month goal; if none exists, it returns an error — relay it and ask the user to set a goal first. Fully self-contained: reconstructs missing month theme path and week structure internally if needed. No other tool calls needed before or after it.
+
+17. refresh_week_themes() — Recovery-only: call when a user with a CONFIRMED goal has no week theme path yet due to a gap in usage (not a first-time goal confirmation — that case still uses the "📅 Set Week Themes" button per tool 13). Never call this as part of the normal tool 13 confirmation flow.
 
 - Call any combination of tools in the same turn if the message calls for it. For pure encouragement/small talk, skip tools entirely.
 - Do NOT let a request for a concrete exercise cause you to skip search_fitness_knowledge_base or record_checkin when the message also contains other needs — all relevant tools fire together, not just whichever seems primary.
 """
-
-
 
 
 
@@ -130,4 +131,33 @@ Last month's coaching review: {last_month_narrative}
 Last month's adherence: {last_month_adherence}
 
 Pick a theme per week (e.g. Volume, Intensity, Deload, Peak, or another appropriate label) based on this data — do not default to a fixed rotation. If adherence was low, consider a lighter opening week or an extra Deload rather than jumping straight to Intensity. If last month went well, consider building toward Peak. Repeat themes across weeks if appropriate.
+"""
+
+
+
+
+WEEK_BLOCK_PROMPT = """You are choosing the training focus for a fitness client's upcoming week, as part of automatic backfill (the user was away and this week's structure was never set).
+
+This week's theme: {week_theme}
+Current month's goal: {goal_description}
+Pre-calculated volume targets for this week (already computed, do not recalculate): {week_targets}
+
+Return exactly 2 blocks:
+- Block 1 (days 1-3 of the week)
+- Block 2 (days 4-6 of the week)
+
+For each block, choose a short training focus label (e.g. "upper body volume", "conditioning", "lower body strength") consistent with the week's theme and the goal. Do NOT invent or alter the numeric targets provided above — only decide the qualitative focus per block and a brief overall rationale (1-2 sentences).
+"""
+
+BACKFILL_DAY_PLAN_PROMPT = """You are generating a fitness client's workout plan after they were away and nothing exists for today onward. Generate exactly 4 days in order: today ({today_date}), then the next 3 days ({tomorrow_date}, {day_plus_2_date}, {day_plus_3_date}).
+
+Current month's goal: {goal_description}
+This week's block focus: {week_focus}
+Open backlog items to fold in (max 2 per day, mark which day each is placed in): {backlog_items}
+Recent past plans for continuity: {past_plans_context}
+Relevant movement/knowledge-base guidance: {knowledge_context}
+
+For each day, build a complete 3-phase session (warmup 2-4 exercises, main 4-12 exercises, cooldown 1-4 exercises) using ONLY exercises from this list (name, focus, category must match exactly — do not invent exercises): {available_exercises}
+
+Set duration_minutes realistically: 7-10 exercises → 30-45 min; 11-15 → 45-75 min; 16-20 → 60-90 min. Align each day's focus_area with the week's block focus above. If a day should be a rest day instead, set status="rest" with an empty exercises list.
 """
