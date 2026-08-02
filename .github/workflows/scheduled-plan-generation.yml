@@ -1,0 +1,35 @@
+name: Scheduled Plan Generation
+
+on:
+  schedule:
+    # Runs daily at 03:00 UTC (~06:00 Africa/Addis_Ababa). Adjust as needed.
+    - cron: "0 3 * * *"
+  workflow_dispatch: {} # allows manual trigger from the Actions tab for testing
+
+jobs:
+  generate-plans:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run scheduled plan generation
+        env:
+          MONGO_URI: ${{ secrets.MONGO_URI }}
+          MONGO_DB_NAME: ${{ secrets.MONGO_DB_NAME }}
+          ASTRA_DB_APPLICATION_TOKEN: ${{ secrets.ASTRA_DB_APPLICATION_TOKEN }}
+          ASTRA_DB_API_ENDPOINT: ${{ secrets.ASTRA_DB_API_ENDPOINT }}
+          ASTRA_DB_KEYSPACE: ${{ secrets.ASTRA_DB_KEYSPACE }}
+          GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
+          LANGFUSE_PUBLIC_KEY: ${{ secrets.LANGFUSE_PUBLIC_KEY }}
+          LANGFUSE_SECRET_KEY: ${{ secrets.LANGFUSE_SECRET_KEY }}
+          LANGFUSE_HOST: ${{ secrets.LANGFUSE_HOST }}
+        run: python -m scripts.scheduled_plan_generation
