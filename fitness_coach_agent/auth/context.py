@@ -1,10 +1,5 @@
 """
 Execution-context holder for the current authenticated user's ID.
-
-Uses contextvars instead of a plain global so per-session isolation holds
-even under Streamlit's threaded execution model. This value is read
-internally by tool functions and app code — it must never be exposed to
-the LLM as a tool-callable argument.
 """
 
 from contextvars import ContextVar
