@@ -12,6 +12,7 @@ from pydantic import BaseModel, Field, model_validator
 from db.mongo_client import get_month_plans_collection
 from db.guards import mongo_guarded
 from auth.context import get_current_user_id
+from typing import List, Optional, Literal, Tuple
 
 LOCAL_TZ = ZoneInfo("Africa/Addis_Ababa")
 
@@ -251,6 +252,61 @@ def update_month_plan(week_plan_path: List[WeekThemeInput]) -> str:
     if result.matched_count == 0:
         return f"No goal found for {month_id}."
     return f"Week themes updated for {month_id}."
+
+
+def has_confirmed_goal_for_current_month() -> bool:
+    """
+    Public equivalent of tools/plans.py's private _has_confirmed_goal.
+    Read-only, not @mongo_guarded — False is a legitimate result (no
+    confirmed goal yet), not a dependency failure. 
+    """
+    collection = get_month_plans_collection()
+    doc = collection.find_one({"user_id": get_current_user_id(), "month_id": _current_month_id()})
+    if not doc:
+        return False
+    goal = doc.get("goal")
+    return bool(goal) and goal.get("status") == "confirmed"
+
+
+def has_ever_had_confirmed_goal() -> bool:
+    """
+    True if ANY month (past or present) has a confirmed goal for this
+    user. Distinguishes a genuinely disengaged/new user (never
+    confirmed a goal) from one who's simply between months. 
+    """
+    collection = get_month_plans_collection()
+    doc = collection.find_one({
+        "user_id": get_current_user_id(),
+        "goal.status": "confirmed",
+    })
+    return doc is not None
+
+
+def get_most_recent_confirmed_goal() -> Optional[Tuple[str, dict]]:
+    """
+    Returns (month_id, goal) for the most recent month with a confirmed
+    goal, sorted descending by month_id. None if none exists. 
+    """
+    collection = get_month_plans_collection()
+    doc = collection.find_one(
+        {"user_id": get_current_user_id(), "goal.status": "confirmed"},
+        sort=[("month_id", -1)],
+    )
+    if not doc:
+        return None
+    return doc["month_id"], doc["goal"]
+
+
+def has_any_goal_doc_for_current_month() -> bool:
+    """
+    True if a goal sub-document exists for the current month at ALL
+    (pending OR confirmed) — used by the scheduler to avoid clobbering
+    a goal the user has already started staging manually. 
+    """
+    collection = get_month_plans_collection()
+    doc = collection.find_one({"user_id": get_current_user_id(), "month_id": _current_month_id()})
+    return bool(doc and doc.get("goal"))
+
 
 
 if __name__ == "__main__":

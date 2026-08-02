@@ -2,13 +2,13 @@
 User account storage: registration and credential verification.
 
 Email is the unique identifier (structurally validated, not
-deliverability-verified in this version — see V9.0 design doc open
-items for future email confirmation). Passwords are hashed with bcrypt.
+deliverability-verified in this version.
 """
 
 import bcrypt
 from email_validator import validate_email, EmailNotValidError
 from datetime import datetime, timezone
+from typing import List
 
 from db.mongo_client import get_users_collection
 
@@ -98,3 +98,13 @@ def authenticate(email: str, password: str) -> dict:
     if user_doc is None or not verify_password(user_doc, password):
         raise InvalidCredentialsError("Invalid email or password.")
     return user_doc
+
+
+def list_all_user_ids() -> List[str]:
+    """
+    All registered user IDs (str-cast ObjectIds), for scheduled jobs
+    that must loop over every user. Not used by any per-request path —
+    per-request code gets its single user_id via auth/context.py.
+    """
+    collection = get_users_collection()
+    return [str(doc["_id"]) for doc in collection.find({}, {"_id": 1})]
