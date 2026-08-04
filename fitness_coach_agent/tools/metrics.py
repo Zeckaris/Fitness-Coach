@@ -7,8 +7,9 @@ from langchain_core.tools import tool
 from pydantic import BaseModel, Field
 
 from db.mongo_client import get_metrics_collection
+from db.guards import mongo_guarded
+from auth.context import get_current_user_id
 
-DEFAULT_USER_ID = "default_user"
 
 
 class LogMetricInput(BaseModel):
@@ -19,6 +20,7 @@ class LogMetricInput(BaseModel):
 
 
 @tool(args_schema=LogMetricInput)
+@mongo_guarded
 def log_metric(metric_name: str, value: float, unit: str, date: str = None) -> str:
     """Log a measurement. Call when user shares weight, distance, lift numbers, etc."""
     collection = get_metrics_collection()
@@ -27,7 +29,7 @@ def log_metric(metric_name: str, value: float, unit: str, date: str = None) -> s
 
     now = datetime.now(ZoneInfo("UTC"))
     collection.update_one(
-        {"user_id": DEFAULT_USER_ID, "metric_name": metric_name, "date": date},
+        {"user_id": get_current_user_id(), "metric_name": metric_name, "date": date},
         {
             "$set": {"value": value, "unit": unit, "updated_at": now},
             "$setOnInsert": {"created_at": now},
@@ -41,7 +43,7 @@ def get_latest_metric(metric_name: str) -> dict | None:
     """Latest entry for a metric. Used by calculate_progress()."""
     collection = get_metrics_collection()
     doc = collection.find_one(
-        {"user_id": DEFAULT_USER_ID, "metric_name": metric_name},
+        {"user_id": get_current_user_id(), "metric_name": metric_name},
         sort=[("date", -1)],
     )
     if not doc:

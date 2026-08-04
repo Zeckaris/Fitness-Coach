@@ -1,9 +1,5 @@
 """
 MongoDB connection for check-in persistence.
-
-V4 scope: one function, get_checkins_collection(), returns a configured
-pymongo Collection for storing daily check-ins. Mirrors rag/vectorstore.py's
-connection pattern.
 """
 
 import os
@@ -120,6 +116,30 @@ def get_metrics_collection() -> Collection:
     return db[MONGO_METRICS_COLLECTION]
 
 
+MONGO_USERS_COLLECTION = os.environ.get("MONGO_USERS_COLLECTION", "users")
+def get_users_collection() -> Collection:
+    """
+    Returns the MongoDB collection used to store user accounts.
+    One document per user: {email, password_hash, created_at}.
+    _id (ObjectId) is used as the canonical user_id throughout the app,
+    cast to str at the auth boundary. email has a unique index, enforced
+    on first connection via ensure_email_index(). Email is structurally
+    validated at registration but not deliverability-verified in this
+    version.
+    """
+    client = get_mongo_client()
+    db = client[MONGO_DB_NAME]
+    return db[MONGO_USERS_COLLECTION]
+
+
+def ensure_email_index() -> None:
+    """
+    Creates a unique index on email if it doesn't already exist.
+    Idempotent - safe to call on every app startup.
+    """
+    collection = get_users_collection()
+    collection.create_index("email", unique=True)
+
 # Confirm the connection works
 if __name__ == "__main__":
     checkins = get_checkins_collection()
@@ -145,3 +165,7 @@ if __name__ == "__main__":
     metrics = get_metrics_collection()
     print(f"Connected to MongoDB collection '{metrics.name}'")
     print(f"Existing metrics count: {metrics.count_documents({})}")
+    
+    users = get_users_collection()
+    print(f"Connected to MongoDB collection '{users.name}'")
+    print(f"Existing user count: {users.count_documents({})}")

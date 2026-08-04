@@ -9,7 +9,7 @@ from zoneinfo import ZoneInfo
 from langgraph.graph import StateGraph, START, END
 from langgraph.prebuilt import ToolNode, tools_condition
 from langchain_google_genai import ChatGoogleGenerativeAI
-from langchain_core.messages import SystemMessage
+from langchain_core.messages import SystemMessage, AIMessage
 from langfuse.langchain import CallbackHandler
 from pymongo import MongoClient
 from langgraph.checkpoint.mongodb import MongoDBSaver
@@ -17,11 +17,13 @@ from agent.context_trim import trim
 
 from agent.state import CoachState
 from agent.prompts import SYSTEM_PROMPT
+from agent.llm import build_coach_llm
+from agent.error_handling import call_llm_with_retry, LLMCallFailed
 from tools.workout_library import search_workout_library
 from tools.knowledge_base import search_fitness_knowledge_base
 from tools.checkins import record_checkin
 from tools.checkin_history import get_recent_checkins, fetch_checkin, yesterday_str
-from tools.plans import update_three_day_plan
+from tools.plans import update_three_day_plan, generate_today_plan
 from tools.plan_history import get_current_plan, get_past_plans
 from tools.backlog import sync_backlog, get_backlog, mark_backlog_reinserted
 from tools.metrics import log_metric
@@ -33,17 +35,20 @@ from tools.month_plans import (
     get_current_goal_summary,
     stage_month_goal,
     confirm_month_goal,
+    calculate_volume_target,
     get_previous_month_review_context
 )
+from agent.monthly_review import refresh_week_themes
 
-GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY")
+
+
+GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY_2")
 MONGO_URI = os.environ.get("MONGO_URI")
 MONGO_DB_NAME = os.environ.get("MONGO_DB_NAME")
 
 LOCAL_TZ = ZoneInfo("Africa/Addis_Ababa")
 
 langfuse_handler = CallbackHandler()
-
 
 
 TOOLS = [
@@ -63,26 +68,35 @@ TOOLS = [
     get_current_month_plan,
     get_previous_month_review_context,
     stage_month_goal,
+    calculate_volume_target, 
     confirm_month_goal,
     update_week_plan,
+    generate_today_plan,
+    refresh_week_themes,
 ]
 
-def get_llm()->ChatGoogleGenerativeAI:
-    llm = ChatGoogleGenerativeAI( model="gemini-3.5-flash-lite", temperature=0.4, api_key=GEMINI_API_KEY)
-    return llm.bind_tools(TOOLS)
-
-
+def _coach_llm_factory(api_key: str):
+    return build_coach_llm(api_key).bind_tools(TOOLS)
 
 def history_check_node(state: CoachState) -> dict:
     """
-    Deterministic, non-LLM node. Runs before coach_node on every invoke.
-    Fires the yesterday-check exactly once per session (per thread_id) -
-    controlled by history_checked in state, never by LLM judgment.
+    Fetches yesterday's check-in context once per session.
+
+    Returns the retrieved context if available. On failure, marks the
+    history check as complete and continues without yesterday context.
     """
     if state.get("history_checked"):
         return {}
 
-    summary = fetch_checkin(yesterday_str())
+    try:
+        summary = fetch_checkin(yesterday_str())
+    except Exception:
+        logger.exception("history_check_node: fetch_checkin failed, continuing without yesterday context")
+        return {
+            "history_checked": True,
+            "yesterday_context": None,
+        }
+
     return {
         "history_checked": True,
         "yesterday_context": summary,
@@ -125,8 +139,6 @@ def goal_context_node(state: CoachState) -> dict:
 
 
 def coach_node(state: CoachState) -> dict:
-    llm = get_llm()
-
     system_content = SYSTEM_PROMPT
     yesterday_context = state.get("yesterday_context")
     if yesterday_context:
@@ -137,35 +149,25 @@ def coach_node(state: CoachState) -> dict:
         system_content += f"\n\n{goal_context}"
 
     messages = [SystemMessage(content=system_content)] + trim(state["messages"])
-    response = llm.invoke(messages)
-    return {
-        "messages": [response]
-    }
+
+    try:
+        response = call_llm_with_retry(_coach_llm_factory, messages)
+    except LLMCallFailed:
+        response = AIMessage(
+            content="I'm having trouble thinking this through right now — give me a moment and try again."
+        )
+
+    return {"messages": [response]}
 
 
 
 def build_graph():
     """
-    Builds and compiles the graph:
+    Builds and compiles the LangGraph workflow.
 
-        START -> history_check_node -> backlog_sync_node -> goal_context_node
-              -> coach_node -> [tools_condition] -> tools -> coach_node -> ...
-                                        |
-                                        v
-                                       END
-
-    The three pre-nodes each run before coach_node on every invoke.
-    history_check_node and goal_context_node are guarded by their own
-    checked-flags in state (once per session). backlog_sync_node runs
-    unguarded on every invoke to keep backlog fresh.
-
-    None of them touch state["messages"], so none permanently grow the
-    conversation's token footprint.
-
-    A MongoDB-backed checkpointer persists CoachState per thread_id, so a
-    conversation's message history and all checked-flags survive across
-    invokes (and app restarts) as long as the same thread_id is passed in
-    the invoke config.
+    The workflow runs the history, backlog, and goal context nodes before
+    the coach node, then loops between the coach and tool nodes as needed.
+    Uses a MongoDB-backed checkpointer to persist conversation state.
     """
 
     workflow= StateGraph(CoachState)

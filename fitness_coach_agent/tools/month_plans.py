@@ -10,8 +10,12 @@ from langchain_core.tools import tool
 from pydantic import BaseModel, Field, model_validator
 
 from db.mongo_client import get_month_plans_collection
+from db.guards import mongo_guarded
+from auth.context import get_current_user_id
+from typing import List, Optional, Literal, Tuple
+from utils.baseline_targets import calculate_month_target, BEGINNER_BASELINE_BY_AREA
+from tools.week_plans import _weeks_in_month
 
-DEFAULT_USER_ID = "default_user"
 LOCAL_TZ = ZoneInfo("Africa/Addis_Ababa")
 
 
@@ -22,7 +26,13 @@ _WORKOUTS_PATH = os.path.join(
 )
 
 with open(_WORKOUTS_PATH, "r") as f:
-    _WORKOUTS = json.load(f)
+    _workouts_data = json.load(f)
+
+_WORKOUTS = (
+    _workouts_data["exercises"]
+    if isinstance(_workouts_data, dict) and "exercises" in _workouts_data
+    else _workouts_data
+)
 
 _VALID_EXERCISE_NAMES = {w["name"] for w in _WORKOUTS}
 
@@ -37,7 +47,7 @@ def _previous_month_id() -> str:
 def get_previous_month_review_context() -> Optional[str]:
     """Coaching context from last month's close-out, for goal_context_node. None if none exists."""
     collection = get_month_plans_collection()
-    doc = collection.find_one({"user_id": DEFAULT_USER_ID, "month_id": _previous_month_id()})
+    doc = collection.find_one({"user_id": get_current_user_id(), "month_id": _previous_month_id()})
     if not doc:
         return None
     close_out = doc.get("close_out_summary") or {}
@@ -92,7 +102,70 @@ class StageMonthGoalInput(BaseModel):
         return self
 
 
+
+
+
+class CalculateVolumeTargetInput(BaseModel):
+    exercise: str = Field(description="Exercise name, must exist in the workout library.")
+    unit: str = Field(description="'reps', 'seconds', or 'km'.")
+    balance_area: Literal["upper_body", "lower_body", "core", "cardio"]
+    baseline_value: Optional[float] = Field(
+        default=None,
+        description="The user's stated single-set/single-effort max for this movement "
+        "(e.g. 30 for '30 pushups no rest', 5 for '5km run'). Omit this field entirely "
+        "if the user never stated a baseline for this movement — do NOT guess a number; "
+        "a conservative beginner default will be used automatically.",
+    )
+    experience_level: Literal["beginner", "intermediate", "advanced"] = Field(
+        default="beginner",
+        description="Only set to intermediate/advanced if the user's own baseline numbers "
+        "or explicit statement support it. Default beginner.",
+    )
+    sessions_per_week: int = Field(default=4, description="Training sessions per week for this exercise.")
+    sets_per_session: Optional[int] = Field(
+        default=None, description="Working sets per session. Omit to use a sensible default."
+    )
+
+
+@tool(args_schema=CalculateVolumeTargetInput)
+def calculate_volume_target(
+    exercise: str,
+    unit: str,
+    balance_area: Literal["upper_body", "lower_body", "core", "cardio"],
+    baseline_value: Optional[float] = None,
+    experience_level: Literal["beginner", "intermediate", "advanced"] = "beginner",
+    sessions_per_week: int = 4,
+    sets_per_session: Optional[int] = None,
+) -> str:
+    """
+    FIRST-TIME GOAL SETUP ONLY. Call this once per exercise BEFORE calling
+    stage_month_goal — never invent a month_target yourself. Pass the
+    user's stated baseline for this movement if they gave one; omit
+    baseline_value if they didn't (a beginner default will be used).
+    Returns the computed month_target to use in stage_month_goal's
+    volume_targets 
+    """
+    result = calculate_month_target(
+        unit=unit,
+        balance_area=balance_area,
+        experience_level=experience_level,
+        baseline_value=baseline_value,
+        sessions_per_week=sessions_per_week,
+        sets_per_session=sets_per_session,
+        weeks_in_month=_weeks_in_month(_current_month_id()),
+    )
+    return (
+        f"month_target for {exercise}: {result['month_target']} {unit}. "
+        f"(baseline used: {result['baseline_used']} [{result['baseline_source']}], "
+        f"intensity: {result['intensity_factor']}, "
+        f"{result['sets_per_session']} sets x {result['sessions_per_week']} sessions/week "
+        f"x {result['weeks_in_month']:.2f} weeks)"
+    )
+
+
+
 @tool(args_schema=StageMonthGoalInput)
+@mongo_guarded
 def stage_month_goal(
     description: str,
     metric_name: Optional[str] = None,
@@ -105,7 +178,7 @@ def stage_month_goal(
     collection = get_month_plans_collection()
     month_id = _current_month_id()
 
-    existing = collection.find_one({"user_id": DEFAULT_USER_ID, "month_id": month_id})
+    existing = collection.find_one({"user_id": get_current_user_id(), "month_id": month_id})
     if existing and existing.get("goal", {}).get("status") == "confirmed":
         return f"Goal already confirmed for {month_id}. Cannot change."
 
@@ -135,7 +208,7 @@ def stage_month_goal(
     }
 
     collection.update_one(
-        {"user_id": DEFAULT_USER_ID, "month_id": month_id},
+        {"user_id": get_current_user_id(), "month_id": month_id},
         {
             "$set": {"goal": goal, "updated_at": now},
             "$setOnInsert": {"created_at": now, "week_plan_path": []},
@@ -146,18 +219,19 @@ def stage_month_goal(
 
 
 @tool
+@mongo_guarded
 def confirm_month_goal() -> str:
     """Lock staged goal. Call ONLY after explicit user yes."""
     collection = get_month_plans_collection()
     month_id = _current_month_id()
 
-    existing = collection.find_one({"user_id": DEFAULT_USER_ID, "month_id": month_id})
+    existing = collection.find_one({"user_id": get_current_user_id(), "month_id": month_id})
     if not existing or existing.get("goal", {}).get("status") != "pending":
         return "No staged goal waiting for confirmation."
 
     now = datetime.now(ZoneInfo("UTC"))
     collection.update_one(
-        {"user_id": DEFAULT_USER_ID, "month_id": month_id},
+        {"user_id": get_current_user_id(), "month_id": month_id},
         {"$set": {"goal.status": "confirmed", "goal.confirmed_at": now, "updated_at": now}},
     )
     return f"Goal confirmed for {month_id}. Locked for the month."
@@ -194,7 +268,7 @@ def format_month_plan(doc: Optional[dict]) -> str:
 def get_current_goal_summary() -> Optional[str]:
     """One-line confirmed goal summary for goal_context_node. Returns None if none."""
     collection = get_month_plans_collection()
-    doc = collection.find_one({"user_id": DEFAULT_USER_ID, "month_id": _current_month_id()})
+    doc = collection.find_one({"user_id": get_current_user_id(), "month_id": _current_month_id()})
     goal = doc.get("goal") if doc else None
 
     if not goal or goal.get("status") != "confirmed":
@@ -202,11 +276,21 @@ def get_current_goal_summary() -> Optional[str]:
     return goal.get("description")
 
 
+def has_theme_path_for_current_month() -> bool:
+    """Read-only check: does the current month already have a week theme
+    path set? False is a legitimate result (not yet generated), so this
+    is NOT @mongo_guarded"""
+    collection = get_month_plans_collection()
+    doc = collection.find_one({"user_id": get_current_user_id(), "month_id": _current_month_id()})
+    return bool(doc and doc.get("week_plan_path"))
+
+
 @tool
+@mongo_guarded
 def get_current_month_plan() -> str:
     """Fetch month goal + week themes. Use when user asks for detail beyond context."""
     collection = get_month_plans_collection()
-    doc = collection.find_one({"user_id": DEFAULT_USER_ID, "month_id": _current_month_id()})
+    doc = collection.find_one({"user_id": get_current_user_id(), "month_id": _current_month_id()})
     return format_month_plan(doc)
 
 
@@ -220,13 +304,14 @@ class UpdateMonthPlanInput(BaseModel):
 
 
 @tool(args_schema=UpdateMonthPlanInput)
+@mongo_guarded
 def update_month_plan(week_plan_path: List[WeekThemeInput]) -> str:
     """Pipeline-only. Replace week theme path. Refuses if no goal exists."""
     collection = get_month_plans_collection()
     month_id = _current_month_id()
 
     result = collection.update_one(
-        {"user_id": DEFAULT_USER_ID, "month_id": month_id, "goal": {"$exists": True}},
+        {"user_id": get_current_user_id(), "month_id": month_id, "goal": {"$exists": True}},
         {
             "$set": {
                 "week_plan_path": [t.model_dump() for t in week_plan_path],
@@ -237,6 +322,61 @@ def update_month_plan(week_plan_path: List[WeekThemeInput]) -> str:
     if result.matched_count == 0:
         return f"No goal found for {month_id}."
     return f"Week themes updated for {month_id}."
+
+
+def has_confirmed_goal_for_current_month() -> bool:
+    """
+    Public equivalent of tools/plans.py's private _has_confirmed_goal.
+    Read-only, not @mongo_guarded — False is a legitimate result (no
+    confirmed goal yet), not a dependency failure. 
+    """
+    collection = get_month_plans_collection()
+    doc = collection.find_one({"user_id": get_current_user_id(), "month_id": _current_month_id()})
+    if not doc:
+        return False
+    goal = doc.get("goal")
+    return bool(goal) and goal.get("status") == "confirmed"
+
+
+def has_ever_had_confirmed_goal() -> bool:
+    """
+    True if ANY month (past or present) has a confirmed goal for this
+    user. Distinguishes a genuinely disengaged/new user (never
+    confirmed a goal) from one who's simply between months. 
+    """
+    collection = get_month_plans_collection()
+    doc = collection.find_one({
+        "user_id": get_current_user_id(),
+        "goal.status": "confirmed",
+    })
+    return doc is not None
+
+
+def get_most_recent_confirmed_goal() -> Optional[Tuple[str, dict]]:
+    """
+    Returns (month_id, goal) for the most recent month with a confirmed
+    goal, sorted descending by month_id. None if none exists. 
+    """
+    collection = get_month_plans_collection()
+    doc = collection.find_one(
+        {"user_id": get_current_user_id(), "goal.status": "confirmed"},
+        sort=[("month_id", -1)],
+    )
+    if not doc:
+        return None
+    return doc["month_id"], doc["goal"]
+
+
+def has_any_goal_doc_for_current_month() -> bool:
+    """
+    True if a goal sub-document exists for the current month at ALL
+    (pending OR confirmed) — used by the scheduler to avoid clobbering
+    a goal the user has already started staging manually. 
+    """
+    collection = get_month_plans_collection()
+    doc = collection.find_one({"user_id": get_current_user_id(), "month_id": _current_month_id()})
+    return bool(doc and doc.get("goal"))
+
 
 
 if __name__ == "__main__":

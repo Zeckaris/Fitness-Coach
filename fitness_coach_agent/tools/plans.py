@@ -10,9 +10,27 @@ from langchain_core.tools import tool
 from pydantic import BaseModel, Field, model_validator
 
 from db.mongo_client import get_plans_collection, get_month_plans_collection, get_week_plans_collection
+from db.guards import mongo_guarded
 from tools.week_plans import ensure_week_plan_exists
+from auth.context import get_current_user_id
+from tools.backlog import get_backlog
 
-DEFAULT_USER_ID = "default_user"
+
+
+from tools.week_plans import (
+    ensure_week_plan_exists, save_week_plan, _get_week_id_for_date,
+    _get_week_number_from_date, _weeks_in_month, _find_week_doc_for_date,
+    get_week_focus_for_date, BlockInput, VolumeTargetInput,
+)
+from tools.month_plans import has_theme_path_for_current_month
+from utils.theme_defaults import default_theme_path
+from agent.monthly_review import build_week_blocks
+from agent.plan_generation import generate_backfill_days
+from agent.error_handling import StructuredOutputFailed
+from tools.plan_history import get_past_plans
+from tools.knowledge_base import search_fitness_knowledge_base
+from tools.workout_library import search_workout_library
+from db.mongo_client import get_backlog_collection
 
 LOCAL_TZ = ZoneInfo("Africa/Addis_Ababa")
 
@@ -22,7 +40,14 @@ _WORKOUTS_PATH = os.path.join(
 )
 
 with open(_WORKOUTS_PATH, "r") as f:
-    _WORKOUTS = json.load(f)
+    _workouts_data = json.load(f)
+
+# New build format wraps the list: {"version", "generated_at", "total_exercises", "exercises": [...]}
+_WORKOUTS = (
+    _workouts_data["exercises"]
+    if isinstance(_workouts_data, dict) and "exercises" in _workouts_data
+    else _workouts_data
+)
 
 _VALID_EXERCISE_NAMES = {w["name"] for w in _WORKOUTS}
 
@@ -43,7 +68,7 @@ def _current_month_id() -> str:
 def _has_confirmed_goal() -> bool:
     """Check if current month has a confirmed goal."""
     month_plans = get_month_plans_collection()
-    doc = month_plans.find_one({"user_id": DEFAULT_USER_ID, "month_id": _current_month_id()})
+    doc = month_plans.find_one({"user_id": get_current_user_id(), "month_id": _current_month_id()})
     if not doc:
         return False
     goal = doc.get("goal")
@@ -60,7 +85,9 @@ class ExercisePlanItem(BaseModel):
     reps: Optional[str] = Field(
         default=None, description="Rep range or duration."
     )
-    equipment: Optional[str] = Field(default=None, description="Required equipment.")
+    equipment: Optional[List[str]] = Field(
+        default=None, description="Required equipment, e.g. ['dumbbells', 'bench']."
+    )
     duration_minutes: Optional[int] = Field(
         default=None, description="Estimated duration."
     )
@@ -170,18 +197,6 @@ class DayPlanInput(BaseModel):
                     "Call search_workout_library for stretch/recovery exercises."
                 )
 
-            # Duration sanity check
-            if self.duration_minutes is not None:
-                n = len(self.exercises)
-                min_expected = n * 2
-                max_expected = n * 8
-                if not (min_expected <= self.duration_minutes <= max_expected):
-                    raise ValueError(
-                        f"duration_minutes ({self.duration_minutes}) is unrealistic for "
-                        f"{n} exercises. Expected range: {min_expected}-{max_expected} min "
-                        f"(2-8 min per exercise, accounting for rest periods)."
-                    )
-
         if self.status == "rest" and self.exercises:
             raise ValueError("A 'rest' day must not include exercises.")
 
@@ -194,6 +209,96 @@ class DayPlanInput(BaseModel):
         return self
 
 
+
+class BackfillDayPlanInput(BaseModel):
+    """
+    Schema for plans created by generate_today_plan.
+
+    Validates exercise count, phase distribution, status, and duration
+    without restricting the date value. Date correctness is validated
+    by the caller.
+    """
+
+    date: str = Field(description="Plan date in YYYY-MM-DD format.")
+    focus_area: str = Field(description="Training focus.")
+    status: str = Field(description="'planned' or 'rest'.")
+    duration_minutes: Optional[int] = Field(
+        default=None, description="Session duration."
+    )
+    exercises: List[ExercisePlanItem] = Field(
+        ...,
+        description="Complete session exercises. Minimum 7, maximum 20. "
+        "Must include warmup (2-4), main (4-12), and cooldown (1-4) phases.",
+    )
+    notes: Optional[str] = Field(default=None, description="Plan notes.")
+    avoid_body_parts: Optional[List[str]] = Field(default=None, description="Excluded body parts.")
+    source_checkin_date: Optional[str] = Field(default=None, description="Related check-in date.")
+
+    @model_validator(mode="after")
+    def _validate_status_and_phases(self):
+        if self.status not in ("planned", "rest"):
+            raise ValueError("status must be 'planned' or 'rest'.")
+
+        if self.status == "planned":
+            if not self.exercises:
+                raise ValueError(
+                    "A 'planned' day cannot be saved with no exercises. "
+                    "Assemble real exercises from the provided knowledge/library "
+                    "search results before returning."
+                )
+
+            if not (7 <= len(self.exercises) <= 20):
+                raise ValueError(
+                    f"Need 7-20 exercises total, got {len(self.exercises)}."
+                )
+
+            cats = [e.category for e in self.exercises]
+            warmup_count = cats.count("warmup")
+            main_count = cats.count("main")
+            cooldown_count = cats.count("cooldown")
+
+            if warmup_count < 2:
+                raise ValueError(f"Need at least 2 warmup exercises, found {warmup_count}.")
+            if main_count < 4:
+                raise ValueError(f"Need at least 4 main exercises, found {main_count}.")
+            if cooldown_count < 1:
+                raise ValueError(f"Need at least 1 cooldown exercise, found {cooldown_count}.")
+
+        if self.status == "rest" and self.exercises:
+            raise ValueError("A 'rest' day must not include exercises.")
+
+        # NOTE: deliberately no date-membership check here — see class
+        # docstring. generate_today_plan validates exact date values
+        # post-generation.
+
+        return self
+
+
+class BackfillPlanOutput(BaseModel):
+    """
+    Output schema for generate_today_plan.
+
+    Validates that the output contains exactly 4 unique day plans.
+    Date correctness is validated by the caller.
+    """
+
+    days: List[BackfillDayPlanInput] = Field(
+        description="Exactly 4 day plans: today, tomorrow, day+2, day+3, in that order."
+    )
+
+    @model_validator(mode="after")
+    def _validate_shape(self):
+        if len(self.days) != 4:
+            raise ValueError(f"Expected exactly 4 days, got {len(self.days)}.")
+        dates = [d.date for d in self.days]
+        if len(set(dates)) != 4:
+            raise ValueError(f"Day dates must be unique, got {dates}.")
+        return self
+
+
+
+
+
 class UpdateForwardPlanInput(BaseModel):
     days: List[DayPlanInput] = Field(
         description="Plan days to create or update."
@@ -201,6 +306,7 @@ class UpdateForwardPlanInput(BaseModel):
 
 
 @tool(args_schema=UpdateForwardPlanInput)
+@mongo_guarded
 def update_three_day_plan(days: List[DayPlanInput]) -> str:
     """
     Create or patch forward plan entries (tomorrow, day+2, day+3).
@@ -229,7 +335,7 @@ def update_three_day_plan(days: List[DayPlanInput]) -> str:
 
     for day in days:
         set_fields = {
-            "user_id": DEFAULT_USER_ID,
+            "user_id": get_current_user_id(),
             "date": day.date,
             "updated_at": datetime.now(ZoneInfo("UTC")),
             "focus_area": day.focus_area,
@@ -242,7 +348,7 @@ def update_three_day_plan(days: List[DayPlanInput]) -> str:
         }
 
         collection.update_one(
-            {"user_id": DEFAULT_USER_ID, "date": day.date},
+            {"user_id": get_current_user_id(), "date": day.date},
             {
                 "$set": set_fields,
                 "$setOnInsert": {"created_at": datetime.now(ZoneInfo("UTC"))},
@@ -253,7 +359,177 @@ def update_three_day_plan(days: List[DayPlanInput]) -> str:
 
     return f"Plan updated for: {', '.join(updated_dates)}."
 
+def _get_month_doc() -> Optional[dict]:
+    collection = get_month_plans_collection()
+    return collection.find_one({"user_id": get_current_user_id(), "month_id": _current_month_id()})
 
+
+
+
+@tool
+@mongo_guarded
+def generate_today_plan() -> str:
+    """
+    Create-only backfill: builds today's plan plus the forward
+    tomorrow/day+2/day+3 window when NO plan document exists for today
+    at all. Refuses immediately if any document already exists for
+    today, for any reason. Reconstructs missing month theme path
+    (non-LLM default) and week block structure (reused generation
+    logic) as needed first.
+    """
+    today = datetime.now(LOCAL_TZ).date()
+    today_str = today.strftime("%Y-%m-%d")
+    tomorrow_str = (today + timedelta(days=1)).strftime("%Y-%m-%d")
+    day2_str = (today + timedelta(days=2)).strftime("%Y-%m-%d")
+    day3_str = (today + timedelta(days=3)).strftime("%Y-%m-%d")
+
+    # Guard 1: confirmed goal must exist
+    if not _has_confirmed_goal():
+        return (
+            "ERROR: No confirmed month goal exists. Please set a goal first "
+            "via stage_month_goal / confirm_month_goal before I can build today's plan."
+        )
+
+    # Guard 2 (create-only guarantee): refuse if ANY document exists for today, period.
+    plans = get_plans_collection()
+    if plans.find_one({"user_id": get_current_user_id(), "date": today_str}):
+        return f"A plan document already exists for {today_str}. Nothing to backfill."
+
+    month_id = _current_month_id()
+    month_doc = _get_month_doc()
+    goal = (month_doc or {}).get("goal") or {}
+    total_weeks = _weeks_in_month(month_id)
+
+    # Step 1: month theme path — non-LLM fallback (V9.3 addendum item 3)
+    if not has_theme_path_for_current_month():
+        theme_path = default_theme_path(total_weeks)
+        get_month_plans_collection().update_one(
+            {"user_id": get_current_user_id(), "month_id": month_id},
+            {"$set": {"week_plan_path": theme_path, "updated_at": datetime.now(ZoneInfo("UTC"))}},
+        )
+        month_doc = _get_month_doc()  # re-fetch: now has week_plan_path
+
+    week_plan_path = (month_doc or {}).get("week_plan_path") or []
+    week_number = _get_week_number_from_date(today_str)
+    week_theme = next(
+        (t["theme"] for t in week_plan_path if t["week_number"] == week_number),
+        "Volume",
+    )
+
+    # Step 2: week block structure — reuse build_week_blocks, single write here
+    if not ensure_week_plan_exists(today_str):
+        week_id = _get_week_id_for_date(today_str)
+        sunday = datetime.strptime(week_id, "%Y-%m-%d").date()
+        block_1_dates = [(sunday + timedelta(days=d)).strftime("%Y-%m-%d") for d in (1, 2, 3)]
+        block_2_dates = [(sunday + timedelta(days=d)).strftime("%Y-%m-%d") for d in (4, 5, 6)]
+
+        week_result = build_week_blocks(
+            week_id=week_id,
+            block_1_dates=block_1_dates,
+            block_2_dates=block_2_dates,
+            week_theme=week_theme,
+            month_goal=goal,
+            week_number=week_number,
+            total_weeks=total_weeks,
+        )
+        save_week_plan(
+            week_id=week_id,
+            blocks=[BlockInput(**b) for b in week_result["blocks"]],
+            week_volume_targets=(
+                [VolumeTargetInput(**v) for v in week_result["week_volume_targets"]]
+                if week_result["week_volume_targets"] else None
+            ),
+            rationale=week_result["rationale"],
+            require_theme_path=False,
+        )
+
+    week_focus = get_week_focus_for_date(today_str) or week_theme
+
+    past_plans_context = get_past_plans.invoke({})
+    backlog_items = get_backlog.invoke({})
+    knowledge_context = search_fitness_knowledge_base.invoke(
+        {"query": f"{week_focus} training guidance for {goal.get('description', 'general fitness')}"}
+    )
+
+    main_pool = search_workout_library.invoke({})
+    short_pool = search_workout_library.invoke({"max_duration_minutes": 6})
+    available_exercises = f"{main_pool}\n{short_pool}"
+
+    # Step 3: today + forward window, one combined structured call
+    try:
+        result = generate_backfill_days(
+            today_date=today_str,
+            tomorrow_date=tomorrow_str,
+            day_plus_2_date=day2_str,
+            day_plus_3_date=day3_str,
+            goal_description=goal.get("description", "unspecified"),
+            week_focus=week_focus,
+            backlog_items=backlog_items,
+            past_plans_context=past_plans_context,
+            knowledge_context=knowledge_context,
+            available_exercises=available_exercises,
+        )
+    except StructuredOutputFailed:
+        return (
+            "I've set up this week's structure, but couldn't generate today's "
+            "actual workout plan just now — please ask again in a moment."
+        )
+
+    # Validate the 4 returned dates are EXACTLY what we expect — the
+    # schema only checks "4 unique dates", not that they match reality.
+    expected_dates = {today_str, tomorrow_str, day2_str, day3_str}
+    returned_dates = {d.date for d in result.days}
+    if returned_dates != expected_dates:
+        return (
+            "I've set up this week's structure, but today's plan generation "
+            "returned unexpected dates — please ask again in a moment."
+        )
+
+    # Write all 4 days directly to plans_collection (bypassing
+    # update_three_day_plan entirely
+    now = datetime.now(ZoneInfo("UTC"))
+    for day in result.days:
+        set_fields = {
+            "user_id": get_current_user_id(),
+            "date": day.date,
+            "updated_at": now,
+            "focus_area": day.focus_area,
+            "status": day.status,
+            "duration_minutes": day.duration_minutes,
+            "exercises": [e.model_dump() for e in day.exercises] if day.exercises else [],
+            "notes": day.notes,
+            "avoid_body_parts": day.avoid_body_parts,
+            "source_checkin_date": day.source_checkin_date,
+        }
+        plans.update_one(
+            {"user_id": get_current_user_id(), "date": day.date},
+            {"$set": set_fields, "$setOnInsert": {"created_at": now}},
+            upsert=True,
+        )
+
+    backlog = get_backlog_collection()
+    open_items = list(backlog.find({"user_id": get_current_user_id(), "status": "open"}))
+    open_names = {item["exercise_name"] for item in open_items}
+    for day in result.days:
+        for ex in day.exercises:
+            if ex.name in open_names:
+                backlog.update_one(
+                    {"user_id": get_current_user_id(), "exercise_name": ex.name, "status": "open"},
+                    {"$set": {
+                        "status": "reinserted",
+                        "reinserted_date": day.date,
+                        "updated_at": now,
+                    }},
+                )
+
+    return (
+        f"Backfilled plan for {today_str} through {day3_str}. "
+        f"You're caught back up to your normal weekly rhythm."
+    )
+    
+    
+
+    
 # Quick manual test: python -m tools.plans
 if __name__ == "__main__":
     tomorrow = (datetime.now(LOCAL_TZ) + timedelta(days=1)).strftime("%Y-%m-%d")

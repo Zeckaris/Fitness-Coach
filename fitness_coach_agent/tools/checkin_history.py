@@ -12,11 +12,11 @@ from typing import Optional
 from langchain_core.tools import tool
 
 from db.mongo_client import get_checkins_collection
+from db.guards import mongo_guarded
+from auth.context import get_current_user_id
 
-DEFAULT_USER_ID = "default_user"
 
-# Hardcoded until per-user timezone support exists.
-# Must match tools/checkins.py's LOCAL_TZ.
+
 LOCAL_TZ = ZoneInfo("Africa/Addis_Ababa")
 
 
@@ -68,13 +68,23 @@ def fetch_checkin(date: str) -> str:
     Plain Python fetch - no LLM/tool machinery. Used directly by
     history_check_node for the deterministic once-per-session pull, so it
     never depends on the LLM deciding to call anything.
+
+    NOT @mongo_guarded: history_check_node (agent/graph.py) is the
+    "non-critical, continue" node per the V9.2 design — it needs its own
+    internal try/except that swallows failure and returns a neutral
+    {"yesterday_context": None} shape. Guarding here instead would leak
+    a "couldn't reach your data" fallback STRING into yesterday_context,
+    which then gets silently injected into the coach's system prompt as
+    if it were real check-in content — the node-level catch is what's
+    supposed to produce the clean None instead.
     """
     collection = get_checkins_collection()
-    doc = collection.find_one({"user_id": DEFAULT_USER_ID, "date": date})
+    doc = collection.find_one({"user_id": get_current_user_id(), "date": date})
     return format_checkin(doc, date)
 
 
 @tool
+@mongo_guarded
 def get_recent_checkins(date: str) -> str:
     """
     Look up a past check-in by date.

@@ -38,3 +38,13 @@ langgraph-checkpoint-mongodb>=0.1.0
 #---- Version 6 requirements
 streamlit-elements
 streamlit-antd-components
+
+
+## after version 1.0
+
+# version 1.1
+bcrypt
+email_validator
+
+# version 1.2
+torchvision
