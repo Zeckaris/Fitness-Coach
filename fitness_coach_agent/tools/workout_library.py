@@ -1,5 +1,6 @@
 import json
 import os
+import re
 from typing import List, Literal, Optional
 
 from langchain_core.tools import tool
@@ -9,31 +10,70 @@ _WORKOUTS_PATH = os.path.join(
     os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "data", "workouts.json"
 )
 
+_NO_EQUIPMENT_TOKENS = {"body weight", "none", "bodyweight"}
+
 
 def _load_workouts() -> list[dict]:
     with open(_WORKOUTS_PATH, "r") as f:
-        return json.load(f)
-
+        data = json.load(f)
+    # New build format wraps the list: {"version", "generated_at", "total_exercises", "exercises": [...]}
+    if isinstance(data, dict) and "exercises" in data:
+        return data["exercises"]
+    return data
 
 
 _WORKOUTS = _load_workouts()
 
-# Controlled vocabulary, derived from what's actually in data/workouts.json.
+# Controlled vocabulary, derived from the rebuilt workout library (V9.5).
 TargetArea = Literal[
     "abs", "back", "biceps", "calves", "chest", "forearms",
-    "glutes", "hamstrings", "lower_back", "quads", "shoulders", "triceps","full_body", "core"
+    "glutes", "hamstrings", "lower_back", "quads", "shoulders", "triceps",
+    "full_body", "core", "neck"
 ]
-Equipment = Literal["none", "dumbbells", "chair"]
-Difficulty = Literal["beginner", "intermediate"]
-RequiredSpace = Literal["minimal"]
+Difficulty = Literal["beginner", "intermediate", "advanced"]
+RequiredSpace = Literal["indoor", "outdoor"]
+
+
+def _parse_rep_number(reps: str) -> Optional[float]:
+    """Extract a representative number from a reps string like '10-12', '30', '10 per side'."""
+    if not reps:
+        return None
+    numbers = [float(n) for n in re.findall(r"\d+(?:\.\d+)?", reps)]
+    if not numbers:
+        return None
+    return sum(numbers) / len(numbers)  # average if it's a range
+
+
+def _estimate_duration_minutes(baseline: dict) -> Optional[float]:
+    """Rough estimate of time-to-complete from baseline sets/reps/rest_seconds/unit."""
+    if not baseline:
+        return None
+    sets = baseline.get("sets")
+    rest = baseline.get("rest_seconds", 0)
+    unit = baseline.get("unit", "reps")
+    reps = baseline.get("reps", "")
+
+    if sets is None:
+        return None
+
+    rep_number = _parse_rep_number(reps)
+
+    if unit == "seconds":
+        active_per_set = rep_number if rep_number is not None else 30
+    else:  # reps or reps_per_side
+        active_per_set = (rep_number if rep_number is not None else 10) * 3  # ~3 sec/rep
+
+    total_seconds = (active_per_set * sets) + (rest * max(sets - 1, 0))
+    return round(total_seconds / 60, 1)
 
 
 class WorkoutQuery(BaseModel):
 
-    equipment: Optional[Equipment] = Field(
+    equipment: Optional[List[str]] = Field(
         default=None,
-        description="Equipment available to the user. Use 'none' for bodyweight-only "
-        "(e.g. traveling, no gym access). Omit if equipment isn't a constraint.",
+        description="Equipment available to the user, e.g. ['dumbbells', 'bench']. An exercise "
+        "matches only if all the equipment it requires is in this list (bodyweight-only "
+        "exercises always match regardless). Omit if equipment isn't a constraint.",
     )
     target_area: Optional[List[TargetArea]] = Field(
         default=None,
@@ -53,11 +93,13 @@ class WorkoutQuery(BaseModel):
     )
     max_duration_minutes: Optional[int] = Field(
         default=None,
-        description="Maximum time available, in minutes. Omit if no time constraint was mentioned.",
+        description="Maximum time available, in minutes. This is an estimate derived from "
+        "sets/reps/rest, not exact. Omit if no time constraint was mentioned.",
     )
     required_space: Optional[RequiredSpace] = Field(
         default=None,
-        description="Space constraint. Omit if not relevant.",
+        description="Whether the exercise can be done indoors or requires outdoor space. "
+        "Omit if not relevant.",
     )
     avoid_body_parts: Optional[List[str]] = Field(
         default=None,
@@ -74,8 +116,15 @@ class WorkoutQuery(BaseModel):
 
 def _matches(workout: dict, q: WorkoutQuery) -> bool:
 
-    if q.equipment is not None and workout.get("equipment") != q.equipment:
-        return False
+    if q.equipment is not None:
+        required = {
+            e for e in workout.get("equipment", [])
+            if e.strip().lower() not in _NO_EQUIPMENT_TOKENS
+        }
+        user_has = {e.strip().lower() for e in q.equipment}
+        required_lower = {e.strip().lower() for e in required}
+        if not required_lower.issubset(user_has):
+            return False
 
     if q.target_area:
         primary = workout.get("primary_target_area")
@@ -92,7 +141,8 @@ def _matches(workout: dict, q: WorkoutQuery) -> bool:
         return False
 
     if q.max_duration_minutes is not None:
-        if workout.get("duration_minutes", 0) > q.max_duration_minutes:
+        est = _estimate_duration_minutes(workout.get("baseline", {}))
+        if est is not None and est > q.max_duration_minutes:
             return False
 
     if q.required_space is not None and workout.get("required_space") != q.required_space:
@@ -111,7 +161,7 @@ def _matches(workout: dict, q: WorkoutQuery) -> bool:
 
 @tool(args_schema=WorkoutQuery)
 def search_workout_library(
-    equipment: Optional[str] = None,
+    equipment: Optional[List[str]] = None,
     target_area: Optional[List[str]] = None,
     movement_patterns: Optional[List[str]] = None,
     difficulty: Optional[str] = None,
@@ -141,18 +191,21 @@ def search_workout_library(
     for w in matches[:5]:
         secondary = w.get("secondary_target_areas") or []
         secondary_str = f", also works: {', '.join(secondary)}" if secondary else ""
+        equipment_str = ", ".join(w.get("equipment", [])) or "none"
+        est_duration = _estimate_duration_minutes(w.get("baseline", {}))
+        duration_str = f"~{est_duration:g} min" if est_duration is not None else "duration n/a"
         lines.append(
             f"- {w['name']} (primary: {w['primary_target_area']}{secondary_str}; "
-            f"{w['equipment']}, {w['difficulty']}, ~{w['duration_minutes']} min): {w['description']}"
+            f"{equipment_str}, {w['difficulty']}, {duration_str}): {w['description']}"
         )
     return "\n".join(lines)
 
 
 # Quick manual test: python tools/workout_library.py
 if __name__ == "__main__":
-    print(search_workout_library.invoke({"equipment": "none", "target_area": ["chest"]}))
+    print(search_workout_library.invoke({"equipment": [], "target_area": ["chest"]}))
     print()
-    print(search_workout_library.invoke({"avoid_body_parts": ["shoulder"], "equipment": "dumbbells"}))
+    print(search_workout_library.invoke({"avoid_body_parts": ["shoulder"], "equipment": ["dumbbells"]}))
     print()
     print(search_workout_library.invoke({"max_duration_minutes": 4}))
     print()

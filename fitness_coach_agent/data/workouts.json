@@ -1,3183 +1,3745 @@
-[
-  {
-    "id": "warmup_001",
-    "name": "Joint Mobility Warm-Up",
-    "type": "mobility",
-    "primary_target_area": "full_body",
-    "secondary_target_areas": [],
-    "movement_patterns": [
-      "dynamic_movement",
-      "stretch"
-    ],
-    "equipment": "none",
-    "required_space": "minimal",
-    "difficulty": "beginner",
-    "duration_minutes": 5,
-    "avoid_if_injured": [
-      "shoulder",
-      "hip",
-      "knee",
-      "ankle",
-      "lower_back",
-      "neck"
-    ],
-    "description": "5-10 minutes. Use video or your own dynamic warm up to prepare joints and muscles for exercise.",
-    "tags": [
-      "no_equipment",
-      "warmup",
-      "beginner_friendly"
-    ]
-  },
-  {
-    "id": "quads_002",
-    "name": "Bodyweight Squats",
-    "type": "strength",
-    "primary_target_area": "quads",
-    "secondary_target_areas": [
-      "glutes",
-      "hamstrings"
-    ],
-    "movement_patterns": [
-      "squat",
-      "lower_body_push"
-    ],
-    "equipment": "none",
-    "required_space": "minimal",
-    "difficulty": "beginner",
-    "duration_minutes": 5,
-    "avoid_if_injured": [
-      "knee",
-      "hip",
-      "ankle",
-      "lower_back"
-    ],
-    "description": "3 sets of 8-10 reps. Sit back, heels down, knees open, squat low, hold onto counter as needed. Rest 30-45 seconds between sets.",
-    "tags": [
-      "no_equipment",
-      "travel",
-      "beginner_friendly"
-    ]
-  },
-  {
-    "id": "chest_003",
-    "name": "Modified Push-Up",
-    "type": "strength",
-    "primary_target_area": "chest",
-    "secondary_target_areas": [
-      "triceps",
-      "shoulders"
-    ],
-    "movement_patterns": [
-      "push",
-      "horizontal_push"
-    ],
-    "equipment": "none",
-    "required_space": "minimal",
-    "difficulty": "beginner",
-    "duration_minutes": 5,
-    "avoid_if_injured": [
-      "palm",
-      "wrist",
-      "elbow",
-      "shoulder",
-      "chest",
-      "core"
-    ],
-    "description": "3 sets of 8-10 reps. Use a counter or piece of sturdy furniture for an elevated push-up. Rest 30-45 seconds between sets.",
-    "tags": [
-      "no_equipment",
-      "travel",
-      "beginner_friendly"
-    ]
-  },
-  {
-    "id": "back_004",
-    "name": "Door Frame Row",
-    "type": "strength",
-    "primary_target_area": "back",
-    "secondary_target_areas": [
-      "biceps",
-      "shoulders"
-    ],
-    "movement_patterns": [
-      "pull",
-      "horizontal_pull"
-    ],
-    "equipment": "none",
-    "required_space": "minimal",
-    "difficulty": "beginner",
-    "duration_minutes": 5,
-    "avoid_if_injured": [
-      "shoulder",
-      "elbow",
-      "wrist",
-      "hand",
-      "upper_back"
-    ],
-    "description": "3 sets of 8-10 reps. Squeeze shoulder blades together, stop if grip starts to fatigue. Rest 30-45 seconds between sets.",
-    "tags": [
-      "no_equipment",
-      "travel",
-      "beginner_friendly"
-    ]
-  },
-  {
-    "id": "quads_005",
-    "name": "Split Squat",
-    "type": "strength",
-    "primary_target_area": "quads",
-    "secondary_target_areas": [
-      "glutes",
-      "hamstrings"
-    ],
-    "movement_patterns": [
-      "lunge",
-      "single_leg"
-    ],
-    "equipment": "none",
-    "required_space": "minimal",
-    "difficulty": "beginner",
-    "duration_minutes": 5,
-    "avoid_if_injured": [
-      "knee",
-      "hip",
-      "ankle",
-      "lower_back"
-    ],
-    "description": "3 sets of 6-8 reps per leg. Back straight, hold on for balance if needed. Rest 20-30 seconds between sets.",
-    "tags": [
-      "no_equipment",
-      "travel",
-      "single_leg",
-      "beginner_friendly"
-    ]
-  },
-  {
-    "id": "abs_006",
-    "name": "Penguin Crunch",
-    "type": "strength",
-    "primary_target_area": "abs",
-    "secondary_target_areas": [
-      "obliques"
-    ],
-    "movement_patterns": [
-      "flexion",
-      "core_stability"
-    ],
-    "equipment": "none",
-    "required_space": "minimal",
-    "difficulty": "beginner",
-    "duration_minutes": 4,
-    "avoid_if_injured": [
-      "lower_back",
-      "neck",
-      "hip",
-      "core"
-    ],
-    "description": "3 sets of 15 reps per side. Tuck chin slightly, tap heels alternating sides. Rest 15-30 seconds between sets.",
-    "tags": [
-      "no_equipment",
-      "travel",
-      "beginner_friendly"
-    ]
-  },
-  {
-    "id": "glutes_007",
-    "name": "Glute Bridge",
-    "type": "strength",
-    "primary_target_area": "glutes",
-    "secondary_target_areas": [
-      "hamstrings",
-      "lower_back"
-    ],
-    "movement_patterns": [
-      "hip_extension",
-      "posterior_chain"
-    ],
-    "equipment": "none",
-    "required_space": "minimal",
-    "difficulty": "beginner",
-    "duration_minutes": 4,
-    "avoid_if_injured": [
-      "lower_back",
-      "hip",
-      "knee",
-      "hamstring"
-    ],
-    "description": "3 sets of 10-12 reps. Lift hips up all the way, squeeze glutes at the top. Rest 15-30 seconds between sets.",
-    "tags": [
-      "no_equipment",
-      "travel",
-      "beginner_friendly",
-      "glute_activation"
-    ]
-  },
-  {
-    "id": "abs_008",
-    "name": "Plank",
-    "type": "strength",
-    "primary_target_area": "abs",
-    "secondary_target_areas": [
-      "shoulders",
-      "lower_back"
-    ],
-    "movement_patterns": [
-      "anti_extension",
-      "core_stability",
-      "isometric"
-    ],
-    "equipment": "none",
-    "required_space": "minimal",
-    "difficulty": "beginner",
-    "duration_minutes": 3,
-    "avoid_if_injured": [
-      "wrist",
-      "shoulder",
-      "lower_back",
-      "neck",
-      "core"
-    ],
-    "description": "2-3 sets, hold for 20-45 seconds each. Hold plank on elbows, keep body in a straight line. Rest 15-30 seconds between sets.",
-    "tags": [
-      "no_equipment",
-      "travel",
-      "beginner_friendly",
-      "isometric"
-    ]
-  },
-  {
-    "id": "abs_009",
-    "name": "Bird Dog",
-    "type": "strength",
-    "primary_target_area": "abs",
-    "secondary_target_areas": [
-      "lower_back",
-      "shoulders",
-      "glutes"
-    ],
-    "movement_patterns": [
-      "extension",
-      "core_stability"
-    ],
-    "equipment": "none",
-    "required_space": "minimal",
-    "difficulty": "beginner",
-    "duration_minutes": 4,
-    "avoid_if_injured": [
-      "lower_back",
-      "shoulder",
-      "hip",
-      "knee",
-      "wrist"
-    ],
-    "description": "2-3 sets of 10 reps per side. Keep hips and shoulders square, extend opposite arm and leg. Rest 15-30 seconds between sets.",
-    "tags": [
-      "no_equipment",
-      "travel",
-      "beginner_friendly"
-    ]
-  },
-  {
-    "id": "chest_010",
-    "name": "Push-Ups",
-    "type": "strength",
-    "primary_target_area": "chest",
-    "secondary_target_areas": [
-      "triceps",
-      "shoulders"
-    ],
-    "movement_patterns": [
-      "push",
-      "horizontal_push"
-    ],
-    "equipment": "none",
-    "required_space": "minimal",
-    "difficulty": "intermediate",
-    "duration_minutes": 5,
-    "avoid_if_injured": [
-      "palm",
-      "wrist",
-      "elbow",
-      "shoulder",
-      "chest",
-      "core",
-      "toe"
-    ],
-    "description": "4 sets of 8-10 reps. Lower chest to ground, keep body straight. Rest 30 seconds between sets.",
-    "tags": [
-      "no_equipment",
-      "travel",
-      "bodyweight"
-    ]
-  },
-  {
-    "id": "back_011",
-    "name": "Table Row",
-    "type": "strength",
-    "primary_target_area": "back",
-    "secondary_target_areas": [
-      "biceps",
-      "rear_shoulders"
-    ],
-    "movement_patterns": [
-      "pull",
-      "horizontal_pull"
-    ],
-    "equipment": "bench_or_table",
-    "required_space": "minimal",
-    "difficulty": "intermediate",
-    "duration_minutes": 5,
-    "avoid_if_injured": [
-      "lower_back",
-      "shoulder",
-      "elbow",
-      "wrist",
-      "upper_back"
-    ],
-    "description": "4 sets of 8-10 reps. Only perform on sturdy table. If not sturdy, use door frame row. Rest 30 seconds between sets.",
-    "tags": [
-      "minimal_equipment",
-      "travel"
-    ]
-  },
-  {
-    "id": "quads_012",
-    "name": "Backward Lunge",
-    "type": "strength",
-    "primary_target_area": "quads",
-    "secondary_target_areas": [
-      "glutes",
-      "hamstrings"
-    ],
-    "movement_patterns": [
-      "lunge",
-      "single_leg"
-    ],
-    "equipment": "none",
-    "required_space": "minimal",
-    "difficulty": "intermediate",
-    "duration_minutes": 5,
-    "avoid_if_injured": [
-      "knee",
-      "hip",
-      "ankle",
-      "lower_back"
-    ],
-    "description": "3 sets of 10 reps per leg. Back straight, alternate each rep. Rest 30 seconds between sets.",
-    "tags": [
-      "no_equipment",
-      "travel",
-      "single_leg"
-    ]
-  },
-  {
-    "id": "abs_013",
-    "name": "Sit-Up",
-    "type": "strength",
-    "primary_target_area": "abs",
-    "secondary_target_areas": [
-      "hip_flexors"
-    ],
-    "movement_patterns": [
-      "flexion",
-      "core_stability"
-    ],
-    "equipment": "none",
-    "required_space": "minimal",
-    "difficulty": "intermediate",
-    "duration_minutes": 4,
-    "avoid_if_injured": [
-      "lower_back",
-      "neck",
-      "hip",
-      "core"
-    ],
-    "description": "3 sets of 15-20 reps. Curl up, don't hinge at the hips. Rest 15-30 seconds between sets.",
-    "tags": [
-      "no_equipment",
-      "travel",
-      "bodyweight"
-    ]
-  },
-  {
-    "id": "hamstrings_014",
-    "name": "Single Leg Deadlift",
-    "type": "strength",
-    "primary_target_area": "hamstrings",
-    "secondary_target_areas": [
-      "glutes",
-      "lower_back"
-    ],
-    "movement_patterns": [
-      "hip_hinge",
-      "posterior_chain",
-      "single_leg"
-    ],
-    "equipment": "none",
-    "required_space": "minimal",
-    "difficulty": "intermediate",
-    "duration_minutes": 5,
-    "avoid_if_injured": [
-      "lower_back",
-      "hamstring",
-      "hip",
-      "knee",
-      "ankle"
-    ],
-    "description": "3 sets of 8-10 reps per leg. Keep back straight, hinge at hips. Rest 15-30 seconds between sets.",
-    "tags": [
-      "no_equipment",
-      "travel",
-      "single_leg",
-      "posterior_chain"
-    ]
-  },
-  {
-    "id": "abs_015",
-    "name": "Up/Down Plank",
-    "type": "strength",
-    "primary_target_area": "abs",
-    "secondary_target_areas": [
-      "obliques",
-      "shoulders",
-      "triceps"
-    ],
-    "movement_patterns": [
-      "push",
-      "core_stability"
-    ],
-    "equipment": "none",
-    "required_space": "minimal",
-    "difficulty": "intermediate",
-    "duration_minutes": 4,
-    "avoid_if_injured": [
-      "wrist",
-      "shoulder",
-      "elbow",
-      "lower_back",
-      "core"
-    ],
-    "description": "2-3 sets of 8-10 reps. Keep hips and shoulders square, move from elbows to hands and back. Rest 15-30 seconds between sets.",
-    "tags": [
-      "no_equipment",
-      "travel",
-      "core"
-    ]
-  },
-  {
-    "id": "lower_back_016",
-    "name": "Back Extension",
-    "type": "strength",
-    "primary_target_area": "lower_back",
-    "secondary_target_areas": [
-      "glutes",
-      "hamstrings"
-    ],
-    "movement_patterns": [
-      "extension",
-      "posterior_chain"
-    ],
-    "equipment": "none",
-    "required_space": "minimal",
-    "difficulty": "intermediate",
-    "duration_minutes": 4,
-    "avoid_if_injured": [
-      "lower_back",
-      "neck",
-      "hip",
-      "hamstring"
-    ],
-    "description": "2-3 sets of 10-12 reps. Lengthen as you lift, squeeze lower back and glutes. Rest 15-30 seconds between sets.",
-    "tags": [
-      "no_equipment",
-      "travel",
-      "posterior_chain"
-    ]
-  },
-  {
-    "id": "quads_017",
-    "name": "Jump Squats",
-    "type": "cardio",
-    "primary_target_area": "quads",
-    "secondary_target_areas": [
-      "glutes",
-      "hamstrings",
-      "calves"
-    ],
-    "movement_patterns": [
-      "squat",
-      "jump",
-      "lower_body_push"
-    ],
-    "equipment": "none",
-    "required_space": "minimal",
-    "difficulty": "advanced",
-    "duration_minutes": 5,
-    "avoid_if_injured": [
-      "knee",
-      "ankle",
-      "hip",
-      "lower_back",
-      "calf"
-    ],
-    "description": "4 sets of 8 reps. Land softly, make each jump count, don't go too fast. Rest 30 seconds between sets.",
-    "tags": [
-      "no_equipment",
-      "cardio",
-      "high_intensity"
-    ]
-  },
-  {
-    "id": "chest_018",
-    "name": "Feet Elevated Push-Ups",
-    "type": "strength",
-    "primary_target_area": "chest",
-    "secondary_target_areas": [
-      "triceps",
-      "shoulders"
-    ],
-    "movement_patterns": [
-      "push",
-      "horizontal_push"
-    ],
-    "equipment": "bench_or_table",
-    "required_space": "minimal",
-    "difficulty": "advanced",
-    "duration_minutes": 5,
-    "avoid_if_injured": [
-      "palm",
-      "wrist",
-      "elbow",
-      "shoulder",
-      "chest",
-      "core",
-      "toe"
-    ],
-    "description": "4 sets of 8-10 reps. Lower chest to ground with feet elevated on sturdy surface. Rest 30 seconds between sets.",
-    "tags": [
-      "minimal_equipment",
-      "bodyweight"
-    ]
-  },
-  {
-    "id": "quads_019",
-    "name": "Single Leg Squat",
-    "type": "strength",
-    "primary_target_area": "quads",
-    "secondary_target_areas": [
-      "glutes",
-      "hamstrings"
-    ],
-    "movement_patterns": [
-      "squat",
-      "single_leg",
-      "lower_body_push"
-    ],
-    "equipment": "none",
-    "required_space": "minimal",
-    "difficulty": "advanced",
-    "duration_minutes": 5,
-    "avoid_if_injured": [
-      "knee",
-      "hip",
-      "ankle",
-      "lower_back"
-    ],
-    "description": "3 sets of 3-8 reps per leg. Hold on for balance as needed, keep heel flat. Rest 30 seconds between sets.",
-    "tags": [
-      "no_equipment",
-      "single_leg",
-      "bodyweight"
-    ]
-  },
-  {
-    "id": "abs_020",
-    "name": "V-Up",
-    "type": "strength",
-    "primary_target_area": "abs",
-    "secondary_target_areas": [
-      "hip_flexors"
-    ],
-    "movement_patterns": [
-      "flexion",
-      "core_stability"
-    ],
-    "equipment": "none",
-    "required_space": "minimal",
-    "difficulty": "advanced",
-    "duration_minutes": 4,
-    "avoid_if_injured": [
-      "lower_back",
-      "neck",
-      "hip",
-      "core"
-    ],
-    "description": "3 sets of 8-10 reps. Keep hips tucked under, lift torso and legs simultaneously to form V shape. Rest 15-30 seconds between sets.",
-    "tags": [
-      "no_equipment",
-      "travel",
-      "core"
-    ]
-  },
-  {
-    "id": "glutes_021",
-    "name": "Single Leg Elevated Glute Bridge",
-    "type": "strength",
-    "primary_target_area": "glutes",
-    "secondary_target_areas": [
-      "hamstrings",
-      "lower_back"
-    ],
-    "movement_patterns": [
-      "hip_extension",
-      "posterior_chain",
-      "single_leg"
-    ],
-    "equipment": "bench_or_table",
-    "required_space": "minimal",
-    "difficulty": "advanced",
-    "duration_minutes": 5,
-    "avoid_if_injured": [
-      "lower_back",
-      "hip",
-      "knee",
-      "hamstring"
-    ],
-    "description": "3 sets of 8-10 reps per leg. Lift hips to full extension with one foot elevated. Rest 15-30 seconds between sets.",
-    "tags": [
-      "minimal_equipment",
-      "single_leg",
-      "glute_activation"
-    ]
-  },
-  {
-    "id": "abs_022",
-    "name": "Reverse Crunches",
-    "type": "strength",
-    "primary_target_area": "abs",
-    "secondary_target_areas": [
-      "obliques",
-      "hip_flexors"
-    ],
-    "movement_patterns": [
-      "hip_flexion",
-      "core_stability"
-    ],
-    "equipment": "none",
-    "required_space": "minimal",
-    "difficulty": "advanced",
-    "duration_minutes": 4,
-    "avoid_if_injured": [
-      "lower_back",
-      "neck",
-      "hip",
-      "core"
-    ],
-    "description": "3 sets of 12-15 reps. Lift with abs, don't swing, bring knees toward chest. Rest 15-30 seconds between sets.",
-    "tags": [
-      "no_equipment",
-      "travel",
-      "core"
-    ]
-  },
-  {
-    "id": "abs_023",
-    "name": "Rotating Side Plank",
-    "type": "strength",
-    "primary_target_area": "abs",
-    "secondary_target_areas": [
-      "obliques",
-      "shoulders"
-    ],
-    "movement_patterns": [
-      "core_stability",
-      "rotation"
-    ],
-    "equipment": "none",
-    "required_space": "minimal",
-    "difficulty": "advanced",
-    "duration_minutes": 4,
-    "avoid_if_injured": [
-      "wrist",
-      "shoulder",
-      "elbow",
-      "lower_back",
-      "core",
-      "neck"
-    ],
-    "description": "3 sets of 45-60 seconds. Keep core straight, rotate from side plank to front plank. Rest 15-30 seconds between sets.",
-    "tags": [
-      "no_equipment",
-      "travel",
-      "core"
-    ]
-  },
-  {
-    "id": "triceps_024",
-    "name": "Triceps Dip",
-    "type": "strength",
-    "primary_target_area": "triceps",
-    "secondary_target_areas": [
-      "shoulders",
-      "chest"
-    ],
-    "movement_patterns": [
-      "push",
-      "elbow_extension"
-    ],
-    "equipment": "chair",
-    "required_space": "minimal",
-    "difficulty": "beginner",
-    "duration_minutes": 5,
-    "avoid_if_injured": [
-      "shoulder",
-      "elbow",
-      "wrist",
-      "chest"
-    ],
-    "description": "3 sets of 10-12 reps. Go as low as comfortable, keep back close to chair. Rest 30-45 seconds between sets.",
-    "tags": [
-      "minimal_equipment",
-      "travel",
-      "beginner_friendly"
-    ]
-  },
-  {
-    "id": "triceps_025",
-    "name": "Elevated Feet Triceps Dip",
-    "type": "strength",
-    "primary_target_area": "triceps",
-    "secondary_target_areas": [
-      "shoulders",
-      "chest"
-    ],
-    "movement_patterns": [
-      "push",
-      "elbow_extension"
-    ],
-    "equipment": "chair",
-    "required_space": "minimal",
-    "difficulty": "intermediate",
-    "duration_minutes": 5,
-    "avoid_if_injured": [
-      "shoulder",
-      "elbow",
-      "wrist",
-      "chest"
-    ],
-    "description": "3 sets of 10-12 reps. Elevate feet on chair, go as low as comfortable. Rest 30-45 seconds between sets.",
-    "tags": [
-      "minimal_equipment",
-      "travel"
-    ]
-  },
-  {
-    "id": "lower_back_026",
-    "name": "Tabletop Extension",
-    "type": "strength",
-    "primary_target_area": "lower_back",
-    "secondary_target_areas": [
-      "glutes",
-      "hamstrings",
-      "shoulders"
-    ],
-    "movement_patterns": [
-      "extension",
-      "posterior_chain"
-    ],
-    "equipment": "none",
-    "required_space": "minimal",
-    "difficulty": "intermediate",
-    "duration_minutes": 4,
-    "avoid_if_injured": [
-      "lower_back",
-      "shoulder",
-      "neck",
-      "hip"
-    ],
-    "description": "2-3 sets of 10 reps per side. Lift hips to full height from tabletop position. Rest 15-30 seconds between sets.",
-    "tags": [
-      "no_equipment",
-      "travel",
-      "posterior_chain"
-    ]
-  },
-  {
-    "id": "chest_027",
-    "name": "One-Arm Push-Up",
-    "type": "strength",
-    "primary_target_area": "chest",
-    "secondary_target_areas": [
-      "triceps",
-      "shoulders",
-      "core"
-    ],
-    "movement_patterns": [
-      "push",
-      "horizontal_push"
-    ],
-    "equipment": "none",
-    "required_space": "minimal",
-    "difficulty": "advanced",
-    "duration_minutes": 5,
-    "avoid_if_injured": [
-      "palm",
-      "wrist",
-      "elbow",
-      "shoulder",
-      "chest",
-      "core",
-      "lower_back"
-    ],
-    "description": "3 sets of 3-5 reps per side. Follow progression in video, keep body stable. Rest 30 seconds between sets.",
-    "tags": [
-      "no_equipment",
-      "bodyweight"
-    ]
-  },
-  {
-    "id": "abs_028",
-    "name": "Side Lying Crunches",
-    "type": "strength",
-    "primary_target_area": "abs",
-    "secondary_target_areas": [
-      "obliques"
-    ],
-    "movement_patterns": [
-      "flexion",
-      "core_stability"
-    ],
-    "equipment": "none",
-    "required_space": "minimal",
-    "difficulty": "advanced",
-    "duration_minutes": 4,
-    "avoid_if_injured": [
-      "lower_back",
-      "neck",
-      "hip",
-      "core",
-      "shoulder"
-    ],
-    "description": "3 sets of 15 reps per side. Use just the oblique, crunch sideways. Rest 15-30 seconds between sets.",
-    "tags": [
-      "no_equipment",
-      "travel",
-      "core"
-    ]
-  },
-  {
-    "id": "chest_101",
-    "name": "Bench Press (Machine)",
-    "type": "strength",
-    "primary_target_area": "chest",
-    "secondary_target_areas": [
-      "shoulders",
-      "triceps"
-    ],
-    "movement_patterns": [
-      "push",
-      "horizontal_push"
-    ],
-    "equipment": "chest_press_machine",
-    "required_space": "gym",
-    "difficulty": "beginner",
-    "duration_minutes": 6,
-    "avoid_if_injured": [
-      "shoulder",
-      "elbow",
-      "wrist",
-      "chest",
-      "upper_back"
-    ],
-    "description": "3 sets of 8-12 reps. Adjust seat so handles are even with chest, press away without locking elbows. Rest 60 seconds between sets.",
-    "tags": [
-      "machine",
-      "gym",
-      "beginner_friendly"
-    ]
-  },
-  {
-    "id": "chest_102",
-    "name": "Cable Bench Press",
-    "type": "strength",
-    "primary_target_area": "chest",
-    "secondary_target_areas": [
-      "shoulders",
-      "triceps"
-    ],
-    "movement_patterns": [
-      "push",
-      "horizontal_push"
-    ],
-    "equipment": "cable_machine",
-    "required_space": "gym",
-    "difficulty": "beginner",
-    "duration_minutes": 6,
-    "avoid_if_injured": [
-      "shoulder",
-      "elbow",
-      "wrist",
-      "chest",
-      "upper_back"
-    ],
-    "description": "3 sets of 10-12 reps. Adjust Functional Training Arms to chest height, press away from chest. Can be performed one arm at a time. Rest 60 seconds between sets.",
-    "tags": [
-      "machine",
-      "gym",
-      "beginner_friendly"
-    ]
-  },
-  {
-    "id": "chest_103",
-    "name": "Converging Bench Press",
-    "type": "strength",
-    "primary_target_area": "chest",
-    "secondary_target_areas": [
-      "shoulders",
-      "triceps"
-    ],
-    "movement_patterns": [
-      "push",
-      "horizontal_push",
-      "horizontal_adduction"
-    ],
-    "equipment": "cable_machine",
-    "required_space": "gym",
-    "difficulty": "intermediate",
-    "duration_minutes": 6,
-    "avoid_if_injured": [
-      "shoulder",
-      "elbow",
-      "wrist",
-      "chest",
-      "upper_back"
-    ],
-    "description": "3 sets of 10-12 reps. Arms converge to the middle as you press. Adjust arms to chest height. Rest 60 seconds between sets.",
-    "tags": [
-      "machine",
-      "gym"
-    ]
-  },
-  {
-    "id": "chest_104",
-    "name": "Incline Bench Press (Machine)",
-    "type": "strength",
-    "primary_target_area": "chest",
-    "secondary_target_areas": [
-      "shoulders",
-      "triceps"
-    ],
-    "movement_patterns": [
-      "push",
-      "vertical_push"
-    ],
-    "equipment": "chest_press_machine",
-    "required_space": "gym",
-    "difficulty": "beginner",
-    "duration_minutes": 6,
-    "avoid_if_injured": [
-      "shoulder",
-      "elbow",
-      "wrist",
-      "chest",
-      "upper_back"
-    ],
-    "description": "3 sets of 8-12 reps. Adjust seat back to incline position, handles even with chest, press upward at angle. Rest 60 seconds between sets.",
-    "tags": [
-      "machine",
-      "gym",
-      "beginner_friendly"
-    ]
-  },
-  {
-    "id": "chest_105",
-    "name": "Converging Incline Press",
-    "type": "strength",
-    "primary_target_area": "chest",
-    "secondary_target_areas": [
-      "shoulders",
-      "triceps"
-    ],
-    "movement_patterns": [
-      "push",
-      "vertical_push",
-      "horizontal_adduction"
-    ],
-    "equipment": "cable_machine",
-    "required_space": "gym",
-    "difficulty": "intermediate",
-    "duration_minutes": 6,
-    "avoid_if_injured": [
-      "shoulder",
-      "elbow",
-      "wrist",
-      "chest",
-      "upper_back"
-    ],
-    "description": "3 sets of 10-12 reps. Press upward at 45-degree angle while bringing hands together. Rest 60 seconds between sets.",
-    "tags": [
-      "machine",
-      "gym"
-    ]
-  },
-  {
-    "id": "chest_106",
-    "name": "Decline Bench Press (Machine)",
-    "type": "strength",
-    "primary_target_area": "chest",
-    "secondary_target_areas": [
-      "shoulders",
-      "triceps"
-    ],
-    "movement_patterns": [
-      "push",
-      "horizontal_push"
-    ],
-    "equipment": "chest_press_machine",
-    "required_space": "gym",
-    "difficulty": "intermediate",
-    "duration_minutes": 6,
-    "avoid_if_injured": [
-      "shoulder",
-      "elbow",
-      "wrist",
-      "chest",
-      "upper_back"
-    ],
-    "description": "3 sets of 8-12 reps. Adjust seat back to shoulder position, lean back, press away without locking elbows. Rest 60 seconds between sets.",
-    "tags": [
-      "machine",
-      "gym"
-    ]
-  },
-  {
-    "id": "chest_107",
-    "name": "Cable Decline Bench Press",
-    "type": "strength",
-    "primary_target_area": "chest",
-    "secondary_target_areas": [
-      "shoulders",
-      "triceps"
-    ],
-    "movement_patterns": [
-      "push",
-      "horizontal_push"
-    ],
-    "equipment": "cable_machine",
-    "required_space": "gym",
-    "difficulty": "intermediate",
-    "duration_minutes": 6,
-    "avoid_if_injured": [
-      "shoulder",
-      "elbow",
-      "wrist",
-      "chest",
-      "upper_back"
-    ],
-    "description": "3 sets of 10-12 reps. Press away from chest parallel to the floor while leaning back. Rest 60 seconds between sets.",
-    "tags": [
-      "machine",
-      "gym"
-    ]
-  },
-  {
-    "id": "chest_108",
-    "name": "Converging Decline Bench Press",
-    "type": "strength",
-    "primary_target_area": "chest",
-    "secondary_target_areas": [
-      "shoulders",
-      "triceps"
-    ],
-    "movement_patterns": [
-      "push",
-      "horizontal_push",
-      "horizontal_adduction"
-    ],
-    "equipment": "cable_machine",
-    "required_space": "gym",
-    "difficulty": "intermediate",
-    "duration_minutes": 6,
-    "avoid_if_injured": [
-      "shoulder",
-      "elbow",
-      "wrist",
-      "chest",
-      "upper_back"
-    ],
-    "description": "3 sets of 10-12 reps. Press parallel to floor while converging to the middle. Rest 60 seconds between sets.",
-    "tags": [
-      "machine",
-      "gym"
-    ]
-  },
-  {
-    "id": "chest_109",
-    "name": "Self Stabilizing Chest Press",
-    "type": "strength",
-    "primary_target_area": "chest",
-    "secondary_target_areas": [
-      "shoulders",
-      "triceps",
-      "core"
-    ],
-    "movement_patterns": [
-      "push",
-      "horizontal_push",
-      "core_stability"
-    ],
-    "equipment": "cable_machine",
-    "required_space": "gym",
-    "difficulty": "intermediate",
-    "duration_minutes": 6,
-    "avoid_if_injured": [
-      "shoulder",
-      "elbow",
-      "wrist",
-      "chest",
-      "lower_back",
-      "core"
-    ],
-    "description": "3 sets of 10-12 reps. Sit forward without back support, use much lower weight. Core stabilizers engaged. Rest 60 seconds between sets.",
-    "tags": [
-      "machine",
-      "gym",
-      "core"
-    ]
-  },
-  {
-    "id": "chest_110",
-    "name": "Cable Pec Fly",
-    "type": "strength",
-    "primary_target_area": "chest",
-    "secondary_target_areas": [
-      "shoulders"
-    ],
-    "movement_patterns": [
-      "horizontal_adduction",
-      "isolation"
-    ],
-    "equipment": "cable_machine",
-    "required_space": "gym",
-    "difficulty": "intermediate",
-    "duration_minutes": 5,
-    "avoid_if_injured": [
-      "shoulder",
-      "elbow",
-      "wrist",
-      "chest"
-    ],
-    "description": "3 sets of 12-15 reps. Arms in widest position, bring together in circular motion. Can be done one arm at a time. Rest 45 seconds between sets.",
-    "tags": [
-      "machine",
-      "gym",
-      "isolation"
-    ]
-  },
-  {
-    "id": "chest_111",
-    "name": "Cable Incline Fly",
-    "type": "strength",
-    "primary_target_area": "chest",
-    "secondary_target_areas": [
-      "shoulders"
-    ],
-    "movement_patterns": [
-      "horizontal_adduction",
-      "isolation"
-    ],
-    "equipment": "cable_machine",
-    "required_space": "gym",
-    "difficulty": "intermediate",
-    "duration_minutes": 5,
-    "avoid_if_injured": [
-      "shoulder",
-      "elbow",
-      "wrist",
-      "chest"
-    ],
-    "description": "3 sets of 12-15 reps. Bring arms together and upward in circular motion. Can be done one arm at a time. Rest 45 seconds between sets.",
-    "tags": [
-      "machine",
-      "gym",
-      "isolation"
-    ]
-  },
-  {
-    "id": "chest_112",
-    "name": "Cable Low Fly",
-    "type": "strength",
-    "primary_target_area": "chest",
-    "secondary_target_areas": [
-      "shoulders",
-      "triceps"
-    ],
-    "movement_patterns": [
-      "horizontal_adduction",
-      "isolation"
-    ],
-    "equipment": "cable_machine",
-    "required_space": "gym",
-    "difficulty": "intermediate",
-    "duration_minutes": 5,
-    "avoid_if_injured": [
-      "shoulder",
-      "elbow",
-      "wrist",
-      "chest"
-    ],
-    "description": "3 sets of 12-15 reps. Bring arms up and together to chest height from low position. Return slowly. Rest 45 seconds between sets.",
-    "tags": [
-      "machine",
-      "gym",
-      "isolation"
-    ]
-  },
-  {
-    "id": "shoulders_113",
-    "name": "Shoulder Press (Machine)",
-    "type": "strength",
-    "primary_target_area": "shoulders",
-    "secondary_target_areas": [
-      "triceps"
-    ],
-    "movement_patterns": [
-      "vertical_push",
-      "overhead_press"
-    ],
-    "equipment": "shoulder_press_machine",
-    "required_space": "gym",
-    "difficulty": "beginner",
-    "duration_minutes": 6,
-    "avoid_if_injured": [
-      "shoulder",
-      "neck",
-      "elbow",
-      "wrist",
-      "upper_back"
-    ],
-    "description": "3 sets of 8-12 reps. Adjust seat so handles are at shoulder height, press overhead without locking elbows. Rest 60 seconds between sets.",
-    "tags": [
-      "machine",
-      "gym",
-      "beginner_friendly"
-    ]
-  },
-  {
-    "id": "shoulders_114",
-    "name": "Cable Shoulder Press",
-    "type": "strength",
-    "primary_target_area": "shoulders",
-    "secondary_target_areas": [
-      "triceps"
-    ],
-    "movement_patterns": [
-      "vertical_push",
-      "overhead_press"
-    ],
-    "equipment": "cable_machine",
-    "required_space": "gym",
-    "difficulty": "beginner",
-    "duration_minutes": 6,
-    "avoid_if_injured": [
-      "shoulder",
-      "neck",
-      "elbow",
-      "wrist",
-      "upper_back"
-    ],
-    "description": "3 sets of 10-12 reps. Adjust arms to vertical position, press arms overhead. Can be done one arm at a time. Rest 60 seconds between sets.",
-    "tags": [
-      "machine",
-      "gym",
-      "beginner_friendly"
-    ]
-  },
-  {
-    "id": "shoulders_115",
-    "name": "Converging Shoulder Press",
-    "type": "strength",
-    "primary_target_area": "shoulders",
-    "secondary_target_areas": [
-      "triceps"
-    ],
-    "movement_patterns": [
-      "vertical_push",
-      "overhead_press",
-      "horizontal_adduction"
-    ],
-    "equipment": "cable_machine",
-    "required_space": "gym",
-    "difficulty": "intermediate",
-    "duration_minutes": 6,
-    "avoid_if_injured": [
-      "shoulder",
-      "neck",
-      "elbow",
-      "wrist",
-      "upper_back"
-    ],
-    "description": "3 sets of 10-12 reps. Bring arms together during the overhead press. Rest 60 seconds between sets.",
-    "tags": [
-      "machine",
-      "gym"
-    ]
-  },
-  {
-    "id": "shoulders_116",
-    "name": "Cable Lateral Raise",
-    "type": "strength",
-    "primary_target_area": "shoulders",
-    "secondary_target_areas": [],
-    "movement_patterns": [
-      "abduction",
-      "isolation"
-    ],
-    "equipment": "cable_machine",
-    "required_space": "gym",
-    "difficulty": "beginner",
-    "duration_minutes": 5,
-    "avoid_if_injured": [
-      "shoulder",
-      "neck",
-      "elbow",
-      "wrist"
-    ],
-    "description": "3 sets of 12-15 reps. Keep arms straight, raise hands outward and upward. Can be done one arm at a time. Rest 45 seconds between sets.",
-    "tags": [
-      "machine",
-      "gym",
-      "isolation",
-      "beginner_friendly"
-    ]
-  },
-  {
-    "id": "shoulders_117",
-    "name": "Cable Front Raise",
-    "type": "strength",
-    "primary_target_area": "shoulders",
-    "secondary_target_areas": [],
-    "movement_patterns": [
-      "flexion",
-      "isolation"
-    ],
-    "equipment": "cable_machine",
-    "required_space": "gym",
-    "difficulty": "beginner",
-    "duration_minutes": 5,
-    "avoid_if_injured": [
-      "shoulder",
-      "neck",
-      "elbow",
-      "wrist",
-      "lower_back"
-    ],
-    "description": "3 sets of 12-15 reps. Keep arms straight, raise hands forward and upward. Can be done one arm at a time. Rest 45 seconds between sets.",
-    "tags": [
-      "machine",
-      "gym",
-      "isolation",
-      "beginner_friendly"
-    ]
-  },
-  {
-    "id": "shoulders_118",
-    "name": "Standing Cable Lateral Raise",
-    "type": "strength",
-    "primary_target_area": "shoulders",
-    "secondary_target_areas": [],
-    "movement_patterns": [
-      "abduction",
-      "isolation"
-    ],
-    "equipment": "cable_machine",
-    "required_space": "gym",
-    "difficulty": "intermediate",
-    "duration_minutes": 5,
-    "avoid_if_injured": [
-      "shoulder",
-      "neck",
-      "elbow",
-      "wrist",
-      "lower_back"
-    ],
-    "description": "3 sets of 12-15 reps per arm. Stand next to machine, raise arm outward and upward. Rest 45 seconds between sets.",
-    "tags": [
-      "machine",
-      "gym",
-      "isolation"
-    ]
-  },
-  {
-    "id": "shoulders_119",
-    "name": "Standing Front Raise",
-    "type": "strength",
-    "primary_target_area": "shoulders",
-    "secondary_target_areas": [],
-    "movement_patterns": [
-      "flexion",
-      "isolation"
-    ],
-    "equipment": "cable_machine",
-    "required_space": "gym",
-    "difficulty": "intermediate",
-    "duration_minutes": 5,
-    "avoid_if_injured": [
-      "shoulder",
-      "neck",
-      "elbow",
-      "wrist",
-      "lower_back"
-    ],
-    "description": "3 sets of 12-15 reps. Use chain on low pulley, raise bar forward and upward to chest height. Rest 45 seconds between sets.",
-    "tags": [
-      "machine",
-      "gym",
-      "isolation"
-    ]
-  },
-  {
-    "id": "shoulders_120",
-    "name": "Upright Row",
-    "type": "strength",
-    "primary_target_area": "shoulders",
-    "secondary_target_areas": [
-      "upper_back"
-    ],
-    "movement_patterns": [
-      "pull",
-      "isolation"
-    ],
-    "equipment": "cable_machine",
-    "required_space": "gym",
-    "difficulty": "intermediate",
-    "duration_minutes": 5,
-    "avoid_if_injured": [
-      "shoulder",
-      "neck",
-      "elbow",
-      "wrist",
-      "upper_back"
-    ],
-    "description": "3 sets of 10-12 reps. Use chain on low pulley, pull bar upward to shoulder level. Rest 45 seconds between sets.",
-    "tags": [
-      "machine",
-      "gym",
-      "isolation"
-    ]
-  },
-  {
-    "id": "shoulders_121",
-    "name": "External Rotator",
-    "type": "strength",
-    "primary_target_area": "shoulders",
-    "secondary_target_areas": [],
-    "movement_patterns": [
-      "rotation",
-      "isolation"
-    ],
-    "equipment": "cable_machine",
-    "required_space": "gym",
-    "difficulty": "beginner",
-    "duration_minutes": 4,
-    "avoid_if_injured": [
-      "shoulder",
-      "elbow",
-      "wrist"
-    ],
-    "description": "3 sets of 12-15 reps per arm. Rotate arm away from midsection like opening a door. Rest 30 seconds between sets.",
-    "tags": [
-      "machine",
-      "gym",
-      "isolation",
-      "beginner_friendly"
-    ]
-  },
-  {
-    "id": "shoulders_122",
-    "name": "Internal Rotator",
-    "type": "strength",
-    "primary_target_area": "shoulders",
-    "secondary_target_areas": [],
-    "movement_patterns": [
-      "rotation",
-      "isolation"
-    ],
-    "equipment": "cable_machine",
-    "required_space": "gym",
-    "difficulty": "beginner",
-    "duration_minutes": 4,
-    "avoid_if_injured": [
-      "shoulder",
-      "elbow",
-      "wrist"
-    ],
-    "description": "3 sets of 12-15 reps per arm. Rotate arm toward midsection like closing a door. Rest 30 seconds between sets.",
-    "tags": [
-      "machine",
-      "gym",
-      "isolation",
-      "beginner_friendly"
-    ]
-  },
-  {
-    "id": "back_123",
-    "name": "Lat Pulldown",
-    "type": "strength",
-    "primary_target_area": "back",
-    "secondary_target_areas": [
-      "biceps",
-      "shoulders"
-    ],
-    "movement_patterns": [
-      "pull",
-      "vertical_pull"
-    ],
-    "equipment": "lat_pulldown_machine",
-    "required_space": "gym",
-    "difficulty": "beginner",
-    "duration_minutes": 6,
-    "avoid_if_injured": [
-      "shoulder",
-      "elbow",
-      "wrist",
-      "neck",
-      "upper_back"
-    ],
-    "description": "3 sets of 10-12 reps. Wide overhand grip, pull straight down to upper chest. Can use underhand or narrow grip. Rest 60 seconds between sets.",
-    "tags": [
-      "machine",
-      "gym",
-      "beginner_friendly"
-    ]
-  },
-  {
-    "id": "back_124",
-    "name": "Low Cable Row",
-    "type": "strength",
-    "primary_target_area": "back",
-    "secondary_target_areas": [
-      "biceps",
-      "rear_shoulders"
-    ],
-    "movement_patterns": [
-      "pull",
-      "horizontal_pull"
-    ],
-    "equipment": "cable_machine",
-    "required_space": "gym",
-    "difficulty": "beginner",
-    "duration_minutes": 6,
-    "avoid_if_injured": [
-      "lower_back",
-      "shoulder",
-      "elbow",
-      "wrist",
-      "upper_back"
-    ],
-    "description": "3 sets of 10-12 reps. Sit on floor facing low pulley, pull to midsection, squeeze shoulder blades. Rest 60 seconds between sets.",
-    "tags": [
-      "machine",
-      "gym",
-      "beginner_friendly"
-    ]
-  },
-  {
-    "id": "back_125",
-    "name": "Mid Row (Machine)",
-    "type": "strength",
-    "primary_target_area": "back",
-    "secondary_target_areas": [
-      "biceps",
-      "rear_shoulders"
-    ],
-    "movement_patterns": [
-      "pull",
-      "horizontal_pull"
-    ],
-    "equipment": "cable_row_machine",
-    "required_space": "gym",
-    "difficulty": "beginner",
-    "duration_minutes": 6,
-    "avoid_if_injured": [
-      "lower_back",
-      "shoulder",
-      "elbow",
-      "wrist",
-      "upper_back"
-    ],
-    "description": "3 sets of 10-12 reps. Pull back as far as possible, squeeze shoulder blades together. Rest 60 seconds between sets.",
-    "tags": [
-      "machine",
-      "gym",
-      "beginner_friendly"
-    ]
-  },
-  {
-    "id": "back_126",
-    "name": "One Arm Row",
-    "type": "strength",
-    "primary_target_area": "back",
-    "secondary_target_areas": [
-      "biceps",
-      "shoulders"
-    ],
-    "movement_patterns": [
-      "pull",
-      "horizontal_pull"
-    ],
-    "equipment": "cable_machine",
-    "required_space": "gym",
-    "difficulty": "intermediate",
-    "duration_minutes": 5,
-    "avoid_if_injured": [
-      "lower_back",
-      "shoulder",
-      "elbow",
-      "wrist",
-      "upper_back",
-      "hip"
-    ],
-    "description": "3 sets of 10-12 reps per arm. Bend at waist, pull to midsection with neutral grip. Rest 45 seconds between sets.",
-    "tags": [
-      "machine",
-      "gym"
-    ]
-  },
-  {
-    "id": "back_127",
-    "name": "Front Lat Pullover",
-    "type": "strength",
-    "primary_target_area": "back",
-    "secondary_target_areas": [
-      "biceps",
-      "shoulders"
-    ],
-    "movement_patterns": [
-      "pull",
-      "vertical_pull"
-    ],
-    "equipment": "cable_machine",
-    "required_space": "gym",
-    "difficulty": "intermediate",
-    "duration_minutes": 5,
-    "avoid_if_injured": [
-      "shoulder",
-      "elbow",
-      "wrist",
-      "neck",
-      "upper_back"
-    ],
-    "description": "3 sets of 10-12 reps. Keep arms straight, pull bar down from high pulley. Rest 60 seconds between sets.",
-    "tags": [
-      "machine",
-      "gym"
-    ]
-  },
-  {
-    "id": "back_128",
-    "name": "Seated Cable Mid Row",
-    "type": "strength",
-    "primary_target_area": "back",
-    "secondary_target_areas": [
-      "biceps",
-      "shoulders"
-    ],
-    "movement_patterns": [
-      "pull",
-      "horizontal_pull"
-    ],
-    "equipment": "cable_row_machine",
-    "required_space": "gym",
-    "difficulty": "beginner",
-    "duration_minutes": 6,
-    "avoid_if_injured": [
-      "lower_back",
-      "shoulder",
-      "elbow",
-      "wrist",
-      "upper_back"
-    ],
-    "description": "3 sets of 10-12 reps. Lean back slightly, pull back as far as possible, keep upper torso stationary. Rest 60 seconds between sets.",
-    "tags": [
-      "machine",
-      "gym",
-      "beginner_friendly"
-    ]
-  },
-  {
-    "id": "back_129",
-    "name": "Self Stabilizing Mid Row",
-    "type": "strength",
-    "primary_target_area": "back",
-    "secondary_target_areas": [
-      "biceps",
-      "rear_shoulders"
-    ],
-    "movement_patterns": [
-      "pull",
-      "horizontal_pull",
-      "core_stability"
-    ],
-    "equipment": "cable_machine",
-    "required_space": "gym",
-    "difficulty": "intermediate",
-    "duration_minutes": 5,
-    "avoid_if_injured": [
-      "lower_back",
-      "shoulder",
-      "elbow",
-      "wrist",
-      "upper_back",
-      "core"
-    ],
-    "description": "3 sets of 10-12 reps. Stand in front of machine without back support, pull bar back. Rest 60 seconds between sets.",
-    "tags": [
-      "machine",
-      "gym",
-      "core"
-    ]
-  },
-  {
-    "id": "biceps_130",
-    "name": "Cable Arm Curl",
-    "type": "strength",
-    "primary_target_area": "biceps",
-    "secondary_target_areas": [
-      "forearms"
-    ],
-    "movement_patterns": [
-      "pull",
-      "elbow_flexion",
-      "isolation"
-    ],
-    "equipment": "cable_machine",
-    "required_space": "gym",
-    "difficulty": "beginner",
-    "duration_minutes": 5,
-    "avoid_if_injured": [
-      "biceps",
-      "elbow",
-      "wrist",
-      "shoulder"
-    ],
-    "description": "3 sets of 12 reps. Keep elbows stationary, curl handles upward. Can vary grip and width. Rest 45 seconds between sets.",
-    "tags": [
-      "machine",
-      "gym",
-      "isolation",
-      "beginner_friendly"
-    ]
-  },
-  {
-    "id": "biceps_131",
-    "name": "Standing Bar Curl",
-    "type": "strength",
-    "primary_target_area": "biceps",
-    "secondary_target_areas": [
-      "forearms"
-    ],
-    "movement_patterns": [
-      "pull",
-      "elbow_flexion",
-      "isolation"
-    ],
-    "equipment": "cable_machine",
-    "required_space": "gym",
-    "difficulty": "beginner",
-    "duration_minutes": 5,
-    "avoid_if_injured": [
-      "biceps",
-      "elbow",
-      "wrist",
-      "shoulder",
-      "lower_back"
-    ],
-    "description": "3 sets of 10-12 reps. Use chain on low pulley, curl bar upward keeping elbows stationary. Rest 45 seconds between sets.",
-    "tags": [
-      "machine",
-      "gym",
-      "isolation",
-      "beginner_friendly"
-    ]
-  },
-  {
-    "id": "biceps_132",
-    "name": "Overhead Biceps Curl",
-    "type": "strength",
-    "primary_target_area": "biceps",
-    "secondary_target_areas": [
-      "forearms"
-    ],
-    "movement_patterns": [
-      "pull",
-      "elbow_flexion",
-      "isolation"
-    ],
-    "equipment": "cable_machine",
-    "required_space": "gym",
-    "difficulty": "intermediate",
-    "duration_minutes": 5,
-    "avoid_if_injured": [
-      "biceps",
-      "elbow",
-      "wrist",
-      "shoulder",
-      "neck"
-    ],
-    "description": "3 sets of 10-12 reps. Curl straight bar behind head from high pulley, keep upper arm stationary. Rest 45 seconds between sets.",
-    "tags": [
-      "machine",
-      "gym",
-      "isolation"
-    ]
-  },
-  {
-    "id": "biceps_133",
-    "name": "Arm Curl From Mid Pulley",
-    "type": "strength",
-    "primary_target_area": "biceps",
-    "secondary_target_areas": [
-      "forearms"
-    ],
-    "movement_patterns": [
-      "pull",
-      "elbow_flexion",
-      "isolation"
-    ],
-    "equipment": "cable_machine",
-    "required_space": "gym",
-    "difficulty": "intermediate",
-    "duration_minutes": 5,
-    "avoid_if_injured": [
-      "biceps",
-      "elbow",
-      "wrist",
-      "shoulder"
-    ],
-    "description": "3 sets of 10-12 reps. Sit facing back of machine, pull from mid pulley toward face while leaning back. Rest 45 seconds between sets.",
-    "tags": [
-      "machine",
-      "gym",
-      "isolation"
-    ]
-  },
-  {
-    "id": "triceps_134",
-    "name": "Triceps Pushdown",
-    "type": "strength",
-    "primary_target_area": "triceps",
-    "secondary_target_areas": [
-      "forearms"
-    ],
-    "movement_patterns": [
-      "push",
-      "elbow_extension",
-      "isolation"
-    ],
-    "equipment": "cable_machine",
-    "required_space": "gym",
-    "difficulty": "beginner",
-    "duration_minutes": 5,
-    "avoid_if_injured": [
-      "elbow",
-      "wrist",
-      "shoulder"
-    ],
-    "description": "3 sets of 12-15 reps. Push bar downward, flexing at elbow, use full range of motion. Rest 45 seconds between sets.",
-    "tags": [
-      "machine",
-      "gym",
-      "isolation",
-      "beginner_friendly"
-    ]
-  },
-  {
-    "id": "triceps_135",
-    "name": "Triceps Extension (Mid Pulley)",
-    "type": "strength",
-    "primary_target_area": "triceps",
-    "secondary_target_areas": [
-      "forearms"
-    ],
-    "movement_patterns": [
-      "push",
-      "elbow_extension",
-      "isolation"
-    ],
-    "equipment": "cable_machine",
-    "required_space": "gym",
-    "difficulty": "intermediate",
-    "duration_minutes": 5,
-    "avoid_if_injured": [
-      "elbow",
-      "wrist",
-      "shoulder"
-    ],
-    "description": "3 sets of 10-12 reps. Hold upper arm horizontal, extend lower arm at elbow. Rest 45 seconds between sets.",
-    "tags": [
-      "machine",
-      "gym",
-      "isolation"
-    ]
-  },
-  {
-    "id": "triceps_136",
-    "name": "Triceps Extension From High Pulley",
-    "type": "strength",
-    "primary_target_area": "triceps",
-    "secondary_target_areas": [
-      "forearms"
-    ],
-    "movement_patterns": [
-      "push",
-      "elbow_extension",
-      "isolation"
-    ],
-    "equipment": "cable_machine",
-    "required_space": "gym",
-    "difficulty": "intermediate",
-    "duration_minutes": 5,
-    "avoid_if_injured": [
-      "elbow",
-      "wrist",
-      "shoulder",
-      "neck"
-    ],
-    "description": "3 sets of 10-12 reps. Lean slightly forward, hold upper arm horizontal, extend at elbow. Rest 45 seconds between sets.",
-    "tags": [
-      "machine",
-      "gym",
-      "isolation"
-    ]
-  },
-  {
-    "id": "triceps_137",
-    "name": "Triceps Kickback",
-    "type": "strength",
-    "primary_target_area": "triceps",
-    "secondary_target_areas": [
-      "forearms"
-    ],
-    "movement_patterns": [
-      "push",
-      "elbow_extension",
-      "isolation"
-    ],
-    "equipment": "cable_machine",
-    "required_space": "gym",
-    "difficulty": "intermediate",
-    "duration_minutes": 5,
-    "avoid_if_injured": [
-      "elbow",
-      "wrist",
-      "shoulder",
-      "lower_back"
-    ],
-    "description": "3 sets of 12-15 reps per arm. Bend at waist, lock upper arm at side, extend at elbow. Rest 45 seconds between sets.",
-    "tags": [
-      "machine",
-      "gym",
-      "isolation"
-    ]
-  },
-  {
-    "id": "abs_138",
-    "name": "Ab Crunch (Machine)",
-    "type": "strength",
-    "primary_target_area": "abs",
-    "secondary_target_areas": [],
-    "movement_patterns": [
-      "flexion",
-      "core_stability"
-    ],
-    "equipment": "cable_machine",
-    "required_space": "gym",
-    "difficulty": "beginner",
-    "duration_minutes": 5,
-    "avoid_if_injured": [
-      "lower_back",
-      "neck",
-      "core"
-    ],
-    "description": "3 sets of 15-20 reps. Use ab strap over shoulders, crunch forward and downward using abs. Rest 45 seconds between sets.",
-    "tags": [
-      "machine",
-      "gym",
-      "beginner_friendly"
-    ]
-  },
-  {
-    "id": "abs_139",
-    "name": "Reverse Crunch (Seated Knee Raise)",
-    "type": "strength",
-    "primary_target_area": "abs",
-    "secondary_target_areas": [
-      "hip_flexors"
-    ],
-    "movement_patterns": [
-      "hip_flexion",
-      "core_stability"
-    ],
-    "equipment": "none",
-    "required_space": "minimal",
-    "difficulty": "beginner",
-    "duration_minutes": 4,
-    "avoid_if_injured": [
-      "lower_back",
-      "hip",
-      "core",
-      "neck"
-    ],
-    "description": "3 sets of 12-15 reps. Extend legs to horizontal, draw knees toward chest. Rest 30 seconds between sets.",
-    "tags": [
-      "no_equipment",
-      "beginner_friendly"
-    ]
-  },
-  {
-    "id": "abs_140",
-    "name": "Oblique Twist (Cable)",
-    "type": "strength",
-    "primary_target_area": "abs",
-    "secondary_target_areas": [
-      "obliques"
-    ],
-    "movement_patterns": [
-      "rotation",
-      "core_stability"
-    ],
-    "equipment": "cable_machine",
-    "required_space": "gym",
-    "difficulty": "intermediate",
-    "duration_minutes": 5,
-    "avoid_if_injured": [
-      "lower_back",
-      "shoulder",
-      "hip",
-      "core",
-      "neck"
-    ],
-    "description": "3 sets of 12-15 reps per side. Lock hips, twist upper torso. Rest 45 seconds between sets.",
-    "tags": [
-      "machine",
-      "gym",
-      "core"
-    ]
-  },
-  {
-    "id": "abs_141",
-    "name": "Side Bends (Cable)",
-    "type": "strength",
-    "primary_target_area": "abs",
-    "secondary_target_areas": [
-      "obliques"
-    ],
-    "movement_patterns": [
-      "lateral_flexion",
-      "core_stability"
-    ],
-    "equipment": "cable_machine",
-    "required_space": "gym",
-    "difficulty": "beginner",
-    "duration_minutes": 4,
-    "avoid_if_injured": [
-      "lower_back",
-      "hip",
-      "core",
-      "shoulder"
-    ],
-    "description": "3 sets of 12-15 reps per side. Lock hips, bend upper torso to opposite side. Rest 30 seconds between sets.",
-    "tags": [
-      "machine",
-      "gym",
-      "beginner_friendly"
-    ]
-  },
-  {
-    "id": "quads_142",
-    "name": "Leg Extension (Machine)",
-    "type": "strength",
-    "primary_target_area": "quads",
-    "secondary_target_areas": [],
-    "movement_patterns": [
-      "knee_extension",
-      "isolation"
-    ],
-    "equipment": "leg_extension_machine",
-    "required_space": "gym",
-    "difficulty": "beginner",
-    "duration_minutes": 5,
-    "avoid_if_injured": [
-      "knee",
-      "ankle"
-    ],
-    "description": "3 sets of 12-15 reps. Align knees with pivot point, extend legs to horizontal. Can do one leg at a time. Rest 45 seconds between sets.",
-    "tags": [
-      "machine",
-      "gym",
-      "isolation",
-      "beginner_friendly"
-    ]
-  },
-  {
-    "id": "hamstrings_143",
-    "name": "Standing Leg Curl",
-    "type": "strength",
-    "primary_target_area": "hamstrings",
-    "secondary_target_areas": [
-      "calves"
-    ],
-    "movement_patterns": [
-      "knee_flexion",
-      "isolation"
-    ],
-    "equipment": "leg_curl_machine",
-    "required_space": "gym",
-    "difficulty": "beginner",
-    "duration_minutes": 5,
-    "avoid_if_injured": [
-      "knee",
-      "hamstring",
-      "calf",
-      "hip"
-    ],
-    "description": "3 sets of 12 reps per leg. Bend knee backward and upward, use one leg at a time. Rest 45 seconds between sets.",
-    "tags": [
-      "machine",
-      "gym",
-      "isolation",
-      "beginner_friendly"
-    ]
-  },
-  {
-    "id": "hamstrings_144",
-    "name": "Seated Leg Curl",
-    "type": "strength",
-    "primary_target_area": "hamstrings",
-    "secondary_target_areas": [
-      "calves"
-    ],
-    "movement_patterns": [
-      "knee_flexion",
-      "isolation"
-    ],
-    "equipment": "leg_curl_machine",
-    "required_space": "gym",
-    "difficulty": "beginner",
-    "duration_minutes": 5,
-    "avoid_if_injured": [
-      "knee",
-      "hamstring",
-      "calf",
-      "hip"
-    ],
-    "description": "3 sets of 12 reps. Bend at knee pushing roller pads down, point toes for hamstring focus. Rest 45 seconds between sets.",
-    "tags": [
-      "machine",
-      "gym",
-      "isolation",
-      "beginner_friendly"
-    ]
-  },
-  {
-    "id": "quads_145",
-    "name": "Leg Press (Machine)",
-    "type": "strength",
-    "primary_target_area": "quads",
-    "secondary_target_areas": [
-      "glutes",
-      "hamstrings",
-      "calves"
-    ],
-    "movement_patterns": [
-      "squat",
-      "lower_body_push"
-    ],
-    "equipment": "leg_press_machine",
-    "required_space": "gym",
-    "difficulty": "beginner",
-    "duration_minutes": 6,
-    "avoid_if_injured": [
-      "knee",
-      "hip",
-      "ankle",
-      "lower_back"
-    ],
-    "description": "3 sets of 10-15 reps. Place feet on foot plates, press outward to full extension without locking knees. Rest 60 seconds between sets.",
-    "tags": [
-      "machine",
-      "gym",
-      "lower_body",
-      "beginner_friendly"
-    ]
-  },
-  {
-    "id": "calves_146",
-    "name": "Calf Raise (Machine)",
-    "type": "strength",
-    "primary_target_area": "calves",
-    "secondary_target_areas": [],
-    "movement_patterns": [
-      "plantar_flexion",
-      "isolation"
-    ],
-    "equipment": "leg_press_machine",
-    "required_space": "gym",
-    "difficulty": "beginner",
-    "duration_minutes": 4,
-    "avoid_if_injured": [
-      "calf",
-      "ankle",
-      "foot",
-      "knee"
-    ],
-    "description": "3 sets of 15-20 reps. Push outward flexing at ankle, do not lock knees. Angle feet to target different areas. Rest 30 seconds between sets.",
-    "tags": [
-      "machine",
-      "gym",
-      "isolation",
-      "beginner_friendly"
-    ]
-  },
-  {
-    "id": "glutes_147",
-    "name": "Hip Adduction",
-    "type": "strength",
-    "primary_target_area": "glutes",
-    "secondary_target_areas": [
-      "quads"
-    ],
-    "movement_patterns": [
-      "adduction",
-      "isolation"
-    ],
-    "equipment": "cable_machine",
-    "required_space": "gym",
-    "difficulty": "beginner",
-    "duration_minutes": 4,
-    "avoid_if_injured": [
-      "hip",
-      "knee",
-      "groin"
-    ],
-    "description": "3 sets of 12-15 reps per leg. Pull leg toward and across support leg using full range of motion. Rest 30 seconds between sets.",
-    "tags": [
-      "machine",
-      "gym",
-      "isolation",
-      "beginner_friendly"
-    ]
-  },
-  {
-    "id": "glutes_148",
-    "name": "Hip Abduction",
-    "type": "strength",
-    "primary_target_area": "glutes",
-    "secondary_target_areas": [
-      "quads"
-    ],
-    "movement_patterns": [
-      "abduction",
-      "isolation"
-    ],
-    "equipment": "cable_machine",
-    "required_space": "gym",
-    "difficulty": "beginner",
-    "duration_minutes": 4,
-    "avoid_if_injured": [
-      "hip",
-      "knee",
-      "groin"
-    ],
-    "description": "3 sets of 12-15 reps per leg. Pull leg outward away from support leg using full range of motion. Rest 30 seconds between sets.",
-    "tags": [
-      "machine",
-      "gym",
-      "isolation",
-      "beginner_friendly"
-    ]
-  },
-  {
-    "id": "glutes_149",
-    "name": "Glute Kick",
-    "type": "strength",
-    "primary_target_area": "glutes",
-    "secondary_target_areas": [
-      "hamstrings"
-    ],
-    "movement_patterns": [
-      "hip_extension",
-      "isolation"
-    ],
-    "equipment": "cable_machine",
-    "required_space": "gym",
-    "difficulty": "beginner",
-    "duration_minutes": 5,
-    "avoid_if_injured": [
-      "hip",
-      "knee",
-      "lower_back",
-      "hamstring"
-    ],
-    "description": "3 sets of 12-15 reps per leg. Pelvis tilted forward, extend hip and pull leg backward. Rest 45 seconds between sets.",
-    "tags": [
-      "machine",
-      "gym",
-      "isolation",
-      "beginner_friendly",
-      "glute_activation"
-    ]
-  },
-  {
-    "id": "functional_150",
-    "name": "Golf Swing (Cable)",
-    "type": "strength",
-    "primary_target_area": "core",
-    "secondary_target_areas": [
-      "shoulders",
-      "back",
-      "hips"
-    ],
-    "movement_patterns": [
-      "rotation",
-      "dynamic_movement"
-    ],
-    "equipment": "cable_machine",
-    "required_space": "gym",
-    "difficulty": "intermediate",
-    "duration_minutes": 5,
-    "avoid_if_injured": [
-      "shoulder",
-      "elbow",
-      "wrist",
-      "lower_back",
-      "hip",
-      "knee"
-    ],
-    "description": "3 sets of 10-12 reps per side. Assume golf stance, swing as if swinging a club. Vary arm height for different emphasis. Rest 45 seconds between sets.",
-    "tags": [
-      "machine",
-      "gym",
-      "sports_specific"
-    ]
-  },
-  {
-    "id": "functional_151",
-    "name": "Tennis Swing (Cable)",
-    "type": "strength",
-    "primary_target_area": "core",
-    "secondary_target_areas": [
-      "shoulders",
-      "back",
-      "hips"
-    ],
-    "movement_patterns": [
-      "rotation",
-      "dynamic_movement"
-    ],
-    "equipment": "cable_machine",
-    "required_space": "gym",
-    "difficulty": "intermediate",
-    "duration_minutes": 5,
-    "avoid_if_injured": [
-      "shoulder",
-      "elbow",
-      "wrist",
-      "lower_back",
-      "hip",
-      "knee"
-    ],
-    "description": "3 sets of 10-12 reps per side. Assume tennis backhand or forehand stance, swing as if hitting ball. Vary arm height. Rest 45 seconds between sets.",
-    "tags": [
-      "machine",
-      "gym",
-      "sports_specific"
-    ]
-  },
-  {
-    "id": "functional_152",
-    "name": "Baseball Pitch (Cable)",
-    "type": "strength",
-    "primary_target_area": "shoulders",
-    "secondary_target_areas": [
-      "core",
-      "back",
-      "triceps"
-    ],
-    "movement_patterns": [
-      "push",
-      "dynamic_movement"
-    ],
-    "equipment": "cable_machine",
-    "required_space": "gym",
-    "difficulty": "intermediate",
-    "duration_minutes": 5,
-    "avoid_if_injured": [
-      "shoulder",
-      "elbow",
-      "wrist",
-      "lower_back",
-      "neck"
-    ],
-    "description": "3 sets of 10-12 reps per side. Stand in front of machine, throw as if throwing a baseball. Use high pulley for downward emphasis. Rest 45 seconds between sets.",
-    "tags": [
-      "machine",
-      "gym",
-      "sports_specific"
-    ]
-  },
-  {
-    "id": "abs_201",
-    "name": "Hollow Body Hold",
-    "type": "strength",
-    "primary_target_area": "abs",
-    "secondary_target_areas": [
-      "hip_flexors",
-      "lower_back",
-      "shoulders"
-    ],
-    "movement_patterns": [
-      "anti_extension",
-      "core_stability",
-      "isometric"
-    ],
-    "equipment": "none",
-    "required_space": "minimal",
-    "difficulty": "intermediate",
-    "duration_minutes": 4,
-    "avoid_if_injured": [
-      "lower_back",
-      "neck",
-      "hip",
-      "core",
-      "shoulder"
-    ],
-    "description": "3 sets, hold for 20-40 seconds each. Lie on back, arms overhead, legs straight. Lift shoulders and legs off floor, creating a banana shape. Rest 30 seconds between sets.",
-    "tags": [
-      "no_equipment",
-      "travel",
-      "core",
-      "isometric"
-    ]
-  },
-  {
-    "id": "abs_202",
-    "name": "Ab Wheel Rollout",
-    "type": "strength",
-    "primary_target_area": "abs",
-    "secondary_target_areas": [
-      "lower_back",
-      "shoulders",
-      "hip_flexors"
-    ],
-    "movement_patterns": [
-      "anti_extension",
-      "core_stability"
-    ],
-    "equipment": "ab_wheel",
-    "required_space": "minimal",
-    "difficulty": "advanced",
-    "duration_minutes": 5,
-    "avoid_if_injured": [
-      "lower_back",
-      "shoulder",
-      "wrist",
-      "elbow",
-      "core",
-      "neck"
-    ],
-    "description": "3 sets of 8-12 reps. Kneel with ab wheel at knees, roll forward extending body, then pull back using core. Rest 60 seconds between sets.",
-    "tags": [
-      "equipment_needed",
-      "core",
-      "posterior_chain"
-    ]
-  },
-  {
-    "id": "abs_203",
-    "name": "Dragon Flag",
-    "type": "strength",
-    "primary_target_area": "abs",
-    "secondary_target_areas": [
-      "lower_back",
-      "hip_flexors",
-      "shoulders"
-    ],
-    "movement_patterns": [
-      "anti_extension",
-      "core_stability"
-    ],
-    "equipment": "bench_or_table",
-    "required_space": "minimal",
-    "difficulty": "advanced",
-    "duration_minutes": 5,
-    "avoid_if_injured": [
-      "lower_back",
-      "neck",
-      "shoulder",
-      "elbow",
-      "wrist",
-      "core",
-      "hip"
-    ],
-    "description": "3 sets of 5-8 reps. Lie on bench, grip behind head. Lift entire body off bench keeping it rigid, lower with control. Rest 60 seconds between sets.",
-    "tags": [
-      "minimal_equipment",
-      "core",
-      "bodyweight"
-    ]
-  },
-  {
-    "id": "abs_204",
-    "name": "Pallof Press",
-    "type": "strength",
-    "primary_target_area": "abs",
-    "secondary_target_areas": [
-      "obliques",
-      "shoulders"
-    ],
-    "movement_patterns": [
-      "anti_extension",
-      "core_stability",
-      "isolation"
-    ],
-    "equipment": "cable_machine",
-    "required_space": "gym",
-    "difficulty": "intermediate",
-    "duration_minutes": 5,
-    "avoid_if_injured": [
-      "lower_back",
-      "shoulder",
-      "elbow",
-      "wrist",
-      "core",
-      "hip"
-    ],
-    "description": "3 sets of 12 reps per side. Stand sideways to cable at chest height, press arms straight out resisting rotation. Rest 45 seconds between sets.",
-    "tags": [
-      "machine",
-      "gym",
-      "core",
-      "isolation"
-    ]
-  },
-  {
-    "id": "abs_205",
-    "name": "Turkish Get-Up",
-    "type": "strength",
-    "primary_target_area": "abs",
-    "secondary_target_areas": [
-      "shoulders",
-      "glutes",
-      "quads",
-      "core_stabilizers"
-    ],
-    "movement_patterns": [
-      "core_stability",
-      "dynamic_movement",
-      "full_body"
-    ],
-    "equipment": "dumbbells",
-    "required_space": "minimal",
-    "difficulty": "advanced",
-    "duration_minutes": 8,
-    "avoid_if_injured": [
-      "shoulder",
-      "wrist",
-      "elbow",
-      "knee",
-      "hip",
-      "lower_back",
-      "neck",
-      "core"
-    ],
-    "description": "3 sets of 3-5 reps per side. Lie with weight overhead, rise to standing through steps keeping weight stable. Rest 90 seconds between sets.",
-    "tags": [
-      "equipment_needed",
-      "full_body",
-      "core"
-    ]
-  },
-  {
-    "id": "abs_206",
-    "name": "L-Sit",
-    "type": "strength",
-    "primary_target_area": "abs",
-    "secondary_target_areas": [
-      "hip_flexors",
-      "triceps",
-      "shoulders"
-    ],
-    "movement_patterns": [
-      "core_stability",
-      "isometric"
-    ],
-    "equipment": "none",
-    "required_space": "minimal",
-    "difficulty": "advanced",
-    "duration_minutes": 4,
-    "avoid_if_injured": [
-      "wrist",
-      "shoulder",
-      "elbow",
-      "hip",
-      "core",
-      "lower_back"
-    ],
-    "description": "3 sets, hold for 10-30 seconds each. Sit on floor or dip bars, press hands down, lift legs straight out forming an L. Rest 45 seconds between sets.",
-    "tags": [
-      "no_equipment",
-      "travel",
-      "core",
-      "isometric",
-      "bodyweight"
-    ]
-  },
-  {
-    "id": "abs_207",
-    "name": "Cable Woodchop",
-    "type": "strength",
-    "primary_target_area": "abs",
-    "secondary_target_areas": [
-      "obliques",
-      "shoulders",
-      "hips"
-    ],
-    "movement_patterns": [
-      "rotation",
-      "core_stability"
-    ],
-    "equipment": "cable_machine",
-    "required_space": "gym",
-    "difficulty": "intermediate",
-    "duration_minutes": 5,
-    "avoid_if_injured": [
-      "lower_back",
-      "shoulder",
-      "elbow",
-      "wrist",
-      "core",
-      "hip",
-      "neck"
-    ],
-    "description": "3 sets of 12 reps per side. Stand sideways to cable machine, pull handle diagonally across body from high to low or reverse. Rest 45 seconds between sets.",
-    "tags": [
-      "machine",
-      "gym",
-      "core",
-      "sports_specific"
-    ]
-  },
-  {
-    "id": "abs_208",
-    "name": "Hanging Leg Raise",
-    "type": "strength",
-    "primary_target_area": "abs",
-    "secondary_target_areas": [
-      "hip_flexors",
-      "forearms"
-    ],
-    "movement_patterns": [
-      "hip_flexion",
-      "core_stability"
-    ],
-    "equipment": "pull_up_bar",
-    "required_space": "minimal",
-    "difficulty": "intermediate",
-    "duration_minutes": 5,
-    "avoid_if_injured": [
-      "shoulder",
-      "elbow",
-      "wrist",
-      "hand",
-      "neck",
-      "lower_back",
-      "core",
-      "hip"
-    ],
-    "description": "3 sets of 10-15 reps. Hang from pull-up bar, raise legs to 90 degrees or toes to bar using core control. Rest 60 seconds between sets.",
-    "tags": [
-      "equipment_needed",
-      "core",
-      "bodyweight"
-    ]
-  },
-  {
-    "id": "cardio_209",
-    "name": "High Knees",
-    "type": "cardio",
-    "primary_target_area": "full_body",
-    "secondary_target_areas": [
-      "calves",
-      "quads",
-      "hip_flexors",
-      "core"
-    ],
-    "movement_patterns": [
-      "jump",
-      "dynamic_movement"
-    ],
-    "equipment": "none",
-    "required_space": "minimal",
-    "difficulty": "beginner",
-    "duration_minutes": 3,
-    "avoid_if_injured": [
-      "knee",
-      "ankle",
-      "hip",
-      "lower_back",
-      "calf",
-      "toe"
-    ],
-    "description": "3 rounds of 30 seconds. Run in place driving knees above hip height, pump arms. Rest 30 seconds between rounds.",
-    "tags": [
-      "no_equipment",
-      "cardio",
-      "warmup",
-      "high_intensity"
-    ]
-  },
-  {
-    "id": "cardio_210",
-    "name": "Butt Kicks",
-    "type": "cardio",
-    "primary_target_area": "full_body",
-    "secondary_target_areas": [
-      "hamstrings",
-      "calves",
-      "quads"
-    ],
-    "movement_patterns": [
-      "dynamic_movement"
-    ],
-    "equipment": "none",
-    "required_space": "minimal",
-    "difficulty": "beginner",
-    "duration_minutes": 3,
-    "avoid_if_injured": [
-      "knee",
-      "hamstring",
-      "ankle",
-      "hip",
-      "calf",
-      "toe"
-    ],
-    "description": "3 rounds of 45 seconds. Run in place kicking heels toward glutes with quick turnover. Rest 30 seconds between rounds.",
-    "tags": [
-      "no_equipment",
-      "cardio",
-      "warmup"
-    ]
-  },
-  {
-    "id": "cardio_211",
-    "name": "Box Jumps",
-    "type": "cardio",
-    "primary_target_area": "full_body",
-    "secondary_target_areas": [
-      "quads",
-      "glutes",
-      "calves",
-      "core"
-    ],
-    "movement_patterns": [
-      "jump",
-      "squat",
-      "lower_body_push"
-    ],
-    "equipment": "bench_or_table",
-    "required_space": "minimal",
-    "difficulty": "intermediate",
-    "duration_minutes": 5,
-    "avoid_if_injured": [
-      "knee",
-      "ankle",
-      "hip",
-      "lower_back",
-      "calf",
-      "toe"
-    ],
-    "description": "3 sets of 10 reps. Stand facing plyo box, squat and jump onto box landing softly, step down. Rest 60 seconds between sets.",
-    "tags": [
-      "minimal_equipment",
-      "cardio",
-      "high_intensity",
-      "lower_body"
-    ]
-  },
-  {
-    "id": "cardio_212",
-    "name": "Battle Ropes",
-    "type": "cardio",
-    "primary_target_area": "full_body",
-    "secondary_target_areas": [
-      "shoulders",
-      "core",
-      "forearms"
-    ],
-    "movement_patterns": [
-      "dynamic_movement",
-      "full_body"
-    ],
-    "equipment": "none",
-    "required_space": "minimal",
-    "difficulty": "intermediate",
-    "duration_minutes": 5,
-    "avoid_if_injured": [
-      "shoulder",
-      "elbow",
-      "wrist",
-      "lower_back",
-      "core",
-      "neck"
-    ],
-    "description": "3 rounds of 30 seconds. Hold rope ends, alternate whipping waves up and down explosively. Rest 30 seconds between rounds.",
-    "tags": [
-      "no_equipment",
-      "cardio",
-      "high_intensity",
-      "full_body"
-    ]
-  },
-  {
-    "id": "cardio_213",
-    "name": "Sled Push",
-    "type": "cardio",
-    "primary_target_area": "full_body",
-    "secondary_target_areas": [
-      "quads",
-      "glutes",
-      "calves",
-      "shoulders",
-      "core"
-    ],
-    "movement_patterns": [
-      "push",
-      "lower_body_push",
-      "full_body"
-    ],
-    "equipment": "none",
-    "required_space": "gym",
-    "difficulty": "intermediate",
-    "duration_minutes": 6,
-    "avoid_if_injured": [
-      "knee",
-      "hip",
-      "ankle",
-      "lower_back",
-      "shoulder",
-      "elbow",
-      "wrist",
-      "calf"
-    ],
-    "description": "3 sets of 20-30 meters. Load sled with weight, drive forward pushing through legs with arms extended. Rest 90 seconds between sets.",
-    "tags": [
-      "gym",
-      "cardio",
-      "high_intensity",
-      "lower_body"
-    ]
-  },
-  {
-    "id": "cardio_214",
-    "name": "Kettlebell Swing",
-    "type": "cardio",
-    "primary_target_area": "full_body",
-    "secondary_target_areas": [
-      "glutes",
-      "hamstrings",
-      "lower_back",
-      "shoulders",
-      "core"
-    ],
-    "movement_patterns": [
-      "hip_hinge",
-      "dynamic_movement",
-      "posterior_chain"
-    ],
-    "equipment": "dumbbells",
-    "required_space": "minimal",
-    "difficulty": "intermediate",
-    "duration_minutes": 5,
-    "avoid_if_injured": [
-      "lower_back",
-      "hamstring",
-      "hip",
-      "knee",
-      "shoulder",
-      "wrist",
-      "elbow"
-    ],
-    "description": "3 sets of 15-20 reps. Hinge at hips, swing weight to chest height using hip snap not arms. Rest 60 seconds between sets.",
-    "tags": [
-      "equipment_needed",
-      "cardio",
-      "posterior_chain",
-      "high_intensity"
-    ]
-  },
-  {
-    "id": "cardio_215",
-    "name": "Rowing Machine Sprint",
-    "type": "cardio",
-    "primary_target_area": "full_body",
-    "secondary_target_areas": [
-      "back",
-      "quads",
-      "glutes",
-      "core",
-      "shoulders"
-    ],
-    "movement_patterns": [
-      "pull",
-      "push",
-      "dynamic_movement",
-      "full_body"
-    ],
-    "equipment": "none",
-    "required_space": "gym",
-    "difficulty": "intermediate",
-    "duration_minutes": 8,
-    "avoid_if_injured": [
-      "lower_back",
-      "shoulder",
-      "elbow",
-      "wrist",
-      "knee",
-      "hip",
-      "ankle"
-    ],
-    "description": "4-6 rounds of 250m sprints at max effort. Set rower to damper 3-5. Rest 1 minute between rounds.",
-    "tags": [
-      "gym",
-      "cardio",
-      "high_intensity",
-      "full_body"
-    ]
-  },
-  {
-    "id": "cardio_216",
-    "name": "Assault Bike Sprint",
-    "type": "cardio",
-    "primary_target_area": "full_body",
-    "secondary_target_areas": [
-      "quads",
-      "glutes",
-      "calves",
-      "shoulders",
-      "core"
-    ],
-    "movement_patterns": [
-      "dynamic_movement",
-      "full_body"
-    ],
-    "equipment": "none",
-    "required_space": "gym",
-    "difficulty": "advanced",
-    "duration_minutes": 8,
-    "avoid_if_injured": [
-      "knee",
-      "hip",
-      "ankle",
-      "shoulder",
-      "elbow",
-      "wrist",
-      "lower_back",
-      "calf"
-    ],
-    "description": "8-10 rounds of 20 seconds max effort. Pedal arms and legs simultaneously at max effort. Rest 40 seconds between rounds.",
-    "tags": [
-      "gym",
-      "cardio",
-      "high_intensity",
-      "full_body"
-    ]
-  },
-  {
-    "id": "cardio_217",
-    "name": "Steady-State Jogging",
-    "type": "cardio",
-    "primary_target_area": "full_body",
-    "secondary_target_areas": [
-      "quads",
-      "calves",
-      "glutes",
-      "hamstrings",
-      "core"
-    ],
-    "movement_patterns": [
-      "dynamic_movement"
-    ],
-    "equipment": "none",
-    "required_space": "minimal",
-    "difficulty": "beginner",
-    "duration_minutes": 30,
-    "avoid_if_injured": [
-      "knee",
-      "ankle",
-      "hip",
-      "lower_back",
-      "calf",
-      "foot",
-      "toe",
-      "hamstring"
-    ],
-    "description": "Maintain a comfortable conversational pace for 20-45 minutes. Keep cadence light, land mid-foot. Builds aerobic base and endurance.",
-    "tags": [
-      "no_equipment",
-      "cardio",
-      "beginner_friendly",
-      "endurance"
-    ]
-  },
-  {
-    "id": "cardio_218",
-    "name": "Interval Sprinting",
-    "type": "cardio",
-    "primary_target_area": "full_body",
-    "secondary_target_areas": [
-      "quads",
-      "calves",
-      "glutes",
-      "hamstrings",
-      "core"
-    ],
-    "movement_patterns": [
-      "dynamic_movement",
-      "full_body"
-    ],
-    "equipment": "none",
-    "required_space": "minimal",
-    "difficulty": "advanced",
-    "duration_minutes": 15,
-    "avoid_if_injured": [
-      "knee",
-      "ankle",
-      "hip",
-      "hamstring",
-      "calf",
-      "foot",
-      "toe",
-      "lower_back"
-    ],
-    "description": "Sprint at 90-100% effort for 30 seconds, then walk or jog for 60-90 seconds to recover. Repeat 8-12 rounds. Maximizes calorie burn and speed.",
-    "tags": [
-      "no_equipment",
-      "cardio",
-      "high_intensity",
-      "speed"
-    ]
-  },
-  {
-    "id": "cardio_219",
-    "name": "Tempo Run",
-    "type": "cardio",
-    "primary_target_area": "full_body",
-    "secondary_target_areas": [
-      "quads",
-      "calves",
-      "glutes",
-      "hamstrings",
-      "core"
-    ],
-    "movement_patterns": [
-      "dynamic_movement"
-    ],
-    "equipment": "none",
-    "required_space": "minimal",
-    "difficulty": "intermediate",
-    "duration_minutes": 25,
-    "avoid_if_injured": [
-      "knee",
-      "ankle",
-      "hip",
-      "lower_back",
-      "calf",
-      "foot",
-      "toe",
-      "hamstring"
-    ],
-    "description": "Run at a comfortably hard pace \u2014 faster than jogging, slower than sprinting \u2014 for 15-30 minutes. Sustains lactate threshold.",
-    "tags": [
-      "no_equipment",
-      "cardio",
-      "endurance"
-    ]
-  },
-  {
-    "id": "cardio_220",
-    "name": "Hill Sprints",
-    "type": "cardio",
-    "primary_target_area": "full_body",
-    "secondary_target_areas": [
-      "quads",
-      "glutes",
-      "calves",
-      "hamstrings",
-      "core"
-    ],
-    "movement_patterns": [
-      "dynamic_movement",
-      "lower_body_push"
-    ],
-    "equipment": "none",
-    "required_space": "minimal",
-    "difficulty": "advanced",
-    "duration_minutes": 15,
-    "avoid_if_injured": [
-      "knee",
-      "ankle",
-      "hip",
-      "hamstring",
-      "calf",
-      "foot",
-      "toe",
-      "lower_back"
-    ],
-    "description": "Sprint up a steep incline for 20-40 meters, walk down to recover. 6-10 rounds. Builds explosive power and leg strength.",
-    "tags": [
-      "no_equipment",
-      "cardio",
-      "high_intensity",
-      "lower_body"
-    ]
-  },
-  {
-    "id": "cardio_221",
-    "name": "Fartlek Run",
-    "type": "cardio",
-    "primary_target_area": "full_body",
-    "secondary_target_areas": [
-      "quads",
-      "calves",
-      "glutes",
-      "hamstrings",
-      "core"
-    ],
-    "movement_patterns": [
-      "dynamic_movement"
-    ],
-    "equipment": "none",
-    "required_space": "minimal",
-    "difficulty": "intermediate",
-    "duration_minutes": 30,
-    "avoid_if_injured": [
-      "knee",
-      "ankle",
-      "hip",
-      "lower_back",
-      "calf",
-      "foot",
-      "toe",
-      "hamstring"
-    ],
-    "description": "Mix jogging, running, and sprinting at random intervals during a continuous run. Example: jog 5 min, run hard 2 min, sprint 30 sec, repeat.",
-    "tags": [
-      "no_equipment",
-      "cardio",
-      "endurance",
-      "speed"
-    ]
-  }
-]
+{
+  "version": "9.5",
+  "generated_at": null,
+  "total_exercises": 89,
+  "exercises": [
+    {
+      "id": "abs_001",
+      "name": "Dead Bug",
+      "type": "strength",
+      "primary_target_area": "abs",
+      "secondary_target_areas": [
+        "hip",
+        "lower_back"
+      ],
+      "movement_patterns": [
+        "anti_extension",
+        "core_stability"
+      ],
+      "equipment": [
+        "none"
+      ],
+      "required_space": "indoor",
+      "difficulty": "beginner",
+      "avoid_if_injured": [
+        "lower_back",
+        "hip",
+        "shoulder"
+      ],
+      "description": "Lie flat on your back with your arms extended towards the ceiling. Bend your knees and lift your legs off the ground, creating a 90-degree angle at your hips and knees. Engage your core and lower back to press your lower back into the ground.",
+      "tags": [
+        "no_equipment",
+        "beginner_friendly",
+        "core_stability"
+      ],
+      "baseline": {
+        "sets": 3,
+        "reps": "10-12",
+        "rest_seconds": 45,
+        "unit": "reps_per_side"
+      },
+      "gif_url": "videos/0276-iny3m5y.gif",
+      "image": "images/0276-iny3m5y.jpg",
+      "media_id": "iny3m5y",
+      "attribution": "© Gym visual — https://gymvisual.com/"
+    },
+    {
+      "id": "abs_002",
+      "name": "Band Assisted Wheel Rollerout",
+      "type": "strength",
+      "primary_target_area": "abs",
+      "secondary_target_areas": [
+        "lower_back"
+      ],
+      "movement_patterns": [
+        "anti_extension",
+        "rollout"
+      ],
+      "equipment": [
+        "ab_wheel",
+        "resistance_band"
+      ],
+      "required_space": "indoor",
+      "difficulty": "beginner",
+      "avoid_if_injured": [
+        "lower_back",
+        "shoulder",
+        "wrist"
+      ],
+      "description": "Kneel on the floor and hold the handles of the band with both hands, palms facing down. Place the band on the ground in front of you and position your hands shoulder-width apart. Engage your core and slowly roll the wheel forward, extending your body as far as you can while maintaining control.",
+      "tags": [
+        "resistance_band",
+        "ab_wheel",
+        "beginner_friendly",
+        "progression"
+      ],
+      "baseline": {
+        "sets": 3,
+        "reps": "8-10",
+        "rest_seconds": 60,
+        "unit": "reps"
+      },
+      "gif_url": "videos/0971-zhF9lW4.gif",
+      "image": "images/0971-zhF9lW4.jpg",
+      "media_id": "zhF9lW4",
+      "attribution": "© Gym visual — https://gymvisual.com/"
+    },
+    {
+      "id": "abs_003",
+      "name": "Russian Twist",
+      "type": "strength",
+      "primary_target_area": "abs",
+      "secondary_target_areas": [
+        "obliques"
+      ],
+      "movement_patterns": [
+        "rotation",
+        "anti_rotation"
+      ],
+      "equipment": [
+        "none"
+      ],
+      "required_space": "indoor",
+      "difficulty": "intermediate",
+      "avoid_if_injured": [
+        "lower_back",
+        "hip",
+        "oblique"
+      ],
+      "description": "Sit on the ground with your knees bent and feet flat on the floor. Lean back slightly while keeping your back straight and your core engaged. Hold your hands together in front of your chest or hold a weight if desired.",
+      "tags": [
+        "no_equipment",
+        "obliques",
+        "rotation"
+      ],
+      "baseline": {
+        "sets": 3,
+        "reps": "20",
+        "rest_seconds": 45,
+        "unit": "reps"
+      },
+      "gif_url": "videos/0687-XVDdcoj.gif",
+      "image": "images/0687-XVDdcoj.jpg",
+      "media_id": "XVDdcoj",
+      "attribution": "© Gym visual — https://gymvisual.com/"
+    },
+    {
+      "id": "abs_004",
+      "name": "Reverse Crunch",
+      "type": "strength",
+      "primary_target_area": "abs",
+      "secondary_target_areas": [
+        "hip"
+      ],
+      "movement_patterns": [
+        "spinal_flexion",
+        "hip_flexion"
+      ],
+      "equipment": [
+        "none"
+      ],
+      "required_space": "indoor",
+      "difficulty": "intermediate",
+      "avoid_if_injured": [
+        "lower_back",
+        "hip",
+        "neck"
+      ],
+      "description": "Lie flat on your back with your arms extended along your sides. Bend your knees and lift your feet off the ground, bringing your thighs perpendicular to the floor. Contract your abs and curl your hips off the floor, bringing your knees towards your chest.",
+      "tags": [
+        "no_equipment",
+        "lower_abs"
+      ],
+      "baseline": {
+        "sets": 3,
+        "reps": "12-15",
+        "rest_seconds": 45,
+        "unit": "reps"
+      },
+      "gif_url": "videos/0872-nCU1Ekp.gif",
+      "image": "images/0872-nCU1Ekp.jpg",
+      "media_id": "nCU1Ekp",
+      "attribution": "© Gym visual — https://gymvisual.com/"
+    },
+    {
+      "id": "abs_005",
+      "name": "Dumbbell Side Bend",
+      "type": "strength",
+      "primary_target_area": "abs",
+      "secondary_target_areas": [
+        "obliques"
+      ],
+      "movement_patterns": [
+        "lateral_flexion",
+        "isolation"
+      ],
+      "equipment": [
+        "dumbbells"
+      ],
+      "required_space": "indoor",
+      "difficulty": "intermediate",
+      "avoid_if_injured": [
+        "lower_back",
+        "oblique",
+        "hip"
+      ],
+      "description": "Stand up straight with your feet shoulder-width apart and hold a dumbbell in one hand, letting it hang down by your side. Keeping your back straight and your core engaged, slowly bend sideways at the waist towards the opposite side of the dumbbell, lowering the weight as far as you comfortably can. Pause for a moment, then slowly return to the starting position.",
+      "tags": [
+        "dumbbells",
+        "home_gym",
+        "obliques"
+      ],
+      "baseline": {
+        "sets": 3,
+        "reps": "10-12",
+        "rest_seconds": 45,
+        "unit": "reps_per_side"
+      },
+      "gif_url": "videos/0407-IpONWYv.gif",
+      "image": "images/0407-IpONWYv.jpg",
+      "media_id": "IpONWYv",
+      "attribution": "© Gym visual — https://gymvisual.com/"
+    },
+    {
+      "id": "abs_006",
+      "name": "Kettlebell Advanced Windmill",
+      "type": "strength",
+      "primary_target_area": "abs",
+      "secondary_target_areas": [
+        "obliques",
+        "shoulders"
+      ],
+      "movement_patterns": [
+        "rotation",
+        "hip_hinge",
+        "overhead_hold"
+      ],
+      "equipment": [
+        "kettlebell"
+      ],
+      "required_space": "indoor",
+      "difficulty": "advanced",
+      "avoid_if_injured": [
+        "shoulder",
+        "lower_back",
+        "hip",
+        "hamstring"
+      ],
+      "description": "Stand with your feet wider than shoulder-width apart, toes pointing slightly outward. Hold a kettlebell in your right hand, with your arm extended overhead and your palm facing forward. Rotate your left foot slightly to the right, and shift your weight onto your left leg.",
+      "tags": [
+        "kettlebell",
+        "home_gym",
+        "advanced",
+        "mobility"
+      ],
+      "baseline": {
+        "sets": 3,
+        "reps": "6-8",
+        "rest_seconds": 60,
+        "unit": "reps_per_side"
+      },
+      "gif_url": "videos/0517-Kal9cQQ.gif",
+      "image": "images/0517-Kal9cQQ.jpg",
+      "media_id": "Kal9cQQ",
+      "attribution": "© Gym visual — https://gymvisual.com/"
+    },
+    {
+      "id": "back_001",
+      "name": "Hyperextension",
+      "type": "strength",
+      "primary_target_area": "back",
+      "secondary_target_areas": [
+        "glutes",
+        "hamstrings"
+      ],
+      "movement_patterns": [
+        "hip_extension",
+        "spinal_extension"
+      ],
+      "equipment": [
+        "none"
+      ],
+      "required_space": "indoor",
+      "difficulty": "beginner",
+      "avoid_if_injured": [
+        "lower_back",
+        "hip",
+        "hamstring"
+      ],
+      "description": "Adjust the hyperextension bench so that your upper thighs are resting on the pad and your feet are secured. Cross your arms over your chest or place your hands behind your head. Lower your upper body towards the ground while keeping your back straight.",
+      "tags": [
+        "no_equipment",
+        "beginner_friendly",
+        "posterior_chain"
+      ],
+      "baseline": {
+        "sets": 3,
+        "reps": "12-15",
+        "rest_seconds": 45,
+        "unit": "reps"
+      },
+      "gif_url": "videos/0489-zhMwOwE.gif",
+      "image": "images/0489-zhMwOwE.jpg",
+      "media_id": "zhMwOwE",
+      "attribution": "© Gym visual — https://gymvisual.com/"
+    },
+    {
+      "id": "back_002",
+      "name": "Bodyweight Standing Row",
+      "type": "strength",
+      "primary_target_area": "back",
+      "secondary_target_areas": [
+        "biceps",
+        "shoulders"
+      ],
+      "movement_patterns": [
+        "pull",
+        "horizontal_pull"
+      ],
+      "equipment": [
+        "none"
+      ],
+      "required_space": "indoor",
+      "difficulty": "beginner",
+      "avoid_if_injured": [
+        "shoulder",
+        "elbow",
+        "wrist",
+        "back"
+      ],
+      "description": "Stand with your feet shoulder-width apart and knees slightly bent. Grasp a bar or handles with an overhand grip, palms facing down. Keep your back straight and core engaged.",
+      "tags": [
+        "no_equipment",
+        "beginner_friendly"
+      ],
+      "baseline": {
+        "sets": 3,
+        "reps": "10-12",
+        "rest_seconds": 60,
+        "unit": "reps"
+      },
+      "gif_url": "videos/3166-wd4ds3s.gif",
+      "image": "images/3166-wd4ds3s.jpg",
+      "media_id": "wd4ds3s",
+      "attribution": "© Gym visual — https://gymvisual.com/"
+    },
+    {
+      "id": "back_003",
+      "name": "Band Assisted Pull-Up",
+      "type": "strength",
+      "primary_target_area": "back",
+      "secondary_target_areas": [
+        "biceps",
+        "forearms"
+      ],
+      "movement_patterns": [
+        "pull",
+        "vertical_pull"
+      ],
+      "equipment": [
+        "resistance_band",
+        "pull_up_bar"
+      ],
+      "required_space": "indoor",
+      "difficulty": "beginner",
+      "avoid_if_injured": [
+        "shoulder",
+        "elbow",
+        "wrist",
+        "back"
+      ],
+      "description": "Attach the band to a pull-up bar or sturdy anchor point. Step onto the band and grip the bar with your palms facing away from you, hands slightly wider than shoulder-width apart. Hang with your arms fully extended, keeping your core engaged and your shoulders down and back.",
+      "tags": [
+        "resistance_band",
+        "pull_up_bar",
+        "beginner_friendly",
+        "progression"
+      ],
+      "baseline": {
+        "sets": 3,
+        "reps": "6-10",
+        "rest_seconds": 90,
+        "unit": "reps"
+      },
+      "gif_url": "videos/0970-r1XNRYB.gif",
+      "image": "images/0970-r1XNRYB.jpg",
+      "media_id": "r1XNRYB",
+      "attribution": "© Gym visual — https://gymvisual.com/"
+    },
+    {
+      "id": "back_004",
+      "name": "Band One Arm Standing Low Row",
+      "type": "strength",
+      "primary_target_area": "back",
+      "secondary_target_areas": [
+        "biceps",
+        "shoulders"
+      ],
+      "movement_patterns": [
+        "pull",
+        "horizontal_pull",
+        "unilateral"
+      ],
+      "equipment": [
+        "resistance_band"
+      ],
+      "required_space": "indoor",
+      "difficulty": "beginner",
+      "avoid_if_injured": [
+        "lower_back",
+        "shoulder",
+        "elbow",
+        "wrist",
+        "back"
+      ],
+      "description": "Attach the band to a stable anchor point at waist height. Stand facing the anchor point with your feet shoulder-width apart. Hold the band with one hand, palm facing inward, and step back to create tension in the band.",
+      "tags": [
+        "resistance_band",
+        "home_gym",
+        "unilateral",
+        "beginner_friendly"
+      ],
+      "baseline": {
+        "sets": 3,
+        "reps": "12-15",
+        "rest_seconds": 45,
+        "unit": "reps_per_side"
+      },
+      "gif_url": "videos/0988-km0sQC0.gif",
+      "image": "images/0988-km0sQC0.jpg",
+      "media_id": "km0sQC0",
+      "attribution": "© Gym visual — https://gymvisual.com/"
+    },
+    {
+      "id": "back_005",
+      "name": "Elbow Lift - Reverse Push-Up",
+      "type": "strength",
+      "primary_target_area": "back",
+      "secondary_target_areas": [
+        "triceps",
+        "shoulders"
+      ],
+      "movement_patterns": [
+        "push",
+        "horizontal_pull"
+      ],
+      "equipment": [
+        "none"
+      ],
+      "required_space": "indoor",
+      "difficulty": "intermediate",
+      "avoid_if_injured": [
+        "shoulder",
+        "elbow",
+        "wrist",
+        "back"
+      ],
+      "description": "Start by lying face down on the ground with your legs extended and your hands placed directly under your shoulders. Engage your core and press through your palms to lift your upper body off the ground, keeping your elbows close to your sides. Pause at the top for a moment, squeezing your upper back muscles.",
+      "tags": [
+        "no_equipment",
+        "floor_based"
+      ],
+      "baseline": {
+        "sets": 3,
+        "reps": "10-12",
+        "rest_seconds": 60,
+        "unit": "reps"
+      },
+      "gif_url": "videos/1772-wbUYILZ.gif",
+      "image": "images/1772-wbUYILZ.jpg",
+      "media_id": "wbUYILZ",
+      "attribution": "© Gym visual — https://gymvisual.com/"
+    },
+    {
+      "id": "back_006",
+      "name": "Pull-Up",
+      "type": "strength",
+      "primary_target_area": "back",
+      "secondary_target_areas": [
+        "biceps",
+        "forearms"
+      ],
+      "movement_patterns": [
+        "pull",
+        "vertical_pull"
+      ],
+      "equipment": [
+        "pull_up_bar"
+      ],
+      "required_space": "indoor",
+      "difficulty": "intermediate",
+      "avoid_if_injured": [
+        "shoulder",
+        "elbow",
+        "wrist",
+        "back"
+      ],
+      "description": "Hang from a pull-up bar with your palms facing away from you and your arms fully extended. Engage your core and squeeze your shoulder blades together. Pull your body up towards the bar by bending your elbows and bringing your chest towards the bar.",
+      "tags": [
+        "pull_up_bar",
+        "classic",
+        "compound"
+      ],
+      "baseline": {
+        "sets": 3,
+        "reps": "6-12",
+        "rest_seconds": 90,
+        "unit": "reps"
+      },
+      "gif_url": "videos/0652-lBDjFxJ.gif",
+      "image": "images/0652-lBDjFxJ.jpg",
+      "media_id": "lBDjFxJ",
+      "attribution": "© Gym visual — https://gymvisual.com/"
+    },
+    {
+      "id": "back_007",
+      "name": "Dumbbell Bent Over Row",
+      "type": "strength",
+      "primary_target_area": "back",
+      "secondary_target_areas": [
+        "biceps",
+        "forearms"
+      ],
+      "movement_patterns": [
+        "pull",
+        "horizontal_pull"
+      ],
+      "equipment": [
+        "dumbbells"
+      ],
+      "required_space": "indoor",
+      "difficulty": "intermediate",
+      "avoid_if_injured": [
+        "lower_back",
+        "shoulder",
+        "elbow",
+        "wrist",
+        "back"
+      ],
+      "description": "Stand with your feet shoulder-width apart, knees slightly bent, and hold a dumbbell in each hand with your palms facing your body. Bend forward at the hips, keeping your back straight and your core engaged. Let your arms hang straight down towards the floor, with your elbows slightly bent.",
+      "tags": [
+        "dumbbells",
+        "home_gym",
+        "classic"
+      ],
+      "baseline": {
+        "sets": 3,
+        "reps": "10-12",
+        "rest_seconds": 60,
+        "unit": "reps"
+      },
+      "gif_url": "videos/0293-BJ0Hz5L.gif",
+      "image": "images/0293-BJ0Hz5L.jpg",
+      "media_id": "BJ0Hz5L",
+      "attribution": "© Gym visual — https://gymvisual.com/"
+    },
+    {
+      "id": "back_008",
+      "name": "Kettlebell One Arm Row",
+      "type": "strength",
+      "primary_target_area": "back",
+      "secondary_target_areas": [
+        "biceps",
+        "forearms"
+      ],
+      "movement_patterns": [
+        "pull",
+        "horizontal_pull",
+        "unilateral"
+      ],
+      "equipment": [
+        "kettlebell"
+      ],
+      "required_space": "indoor",
+      "difficulty": "intermediate",
+      "avoid_if_injured": [
+        "lower_back",
+        "shoulder",
+        "elbow",
+        "wrist",
+        "back"
+      ],
+      "description": "Stand with your feet shoulder-width apart, holding a kettlebell in one hand with an overhand grip. Bend your knees slightly and hinge forward at the hips, keeping your back straight and your core engaged. Pull the kettlebell up towards your chest, keeping your elbow close to your body and squeezing your shoulder blades together.",
+      "tags": [
+        "kettlebell",
+        "home_gym",
+        "unilateral"
+      ],
+      "baseline": {
+        "sets": 3,
+        "reps": "10-12",
+        "rest_seconds": 60,
+        "unit": "reps_per_side"
+      },
+      "gif_url": "videos/0541-g9AsZ8P.gif",
+      "image": "images/0541-g9AsZ8P.jpg",
+      "media_id": "g9AsZ8P",
+      "attribution": "© Gym visual — https://gymvisual.com/"
+    },
+    {
+      "id": "biceps_001",
+      "name": "Biceps Leg Concentration Curl",
+      "type": "strength",
+      "primary_target_area": "biceps",
+      "secondary_target_areas": [
+        "forearms"
+      ],
+      "movement_patterns": [
+        "curl",
+        "isolation"
+      ],
+      "equipment": [
+        "none"
+      ],
+      "required_space": "indoor",
+      "difficulty": "beginner",
+      "avoid_if_injured": [
+        "elbow",
+        "wrist",
+        "shoulder",
+        "biceps"
+      ],
+      "description": "Sit on a bench with your legs spread apart and your feet flat on the ground. Hold a dumbbell in one hand and place your elbow on the inside of your thigh, just above the knee. With your palm facing up, curl the dumbbell towards your shoulder while keeping your upper arm stationary.",
+      "tags": [
+        "no_equipment",
+        "beginner_friendly",
+        "isolation"
+      ],
+      "baseline": {
+        "sets": 3,
+        "reps": "10-12",
+        "rest_seconds": 45,
+        "unit": "reps_per_side"
+      },
+      "gif_url": "videos/1770-sJFIDIp.gif",
+      "image": "images/1770-sJFIDIp.jpg",
+      "media_id": "sJFIDIp",
+      "attribution": "© Gym visual — https://gymvisual.com/"
+    },
+    {
+      "id": "biceps_002",
+      "name": "Band Alternating Biceps Curl",
+      "type": "strength",
+      "primary_target_area": "biceps",
+      "secondary_target_areas": [
+        "forearms"
+      ],
+      "movement_patterns": [
+        "curl",
+        "isolation"
+      ],
+      "equipment": [
+        "resistance_band"
+      ],
+      "required_space": "indoor",
+      "difficulty": "beginner",
+      "avoid_if_injured": [
+        "elbow",
+        "wrist",
+        "shoulder",
+        "biceps"
+      ],
+      "description": "Stand with your feet shoulder-width apart and hold the band with an underhand grip, palms facing up. Keep your elbows close to your sides and slowly curl one arm up towards your shoulder, squeezing your biceps at the top. Lower the arm back down to the starting position and repeat with the other arm.",
+      "tags": [
+        "resistance_band",
+        "home_gym",
+        "beginner_friendly"
+      ],
+      "baseline": {
+        "sets": 3,
+        "reps": "12-15",
+        "rest_seconds": 45,
+        "unit": "reps"
+      },
+      "gif_url": "videos/0968-3omWx6P.gif",
+      "image": "images/0968-3omWx6P.jpg",
+      "media_id": "3omWx6P",
+      "attribution": "© Gym visual — https://gymvisual.com/"
+    },
+    {
+      "id": "biceps_003",
+      "name": "Bodyweight Side Lying Biceps Curl",
+      "type": "strength",
+      "primary_target_area": "biceps",
+      "secondary_target_areas": [
+        "forearms"
+      ],
+      "movement_patterns": [
+        "curl",
+        "isolation",
+        "unilateral"
+      ],
+      "equipment": [
+        "none"
+      ],
+      "required_space": "indoor",
+      "difficulty": "intermediate",
+      "avoid_if_injured": [
+        "elbow",
+        "wrist",
+        "shoulder",
+        "biceps"
+      ],
+      "description": "Lie on your side with your legs extended and your head supported by your arm. Hold your upper arm against your side and bend your elbow to curl your forearm towards your shoulder. Pause for a moment at the top, then slowly lower your forearm back down to the starting position.",
+      "tags": [
+        "no_equipment",
+        "unilateral"
+      ],
+      "baseline": {
+        "sets": 3,
+        "reps": "10-12",
+        "rest_seconds": 45,
+        "unit": "reps_per_side"
+      },
+      "gif_url": "videos/1769-gscGLOU.gif",
+      "image": "images/1769-gscGLOU.jpg",
+      "media_id": "gscGLOU",
+      "attribution": "© Gym visual — https://gymvisual.com/"
+    },
+    {
+      "id": "biceps_004",
+      "name": "Dumbbell Biceps Curl",
+      "type": "strength",
+      "primary_target_area": "biceps",
+      "secondary_target_areas": [
+        "forearms"
+      ],
+      "movement_patterns": [
+        "curl",
+        "isolation"
+      ],
+      "equipment": [
+        "dumbbells"
+      ],
+      "required_space": "indoor",
+      "difficulty": "intermediate",
+      "avoid_if_injured": [
+        "elbow",
+        "wrist",
+        "shoulder",
+        "biceps"
+      ],
+      "description": "Stand up straight with a dumbbell in each hand, palms facing forward and arms fully extended. Keeping your upper arms stationary, exhale and curl the weights while contracting your biceps. Continue to raise the weights until your biceps are fully contracted and the dumbbells are at shoulder level.",
+      "tags": [
+        "dumbbells",
+        "home_gym",
+        "classic"
+      ],
+      "baseline": {
+        "sets": 3,
+        "reps": "10-12",
+        "rest_seconds": 60,
+        "unit": "reps"
+      },
+      "gif_url": "videos/0294-NbVPDMW.gif",
+      "image": "images/0294-NbVPDMW.jpg",
+      "media_id": "NbVPDMW",
+      "attribution": "© Gym visual — https://gymvisual.com/"
+    },
+    {
+      "id": "biceps_005",
+      "name": "Dumbbell Incline Biceps Curl",
+      "type": "strength",
+      "primary_target_area": "biceps",
+      "secondary_target_areas": [
+        "forearms"
+      ],
+      "movement_patterns": [
+        "curl",
+        "isolation"
+      ],
+      "equipment": [
+        "bench",
+        "dumbbells"
+      ],
+      "required_space": "indoor",
+      "difficulty": "intermediate",
+      "avoid_if_injured": [
+        "elbow",
+        "wrist",
+        "shoulder",
+        "biceps",
+        "back"
+      ],
+      "description": "Sit on an incline bench with a dumbbell in each hand, palms facing forward, and arms fully extended. Keeping your upper arms stationary, exhale and curl the weights while contracting your biceps. Continue to raise the dumbbells until your biceps are fully contracted and the dumbbells are at shoulder level.",
+      "tags": [
+        "dumbbells",
+        "bench",
+        "home_gym",
+        "stretch"
+      ],
+      "baseline": {
+        "sets": 3,
+        "reps": "10-12",
+        "rest_seconds": 60,
+        "unit": "reps"
+      },
+      "gif_url": "videos/0315-F3xgbjF.gif",
+      "image": "images/0315-F3xgbjF.jpg",
+      "media_id": "F3xgbjF",
+      "attribution": "© Gym visual — https://gymvisual.com/"
+    },
+    {
+      "id": "biceps_006",
+      "name": "Biceps Pull-Up",
+      "type": "strength",
+      "primary_target_area": "biceps",
+      "secondary_target_areas": [
+        "forearms",
+        "shoulders"
+      ],
+      "movement_patterns": [
+        "pull",
+        "vertical_pull"
+      ],
+      "equipment": [
+        "pull_up_bar"
+      ],
+      "required_space": "indoor",
+      "difficulty": "advanced",
+      "avoid_if_injured": [
+        "shoulder",
+        "elbow",
+        "wrist",
+        "back",
+        "biceps"
+      ],
+      "description": "Hang from a pull-up bar with your palms facing away from you and your hands shoulder-width apart. Engage your core and pull yourself up by bending your elbows, bringing your chest towards the bar. Pause at the top of the movement, then slowly lower yourself back down to the starting position.",
+      "tags": [
+        "pull_up_bar",
+        "advanced",
+        "compound"
+      ],
+      "baseline": {
+        "sets": 3,
+        "reps": "6-10",
+        "rest_seconds": 90,
+        "unit": "reps"
+      },
+      "gif_url": "videos/0140-guT8YnS.gif",
+      "image": "images/0140-guT8YnS.jpg",
+      "media_id": "guT8YnS",
+      "attribution": "© Gym visual — https://gymvisual.com/"
+    },
+    {
+      "id": "calves_001",
+      "name": "Bodyweight Standing Calf Raise",
+      "type": "strength",
+      "primary_target_area": "calves",
+      "secondary_target_areas": [
+        "ankle",
+        "foot"
+      ],
+      "movement_patterns": [
+        "calf_raise",
+        "isolation"
+      ],
+      "equipment": [
+        "none"
+      ],
+      "required_space": "indoor",
+      "difficulty": "beginner",
+      "avoid_if_injured": [
+        "ankle",
+        "calf",
+        "achilles"
+      ],
+      "description": "Stand with your feet shoulder-width apart, toes pointing forward. Place your hands on a wall or stable surface for balance. Slowly raise your heels off the ground, lifting your body weight onto the balls of your feet.",
+      "tags": [
+        "no_equipment",
+        "beginner_friendly"
+      ],
+      "baseline": {
+        "sets": 3,
+        "reps": "15-20",
+        "rest_seconds": 45,
+        "unit": "reps"
+      },
+      "gif_url": "videos/1373-bJYHBIN.gif",
+      "image": "images/1373-bJYHBIN.jpg",
+      "media_id": "bJYHBIN",
+      "attribution": "© Gym visual — https://gymvisual.com/"
+    },
+    {
+      "id": "calves_002",
+      "name": "Band Single Leg Calf Raise",
+      "type": "strength",
+      "primary_target_area": "calves",
+      "secondary_target_areas": [
+        "ankle",
+        "foot"
+      ],
+      "movement_patterns": [
+        "calf_raise",
+        "isolation",
+        "unilateral"
+      ],
+      "equipment": [
+        "resistance_band"
+      ],
+      "required_space": "indoor",
+      "difficulty": "beginner",
+      "avoid_if_injured": [
+        "ankle",
+        "calf",
+        "achilles"
+      ],
+      "description": "Stand with your feet hip-width apart and place the band around the ball of your left foot. Hold onto a stable object for balance if needed. Slowly raise your left heel off the ground, lifting your body weight onto the ball of your foot.",
+      "tags": [
+        "resistance_band",
+        "home_gym",
+        "beginner_friendly",
+        "unilateral"
+      ],
+      "baseline": {
+        "sets": 3,
+        "reps": "12-15",
+        "rest_seconds": 45,
+        "unit": "reps_per_side"
+      },
+      "gif_url": "videos/0999-9JprnPh.gif",
+      "image": "images/0999-9JprnPh.jpg",
+      "media_id": "9JprnPh",
+      "attribution": "© Gym visual — https://gymvisual.com/"
+    },
+    {
+      "id": "calves_003",
+      "name": "One Leg Floor Calf Raise",
+      "type": "strength",
+      "primary_target_area": "calves",
+      "secondary_target_areas": [
+        "ankle",
+        "foot"
+      ],
+      "movement_patterns": [
+        "calf_raise",
+        "isolation",
+        "unilateral"
+      ],
+      "equipment": [
+        "none"
+      ],
+      "required_space": "indoor",
+      "difficulty": "intermediate",
+      "avoid_if_injured": [
+        "ankle",
+        "calf",
+        "achilles",
+        "knee"
+      ],
+      "description": "Stand with your feet hip-width apart and place your hands on a wall or sturdy object for balance. Lift one foot off the ground and balance on the other foot. Slowly raise your heel off the ground, lifting your body up onto the ball of your foot.",
+      "tags": [
+        "no_equipment",
+        "unilateral",
+        "balance"
+      ],
+      "baseline": {
+        "sets": 3,
+        "reps": "12-15",
+        "rest_seconds": 45,
+        "unit": "reps_per_side"
+      },
+      "gif_url": "videos/1387-0jp9Rlz.gif",
+      "image": "images/1387-0jp9Rlz.jpg",
+      "media_id": "0jp9Rlz",
+      "attribution": "© Gym visual — https://gymvisual.com/"
+    },
+    {
+      "id": "calves_004",
+      "name": "Donkey Calf Raise",
+      "type": "strength",
+      "primary_target_area": "calves",
+      "secondary_target_areas": [
+        "hamstrings",
+        "glutes"
+      ],
+      "movement_patterns": [
+        "calf_raise",
+        "isolation"
+      ],
+      "equipment": [
+        "none"
+      ],
+      "required_space": "indoor",
+      "difficulty": "intermediate",
+      "avoid_if_injured": [
+        "ankle",
+        "calf",
+        "achilles",
+        "lower_back"
+      ],
+      "description": "Stand with your toes on an elevated surface, such as a step or block. Place your hands on a stable support, such as a wall or railing, for balance. Raise your heels as high as possible, lifting your body weight onto the balls of your feet.",
+      "tags": [
+        "no_equipment",
+        "stretch"
+      ],
+      "baseline": {
+        "sets": 3,
+        "reps": "12-15",
+        "rest_seconds": 45,
+        "unit": "reps"
+      },
+      "gif_url": "videos/0284-u5ESqzH.gif",
+      "image": "images/0284-u5ESqzH.jpg",
+      "media_id": "u5ESqzH",
+      "attribution": "© Gym visual — https://gymvisual.com/"
+    },
+    {
+      "id": "calves_005",
+      "name": "Dumbbell Seated Calf Raise",
+      "type": "strength",
+      "primary_target_area": "calves",
+      "secondary_target_areas": [
+        "hamstrings"
+      ],
+      "movement_patterns": [
+        "calf_raise",
+        "isolation"
+      ],
+      "equipment": [
+        "dumbbells",
+        "bench"
+      ],
+      "required_space": "indoor",
+      "difficulty": "intermediate",
+      "avoid_if_injured": [
+        "ankle",
+        "calf",
+        "achilles",
+        "knee"
+      ],
+      "description": "Sit on a bench or chair with your feet flat on the ground and a dumbbell resting on your thighs. Place the balls of your feet on a raised surface such as a step or block, with your heels hanging off the edge. Hold onto the dumbbell for stability.",
+      "tags": [
+        "dumbbells",
+        "bench",
+        "home_gym",
+        "soleus"
+      ],
+      "baseline": {
+        "sets": 3,
+        "reps": "15-20",
+        "rest_seconds": 45,
+        "unit": "reps"
+      },
+      "gif_url": "videos/1379-r29jP7S.gif",
+      "image": "images/1379-r29jP7S.jpg",
+      "media_id": "r29jP7S",
+      "attribution": "© Gym visual — https://gymvisual.com/"
+    },
+    {
+      "id": "calves_006",
+      "name": "Dumbbell Standing Calf Raise",
+      "type": "strength",
+      "primary_target_area": "calves",
+      "secondary_target_areas": [
+        "ankle"
+      ],
+      "movement_patterns": [
+        "calf_raise",
+        "isolation"
+      ],
+      "equipment": [
+        "dumbbells"
+      ],
+      "required_space": "indoor",
+      "difficulty": "intermediate",
+      "avoid_if_injured": [
+        "ankle",
+        "calf",
+        "achilles"
+      ],
+      "description": "Stand with your feet shoulder-width apart, holding a dumbbell in each hand. Raise your heels off the ground as high as possible, using your calves. Pause for a moment at the top, then slowly lower your heels back down to the starting position.",
+      "tags": [
+        "dumbbells",
+        "home_gym"
+      ],
+      "baseline": {
+        "sets": 3,
+        "reps": "12-15",
+        "rest_seconds": 60,
+        "unit": "reps"
+      },
+      "gif_url": "videos/0417-dPmaUaU.gif",
+      "image": "images/0417-dPmaUaU.jpg",
+      "media_id": "dPmaUaU",
+      "attribution": "© Gym visual — https://gymvisual.com/"
+    },
+    {
+      "id": "chest_001",
+      "name": "Kneeling Push-Up",
+      "type": "strength",
+      "primary_target_area": "chest",
+      "secondary_target_areas": [
+        "triceps",
+        "shoulders"
+      ],
+      "movement_patterns": [
+        "push",
+        "horizontal_push"
+      ],
+      "equipment": [
+        "none"
+      ],
+      "required_space": "indoor",
+      "difficulty": "beginner",
+      "avoid_if_injured": [
+        "wrist",
+        "elbow",
+        "shoulder",
+        "chest",
+        "core",
+        "knee"
+      ],
+      "description": "Start by kneeling on the ground with your hands shoulder-width apart, fingers pointing forward. Extend your legs behind you, resting on the balls of your feet, so that your body forms a straight line from head to heels. Engage your core and lower your body towards the ground by bending your elbows, keeping them close to your sides.",
+      "tags": [
+        "no_equipment",
+        "travel",
+        "beginner_friendly",
+        "regression"
+      ],
+      "baseline": {
+        "sets": 3,
+        "reps": "8-10",
+        "rest_seconds": 45,
+        "unit": "reps"
+      },
+      "gif_url": "videos/3211-ZOuKWir.gif",
+      "image": "images/3211-ZOuKWir.jpg",
+      "media_id": "ZOuKWir",
+      "attribution": "© Gym visual — https://gymvisual.com/"
+    },
+    {
+      "id": "chest_002",
+      "name": "Incline Push-Up",
+      "type": "strength",
+      "primary_target_area": "chest",
+      "secondary_target_areas": [
+        "triceps",
+        "shoulders"
+      ],
+      "movement_patterns": [
+        "push",
+        "horizontal_push"
+      ],
+      "equipment": [
+        "none"
+      ],
+      "required_space": "indoor",
+      "difficulty": "beginner",
+      "avoid_if_injured": [
+        "wrist",
+        "elbow",
+        "shoulder",
+        "chest",
+        "core"
+      ],
+      "description": "Place your hands on an elevated surface, such as a bench or step, slightly wider than shoulder-width apart. Extend your legs behind you, resting on the balls of your feet, creating a straight line from your head to your heels. Lower your chest towards the elevated surface by bending your elbows, keeping your body in a straight line.",
+      "tags": [
+        "no_equipment",
+        "travel",
+        "beginner_friendly"
+      ],
+      "baseline": {
+        "sets": 3,
+        "reps": "8-12",
+        "rest_seconds": 45,
+        "unit": "reps"
+      },
+      "gif_url": "videos/0493-B1EVP9F.gif",
+      "image": "images/0493-B1EVP9F.jpg",
+      "media_id": "B1EVP9F",
+      "attribution": "© Gym visual — https://gymvisual.com/"
+    },
+    {
+      "id": "chest_003",
+      "name": "Weighted Svend Press",
+      "type": "strength",
+      "primary_target_area": "chest",
+      "secondary_target_areas": [
+        "shoulders",
+        "triceps"
+      ],
+      "movement_patterns": [
+        "push",
+        "isometric"
+      ],
+      "equipment": [
+        "dumbbells"
+      ],
+      "required_space": "indoor",
+      "difficulty": "beginner",
+      "avoid_if_injured": [
+        "shoulder",
+        "chest",
+        "wrist"
+      ],
+      "description": "Stand with your feet shoulder-width apart and hold a weight plate in front of your chest with both hands. Keep your elbows slightly bent and your palms facing each other. Press the weight plate straight out in front of you, fully extending your arms.",
+      "tags": [
+        "dumbbells",
+        "home_gym",
+        "beginner_friendly",
+        "isolation"
+      ],
+      "baseline": {
+        "sets": 3,
+        "reps": "12-15",
+        "rest_seconds": 45,
+        "unit": "reps"
+      },
+      "gif_url": "videos/0856-I1OBLnn.gif",
+      "image": "images/0856-I1OBLnn.jpg",
+      "media_id": "I1OBLnn",
+      "attribution": "© Gym visual — https://gymvisual.com/"
+    },
+    {
+      "id": "chest_004",
+      "name": "Push-Up",
+      "type": "strength",
+      "primary_target_area": "chest",
+      "secondary_target_areas": [
+        "triceps",
+        "shoulders",
+        "core"
+      ],
+      "movement_patterns": [
+        "push",
+        "horizontal_push"
+      ],
+      "equipment": [
+        "none"
+      ],
+      "required_space": "indoor",
+      "difficulty": "intermediate",
+      "avoid_if_injured": [
+        "wrist",
+        "elbow",
+        "shoulder",
+        "chest",
+        "core"
+      ],
+      "description": "Start in a high plank position with your hands slightly wider than shoulder-width apart and your feet together. Engage your core and lower your body towards the ground by bending your elbows, keeping your body in a straight line. Pause for a moment when your chest is just above the ground, then push yourself back up to the starting position by straightening your arms.",
+      "tags": [
+        "no_equipment",
+        "travel"
+      ],
+      "baseline": {
+        "sets": 3,
+        "reps": "8-15",
+        "rest_seconds": 60,
+        "unit": "reps"
+      },
+      "gif_url": "videos/0662-I4hDWkc.gif",
+      "image": "images/0662-I4hDWkc.jpg",
+      "media_id": "I4hDWkc",
+      "attribution": "© Gym visual — https://gymvisual.com/"
+    },
+    {
+      "id": "chest_005",
+      "name": "Decline Push-Up",
+      "type": "strength",
+      "primary_target_area": "chest",
+      "secondary_target_areas": [
+        "triceps",
+        "shoulders"
+      ],
+      "movement_patterns": [
+        "push",
+        "horizontal_push"
+      ],
+      "equipment": [
+        "none"
+      ],
+      "required_space": "indoor",
+      "difficulty": "intermediate",
+      "avoid_if_injured": [
+        "wrist",
+        "elbow",
+        "shoulder",
+        "chest",
+        "core"
+      ],
+      "description": "Place your hands on the ground slightly wider than shoulder-width apart, with your feet elevated on a stable surface. Keep your body in a straight line from head to toe, engaging your core muscles. Lower your chest towards the ground by bending your elbows, keeping them close to your body.",
+      "tags": [
+        "no_equipment",
+        "travel"
+      ],
+      "baseline": {
+        "sets": 3,
+        "reps": "8-12",
+        "rest_seconds": 60,
+        "unit": "reps"
+      },
+      "gif_url": "videos/0279-i5cEhka.gif",
+      "image": "images/0279-i5cEhka.jpg",
+      "media_id": "i5cEhka",
+      "attribution": "© Gym visual — https://gymvisual.com/"
+    },
+    {
+      "id": "chest_006",
+      "name": "Band One Arm Twisting Chest Press",
+      "type": "strength",
+      "primary_target_area": "chest",
+      "secondary_target_areas": [
+        "shoulders",
+        "triceps"
+      ],
+      "movement_patterns": [
+        "push",
+        "horizontal_push",
+        "unilateral"
+      ],
+      "equipment": [
+        "resistance_band"
+      ],
+      "required_space": "indoor",
+      "difficulty": "intermediate",
+      "avoid_if_injured": [
+        "shoulder",
+        "elbow",
+        "wrist",
+        "chest"
+      ],
+      "description": "Attach the band to a sturdy anchor point at chest height. Stand with your side facing the anchor point and grab the band with one hand. Step away from the anchor point to create tension in the band.",
+      "tags": [
+        "resistance_band",
+        "home_gym",
+        "unilateral"
+      ],
+      "baseline": {
+        "sets": 3,
+        "reps": "10-12",
+        "rest_seconds": 60,
+        "unit": "reps_per_side"
+      },
+      "gif_url": "videos/0989-c16nYGA.gif",
+      "image": "images/0989-c16nYGA.jpg",
+      "media_id": "c16nYGA",
+      "attribution": "© Gym visual — https://gymvisual.com/"
+    },
+    {
+      "id": "chest_007",
+      "name": "Kettlebell One Arm Floor Press",
+      "type": "strength",
+      "primary_target_area": "chest",
+      "secondary_target_areas": [
+        "triceps",
+        "shoulders"
+      ],
+      "movement_patterns": [
+        "push",
+        "horizontal_push",
+        "unilateral"
+      ],
+      "equipment": [
+        "kettlebell"
+      ],
+      "required_space": "indoor",
+      "difficulty": "intermediate",
+      "avoid_if_injured": [
+        "shoulder",
+        "elbow",
+        "wrist",
+        "chest"
+      ],
+      "description": "Lie flat on your back on the floor with your knees bent and feet flat on the ground. Hold the kettlebell in one hand with your palm facing towards your feet and your arm extended straight up towards the ceiling. Slowly lower the kettlebell towards your chest by bending your elbow, keeping your upper arm close to your body.",
+      "tags": [
+        "kettlebell",
+        "home_gym",
+        "unilateral"
+      ],
+      "baseline": {
+        "sets": 3,
+        "reps": "8-10",
+        "rest_seconds": 60,
+        "unit": "reps_per_side"
+      },
+      "gif_url": "videos/1298-rg59QCH.gif",
+      "image": "images/1298-rg59QCH.jpg",
+      "media_id": "rg59QCH",
+      "attribution": "© Gym visual — https://gymvisual.com/"
+    },
+    {
+      "id": "chest_008",
+      "name": "Dumbbell Bench Press",
+      "type": "strength",
+      "primary_target_area": "chest",
+      "secondary_target_areas": [
+        "triceps",
+        "shoulders"
+      ],
+      "movement_patterns": [
+        "push",
+        "horizontal_push"
+      ],
+      "equipment": [
+        "bench",
+        "dumbbells"
+      ],
+      "required_space": "indoor",
+      "difficulty": "intermediate",
+      "avoid_if_injured": [
+        "shoulder",
+        "elbow",
+        "wrist",
+        "chest",
+        "back"
+      ],
+      "description": "Lie flat on a bench with your feet flat on the ground and your back pressed against the bench. Hold a dumbbell in each hand, with your palms facing forward and your arms extended above your chest. Lower the dumbbells slowly to the sides of your chest, keeping your elbows at a 90-degree angle.",
+      "tags": [
+        "dumbbells",
+        "bench",
+        "home_gym"
+      ],
+      "baseline": {
+        "sets": 3,
+        "reps": "8-12",
+        "rest_seconds": 90,
+        "unit": "reps"
+      },
+      "gif_url": "videos/0289-SpYC0Kp.gif",
+      "image": "images/0289-SpYC0Kp.jpg",
+      "media_id": "SpYC0Kp",
+      "attribution": "© Gym visual — https://gymvisual.com/"
+    },
+    {
+      "id": "chest_009",
+      "name": "Chest Dip",
+      "type": "strength",
+      "primary_target_area": "chest",
+      "secondary_target_areas": [
+        "triceps",
+        "shoulders"
+      ],
+      "movement_patterns": [
+        "push",
+        "vertical_push"
+      ],
+      "equipment": [
+        "none"
+      ],
+      "required_space": "indoor",
+      "difficulty": "advanced",
+      "avoid_if_injured": [
+        "shoulder",
+        "elbow",
+        "wrist",
+        "chest"
+      ],
+      "description": "Position yourself on parallel bars with your arms fully extended and your body straight. Lower your body by bending your elbows until your shoulders are below your elbows. Push yourself back up to the starting position by straightening your arms.",
+      "tags": [
+        "no_equipment",
+        "travel",
+        "advanced"
+      ],
+      "baseline": {
+        "sets": 3,
+        "reps": "6-10",
+        "rest_seconds": 90,
+        "unit": "reps"
+      },
+      "gif_url": "videos/0251-9WTm7dq.gif",
+      "image": "images/0251-9WTm7dq.jpg",
+      "media_id": "9WTm7dq",
+      "attribution": "© Gym visual — https://gymvisual.com/"
+    },
+    {
+      "id": "chest_010",
+      "name": "Dumbbell Incline Bench Press",
+      "type": "strength",
+      "primary_target_area": "chest",
+      "secondary_target_areas": [
+        "shoulders",
+        "triceps"
+      ],
+      "movement_patterns": [
+        "push",
+        "horizontal_push"
+      ],
+      "equipment": [
+        "bench",
+        "dumbbells"
+      ],
+      "required_space": "indoor",
+      "difficulty": "advanced",
+      "avoid_if_injured": [
+        "shoulder",
+        "elbow",
+        "wrist",
+        "chest",
+        "back"
+      ],
+      "description": "Set up an incline bench at a 45-degree angle. Sit on the bench with your feet flat on the ground and your back pressed firmly against the bench. Hold a dumbbell in each hand, palms facing forward, and lift them to shoulder height.",
+      "tags": [
+        "dumbbells",
+        "bench",
+        "home_gym",
+        "upper_chest"
+      ],
+      "baseline": {
+        "sets": 3,
+        "reps": "8-12",
+        "rest_seconds": 90,
+        "unit": "reps"
+      },
+      "gif_url": "videos/0314-ns0SIbU.gif",
+      "image": "images/0314-ns0SIbU.jpg",
+      "media_id": "ns0SIbU",
+      "attribution": "© Gym visual — https://gymvisual.com/"
+    },
+    {
+      "id": "core_001",
+      "name": "Band Horizontal Pallof Press",
+      "type": "strength",
+      "primary_target_area": "core",
+      "secondary_target_areas": [
+        "obliques",
+        "glutes"
+      ],
+      "movement_patterns": [
+        "anti_rotation",
+        "isometric"
+      ],
+      "equipment": [
+        "resistance_band"
+      ],
+      "required_space": "indoor",
+      "difficulty": "beginner",
+      "avoid_if_injured": [
+        "shoulder",
+        "elbow",
+        "wrist",
+        "lower_back"
+      ],
+      "description": "Attach the band to a sturdy anchor point at waist height. Stand perpendicular to the anchor point with your feet shoulder-width apart. Grasp the band handle with both hands and step away from the anchor point to create tension in the band.",
+      "tags": [
+        "resistance_band",
+        "home_gym",
+        "anti_rotation"
+      ],
+      "baseline": {
+        "sets": 3,
+        "reps": "10-12",
+        "rest_seconds": 45,
+        "unit": "reps_per_side"
+      },
+      "gif_url": "videos/0979-9pa4H5m.gif",
+      "image": "images/0979-9pa4H5m.jpg",
+      "media_id": "9pa4H5m",
+      "attribution": "© Gym visual — https://gymvisual.com/"
+    },
+    {
+      "id": "core_002",
+      "name": "Bodyweight Incline Side Plank",
+      "type": "strength",
+      "primary_target_area": "core",
+      "secondary_target_areas": [
+        "obliques",
+        "shoulders"
+      ],
+      "movement_patterns": [
+        "lateral_stability",
+        "isometric"
+      ],
+      "equipment": [
+        "none"
+      ],
+      "required_space": "indoor",
+      "difficulty": "beginner",
+      "avoid_if_injured": [
+        "shoulder",
+        "elbow",
+        "wrist",
+        "hip",
+        "lower_back"
+      ],
+      "description": "Start by lying on your side with your legs extended and stacked on top of each other. Place your forearm on the ground directly below your shoulder, with your elbow bent at a 90-degree angle. Engage your core and lift your hips off the ground, creating a straight line from your head to your feet.",
+      "tags": [
+        "no_equipment",
+        "beginner_friendly",
+        "lateral_stability"
+      ],
+      "baseline": {
+        "sets": 3,
+        "reps": "20-30",
+        "rest_seconds": 45,
+        "unit": "seconds"
+      },
+      "gif_url": "videos/3544-5VXmnV5.gif",
+      "image": "images/3544-5VXmnV5.jpg",
+      "media_id": "5VXmnV5",
+      "attribution": "© Gym visual — https://gymvisual.com/"
+    },
+    {
+      "id": "core_003",
+      "name": "Front Plank with Twist",
+      "type": "strength",
+      "primary_target_area": "core",
+      "secondary_target_areas": [
+        "obliques",
+        "shoulders"
+      ],
+      "movement_patterns": [
+        "anti_rotation",
+        "plank"
+      ],
+      "equipment": [
+        "none"
+      ],
+      "required_space": "indoor",
+      "difficulty": "intermediate",
+      "avoid_if_injured": [
+        "shoulder",
+        "elbow",
+        "wrist",
+        "lower_back",
+        "hip"
+      ],
+      "description": "Start in a high plank position with your hands directly under your shoulders and your body in a straight line from head to toe. Engage your core and glutes to maintain a stable position. Rotate your torso to the right, lifting your right arm and extending it towards the ceiling.",
+      "tags": [
+        "no_equipment",
+        "anti_rotation",
+        "dynamic"
+      ],
+      "baseline": {
+        "sets": 3,
+        "reps": "8-10",
+        "rest_seconds": 60,
+        "unit": "reps_per_side"
+      },
+      "gif_url": "videos/0464-CosupLu.gif",
+      "image": "images/0464-CosupLu.jpg",
+      "media_id": "CosupLu",
+      "attribution": "© Gym visual — https://gymvisual.com/"
+    },
+    {
+      "id": "core_004",
+      "name": "Roller Body Saw",
+      "type": "strength",
+      "primary_target_area": "core",
+      "secondary_target_areas": [
+        "shoulders",
+        "triceps",
+        "core"
+      ],
+      "movement_patterns": [
+        "anti_extension",
+        "plank"
+      ],
+      "equipment": [
+        "ab_wheel"
+      ],
+      "required_space": "indoor",
+      "difficulty": "intermediate",
+      "avoid_if_injured": [
+        "shoulder",
+        "elbow",
+        "wrist",
+        "lower_back"
+      ],
+      "description": "Start in a plank position with your forearms on the roller and your body in a straight line. Engage your core and slowly roll the roller forward, extending your body as far as you can while maintaining control. Pause for a moment at the furthest point, then slowly roll the roller back towards your starting position.",
+      "tags": [
+        "ab_wheel",
+        "home_gym",
+        "anti_extension"
+      ],
+      "baseline": {
+        "sets": 3,
+        "reps": "8-10",
+        "rest_seconds": 60,
+        "unit": "reps"
+      },
+      "gif_url": "videos/2204-XeMvLgE.gif",
+      "image": "images/2204-XeMvLgE.jpg",
+      "media_id": "XeMvLgE",
+      "attribution": "© Gym visual — https://gymvisual.com/"
+    },
+    {
+      "id": "core_005",
+      "name": "L-Sit on Floor",
+      "type": "strength",
+      "primary_target_area": "core",
+      "secondary_target_areas": [
+        "hip"
+      ],
+      "movement_patterns": [
+        "compression",
+        "isometric"
+      ],
+      "equipment": [
+        "none"
+      ],
+      "required_space": "indoor",
+      "difficulty": "advanced",
+      "avoid_if_injured": [
+        "shoulder",
+        "wrist",
+        "hip",
+        "lower_back"
+      ],
+      "description": "Sit on the floor with your legs extended in front of you. Place your hands on the floor beside your hips, fingers pointing forward. Engage your core and lift your legs off the ground, keeping them straight.",
+      "tags": [
+        "no_equipment",
+        "advanced",
+        "isometric"
+      ],
+      "baseline": {
+        "sets": 3,
+        "reps": "10-20",
+        "rest_seconds": 60,
+        "unit": "seconds"
+      },
+      "gif_url": "videos/3419-UpWmA5E.gif",
+      "image": "images/3419-UpWmA5E.jpg",
+      "media_id": "UpWmA5E",
+      "attribution": "© Gym visual — https://gymvisual.com/"
+    },
+    {
+      "id": "forearms_001",
+      "name": "Modified Push-Up to Lower Arms",
+      "type": "strength",
+      "primary_target_area": "forearms",
+      "secondary_target_areas": [
+        "triceps",
+        "chest",
+        "shoulders"
+      ],
+      "movement_patterns": [
+        "push",
+        "isometric"
+      ],
+      "equipment": [
+        "none"
+      ],
+      "required_space": "indoor",
+      "difficulty": "beginner",
+      "avoid_if_injured": [
+        "wrist",
+        "elbow",
+        "shoulder",
+        "chest"
+      ],
+      "description": "Start in a push-up position with your hands directly under your shoulders and your body in a straight line. Lower your body down towards the ground by bending your elbows, keeping them close to your sides. Once your elbows are at a 90-degree angle, lower your forearms to the ground, keeping your elbows directly under your shoulders.",
+      "tags": [
+        "no_equipment",
+        "beginner_friendly",
+        "grip"
+      ],
+      "baseline": {
+        "sets": 3,
+        "reps": "10-12",
+        "rest_seconds": 45,
+        "unit": "reps"
+      },
+      "gif_url": "videos/1421-arvaszz.gif",
+      "image": "images/1421-arvaszz.jpg",
+      "media_id": "arvaszz",
+      "attribution": "© Gym visual — https://gymvisual.com/"
+    },
+    {
+      "id": "forearms_002",
+      "name": "Band Reverse Wrist Curl",
+      "type": "strength",
+      "primary_target_area": "forearms",
+      "secondary_target_areas": [
+        "forearms"
+      ],
+      "movement_patterns": [
+        "curl",
+        "isolation"
+      ],
+      "equipment": [
+        "resistance_band"
+      ],
+      "required_space": "indoor",
+      "difficulty": "beginner",
+      "avoid_if_injured": [
+        "wrist",
+        "elbow",
+        "forearm"
+      ],
+      "description": "Sit on a bench or chair with your feet flat on the ground. Hold the band with an overhand grip, palms facing down, and wrap it around your fingers. Rest your forearms on your thighs, with your wrists hanging off the edge.",
+      "tags": [
+        "resistance_band",
+        "home_gym",
+        "beginner_friendly",
+        "wrist_extensors"
+      ],
+      "baseline": {
+        "sets": 3,
+        "reps": "15-20",
+        "rest_seconds": 45,
+        "unit": "reps"
+      },
+      "gif_url": "videos/0994-Ezpnw9d.gif",
+      "image": "images/0994-Ezpnw9d.jpg",
+      "media_id": "Ezpnw9d",
+      "attribution": "© Gym visual — https://gymvisual.com/"
+    },
+    {
+      "id": "forearms_003",
+      "name": "Dumbbell One Arm Wrist Curl",
+      "type": "strength",
+      "primary_target_area": "forearms",
+      "secondary_target_areas": [
+        "biceps"
+      ],
+      "movement_patterns": [
+        "curl",
+        "isolation"
+      ],
+      "equipment": [
+        "dumbbells"
+      ],
+      "required_space": "indoor",
+      "difficulty": "intermediate",
+      "avoid_if_injured": [
+        "wrist",
+        "elbow",
+        "forearm"
+      ],
+      "description": "Sit on a bench or chair with your feet flat on the ground. Hold a dumbbell in one hand with an underhand grip, resting your forearm on your thigh. Allow your wrist to extend, letting the dumbbell roll down towards your fingers.",
+      "tags": [
+        "dumbbells",
+        "home_gym",
+        "wrist_flexors"
+      ],
+      "baseline": {
+        "sets": 3,
+        "reps": "15-20",
+        "rest_seconds": 45,
+        "unit": "reps_per_side"
+      },
+      "gif_url": "videos/0364-q8aHNoF.gif",
+      "image": "images/0364-q8aHNoF.jpg",
+      "media_id": "q8aHNoF",
+      "attribution": "© Gym visual — https://gymvisual.com/"
+    },
+    {
+      "id": "forearms_004",
+      "name": "Kettlebell Alternating Hang Clean",
+      "type": "strength",
+      "primary_target_area": "forearms",
+      "secondary_target_areas": [
+        "shoulders",
+        "back",
+        "core"
+      ],
+      "movement_patterns": [
+        "pull",
+        "explosive",
+        "unilateral"
+      ],
+      "equipment": [
+        "kettlebell"
+      ],
+      "required_space": "indoor",
+      "difficulty": "intermediate",
+      "avoid_if_injured": [
+        "wrist",
+        "elbow",
+        "shoulder",
+        "lower_back",
+        "hip",
+        "knee"
+      ],
+      "description": "Stand with your feet shoulder-width apart, holding a kettlebell in each hand with an overhand grip. Bend your knees slightly and hinge forward at the hips, keeping your back straight and chest up. Allow the kettlebells to hang in front of your body with your arms fully extended.",
+      "tags": [
+        "kettlebell",
+        "home_gym",
+        "grip",
+        "compound"
+      ],
+      "baseline": {
+        "sets": 3,
+        "reps": "8-10",
+        "rest_seconds": 60,
+        "unit": "reps_per_side"
+      },
+      "gif_url": "videos/0518-I4tibZG.gif",
+      "image": "images/0518-I4tibZG.jpg",
+      "media_id": "I4tibZG",
+      "attribution": "© Gym visual — https://gymvisual.com/"
+    },
+    {
+      "id": "full_body_001",
+      "name": "Bear Crawl",
+      "type": "strength",
+      "primary_target_area": "full_body",
+      "secondary_target_areas": [
+        "core",
+        "shoulders",
+        "triceps"
+      ],
+      "movement_patterns": [
+        "locomotion",
+        "core_stability"
+      ],
+      "equipment": [
+        "none"
+      ],
+      "required_space": "indoor",
+      "difficulty": "beginner",
+      "avoid_if_injured": [
+        "shoulder",
+        "wrist",
+        "lower_back",
+        "knee"
+      ],
+      "description": "Start on all fours with your hands directly under your shoulders and your knees directly under your hips. Lift your knees slightly off the ground, keeping your back flat and your core engaged. Move your right hand and left foot forward simultaneously, followed by your left hand and right foot.",
+      "tags": [
+        "no_equipment",
+        "beginner_friendly",
+        "core_stability",
+        "locomotion"
+      ],
+      "baseline": {
+        "sets": 3,
+        "reps": "10-12",
+        "rest_seconds": 45,
+        "unit": "reps"
+      },
+      "gif_url": "videos/3360-0Yz8WdV.gif",
+      "image": "images/3360-0Yz8WdV.jpg",
+      "media_id": "0Yz8WdV",
+      "attribution": "© Gym visual — https://gymvisual.com/"
+    },
+    {
+      "id": "full_body_002",
+      "name": "Star Jump (Male)",
+      "type": "strength",
+      "primary_target_area": "full_body",
+      "secondary_target_areas": [
+        "quads",
+        "hamstrings",
+        "calves"
+      ],
+      "movement_patterns": [
+        "plyometric",
+        "jump"
+      ],
+      "equipment": [
+        "none"
+      ],
+      "required_space": "indoor",
+      "difficulty": "beginner",
+      "avoid_if_injured": [
+        "knee",
+        "ankle",
+        "hip",
+        "shoulder",
+        "lower_back"
+      ],
+      "description": "Stand with your feet shoulder-width apart and your arms by your sides. Bend your knees slightly and jump up explosively. As you jump, spread your legs and extend your arms out to the sides, forming a star shape with your body.",
+      "tags": [
+        "no_equipment",
+        "beginner_friendly",
+        "plyometric",
+        "cardio"
+      ],
+      "baseline": {
+        "sets": 3,
+        "reps": "12-15",
+        "rest_seconds": 45,
+        "unit": "reps"
+      },
+      "gif_url": "videos/3223-HtfCpfi.gif",
+      "image": "images/3223-HtfCpfi.jpg",
+      "media_id": "HtfCpfi",
+      "attribution": "© Gym visual — https://gymvisual.com/"
+    },
+    {
+      "id": "full_body_003",
+      "name": "Jump Rope",
+      "type": "strength",
+      "primary_target_area": "full_body",
+      "secondary_target_areas": [
+        "calves",
+        "quads",
+        "hamstrings",
+        "glutes"
+      ],
+      "movement_patterns": [
+        "jump",
+        "cardio"
+      ],
+      "equipment": [
+        "rope"
+      ],
+      "required_space": "outdoor",
+      "difficulty": "beginner",
+      "avoid_if_injured": [
+        "knee",
+        "ankle",
+        "hip",
+        "lower_back"
+      ],
+      "description": "Hold the handles of the jump rope with your hands, palms facing inward. Stand with your feet shoulder-width apart and knees slightly bent. Swing the rope over your head and jump over it as it comes towards your feet.",
+      "tags": [
+        "rope",
+        "beginner_friendly",
+        "cardio"
+      ],
+      "baseline": {
+        "sets": 3,
+        "reps": "50",
+        "rest_seconds": 30,
+        "unit": "reps"
+      },
+      "gif_url": "videos/2612-e1e76I2.gif",
+      "image": "images/2612-e1e76I2.jpg",
+      "media_id": "e1e76I2",
+      "attribution": "© Gym visual — https://gymvisual.com/"
+    },
+    {
+      "id": "full_body_004",
+      "name": "Astride Jumps (Male)",
+      "type": "strength",
+      "primary_target_area": "full_body",
+      "secondary_target_areas": [
+        "quads",
+        "hamstrings",
+        "calves"
+      ],
+      "movement_patterns": [
+        "plyometric",
+        "squat",
+        "jump"
+      ],
+      "equipment": [
+        "none"
+      ],
+      "required_space": "indoor",
+      "difficulty": "intermediate",
+      "avoid_if_injured": [
+        "knee",
+        "ankle",
+        "hip",
+        "lower_back"
+      ],
+      "description": "Stand with your feet shoulder-width apart. Bend your knees and lower your body into a squat position. Jump explosively upwards, extending your legs and arms. While in the air, spread your legs apart and bring your arms out to the sides.",
+      "tags": [
+        "no_equipment",
+        "plyometric",
+        "cardio"
+      ],
+      "baseline": {
+        "sets": 3,
+        "reps": "10-12",
+        "rest_seconds": 60,
+        "unit": "reps"
+      },
+      "gif_url": "videos/3220-f9lVSSI.gif",
+      "image": "images/3220-f9lVSSI.jpg",
+      "media_id": "f9lVSSI",
+      "attribution": "© Gym visual — https://gymvisual.com/"
+    },
+    {
+      "id": "full_body_005",
+      "name": "Mountain Climber",
+      "type": "strength",
+      "primary_target_area": "full_body",
+      "secondary_target_areas": [
+        "core",
+        "shoulders",
+        "triceps"
+      ],
+      "movement_patterns": [
+        "plank",
+        "core_stability",
+        "locomotion"
+      ],
+      "equipment": [
+        "none"
+      ],
+      "required_space": "indoor",
+      "difficulty": "intermediate",
+      "avoid_if_injured": [
+        "shoulder",
+        "wrist",
+        "lower_back",
+        "hip",
+        "knee"
+      ],
+      "description": "Start in a high plank position with your hands directly under your shoulders and your body in a straight line. Engage your core and bring your right knee towards your chest, then quickly switch and bring your left knee towards your chest. Continue alternating legs in a running motion, keeping your hips low and your core engaged.",
+      "tags": [
+        "no_equipment",
+        "core_stability",
+        "cardio"
+      ],
+      "baseline": {
+        "sets": 3,
+        "reps": "20",
+        "rest_seconds": 45,
+        "unit": "reps"
+      },
+      "gif_url": "videos/0630-RJgzwny.gif",
+      "image": "images/0630-RJgzwny.jpg",
+      "media_id": "RJgzwny",
+      "attribution": "© Gym visual — https://gymvisual.com/"
+    },
+    {
+      "id": "full_body_006",
+      "name": "Skater Hops",
+      "type": "strength",
+      "primary_target_area": "full_body",
+      "secondary_target_areas": [
+        "quads",
+        "hamstrings",
+        "glutes",
+        "calves"
+      ],
+      "movement_patterns": [
+        "plyometric",
+        "lateral_movement",
+        "unilateral"
+      ],
+      "equipment": [
+        "none"
+      ],
+      "required_space": "indoor",
+      "difficulty": "intermediate",
+      "avoid_if_injured": [
+        "knee",
+        "ankle",
+        "hip",
+        "lower_back"
+      ],
+      "description": "Stand with your feet shoulder-width apart. Bend your knees slightly and jump to the right, landing on your right foot. As you land, swing your left leg behind your right leg and tap the ground with your left toes.",
+      "tags": [
+        "no_equipment",
+        "plyometric",
+        "cardio",
+        "lateral"
+      ],
+      "baseline": {
+        "sets": 3,
+        "reps": "10-12",
+        "rest_seconds": 60,
+        "unit": "reps"
+      },
+      "gif_url": "videos/3361-zfNHMN9.gif",
+      "image": "images/3361-zfNHMN9.jpg",
+      "media_id": "zfNHMN9",
+      "attribution": "© Gym visual — https://gymvisual.com/"
+    },
+    {
+      "id": "full_body_007",
+      "name": "Walking High Knees Lunge",
+      "type": "strength",
+      "primary_target_area": "full_body",
+      "secondary_target_areas": [
+        "quads",
+        "hamstrings",
+        "glutes",
+        "calves"
+      ],
+      "movement_patterns": [
+        "lunge",
+        "locomotion",
+        "knee_drive"
+      ],
+      "equipment": [
+        "none"
+      ],
+      "required_space": "outdoor",
+      "difficulty": "intermediate",
+      "avoid_if_injured": [
+        "knee",
+        "hip",
+        "ankle",
+        "lower_back"
+      ],
+      "description": "Stand with your feet hip-width apart. Lift your right knee up towards your chest as high as you can while balancing on your left leg. Step forward with your right foot and lower your body into a lunge position, bending both knees to a 90-degree angle.",
+      "tags": [
+        "no_equipment",
+        "locomotion",
+        "cardio",
+        "unilateral"
+      ],
+      "baseline": {
+        "sets": 3,
+        "reps": "10-12",
+        "rest_seconds": 60,
+        "unit": "reps_per_side"
+      },
+      "gif_url": "videos/3655-J9zIWig.gif",
+      "image": "images/3655-J9zIWig.jpg",
+      "media_id": "J9zIWig",
+      "attribution": "© Gym visual — https://gymvisual.com/"
+    },
+    {
+      "id": "full_body_008",
+      "name": "Burpee",
+      "type": "strength",
+      "primary_target_area": "full_body",
+      "secondary_target_areas": [
+        "quads",
+        "hamstrings",
+        "calves",
+        "shoulders",
+        "chest"
+      ],
+      "movement_patterns": [
+        "squat",
+        "push_up",
+        "jump"
+      ],
+      "equipment": [
+        "none"
+      ],
+      "required_space": "indoor",
+      "difficulty": "advanced",
+      "avoid_if_injured": [
+        "shoulder",
+        "wrist",
+        "elbow",
+        "knee",
+        "ankle",
+        "hip",
+        "lower_back"
+      ],
+      "description": "Start in a standing position with your feet shoulder-width apart. Lower your body into a squat position by bending your knees and placing your hands on the floor in front of you. Kick your feet back into a push-up position. Perform a push-up, keeping your body in a straight line.",
+      "tags": [
+        "no_equipment",
+        "advanced",
+        "compound",
+        "cardio"
+      ],
+      "baseline": {
+        "sets": 3,
+        "reps": "8-10",
+        "rest_seconds": 90,
+        "unit": "reps"
+      },
+      "gif_url": "videos/1160-dK9394r.gif",
+      "image": "images/1160-dK9394r.jpg",
+      "media_id": "dK9394r",
+      "attribution": "© Gym visual — https://gymvisual.com/"
+    },
+    {
+      "id": "full_body_009",
+      "name": "Jack Burpee",
+      "type": "strength",
+      "primary_target_area": "full_body",
+      "secondary_target_areas": [
+        "quads",
+        "hamstrings",
+        "calves",
+        "shoulders",
+        "triceps",
+        "core"
+      ],
+      "movement_patterns": [
+        "squat",
+        "push_up",
+        "jump"
+      ],
+      "equipment": [
+        "none"
+      ],
+      "required_space": "indoor",
+      "difficulty": "advanced",
+      "avoid_if_injured": [
+        "shoulder",
+        "wrist",
+        "elbow",
+        "knee",
+        "ankle",
+        "hip",
+        "lower_back"
+      ],
+      "description": "Start in a standing position with your feet shoulder-width apart. Lower your body into a squat position, placing your hands on the ground in front of you. Kick your feet back, landing in a push-up position. Perform a push-up, lowering your chest to the ground and then pushing back up.",
+      "tags": [
+        "no_equipment",
+        "advanced",
+        "compound",
+        "cardio"
+      ],
+      "baseline": {
+        "sets": 3,
+        "reps": "8-10",
+        "rest_seconds": 90,
+        "unit": "reps"
+      },
+      "gif_url": "videos/0501-mr7pkqP.gif",
+      "image": "images/0501-mr7pkqP.jpg",
+      "media_id": "mr7pkqP",
+      "attribution": "© Gym visual — https://gymvisual.com/"
+    },
+    {
+      "id": "full_body_010",
+      "name": "Dumbbell Burpee",
+      "type": "strength",
+      "primary_target_area": "full_body",
+      "secondary_target_areas": [
+        "quads",
+        "hamstrings",
+        "calves",
+        "shoulders",
+        "triceps",
+        "core"
+      ],
+      "movement_patterns": [
+        "squat",
+        "push_up",
+        "jump"
+      ],
+      "equipment": [
+        "dumbbells"
+      ],
+      "required_space": "indoor",
+      "difficulty": "advanced",
+      "avoid_if_injured": [
+        "shoulder",
+        "wrist",
+        "elbow",
+        "knee",
+        "ankle",
+        "hip",
+        "lower_back",
+        "back"
+      ],
+      "description": "Start in a standing position with your feet shoulder-width apart and a dumbbell in each hand. Lower your body into a squat position, placing the dumbbells on the ground in front of you. Kick your feet back into a push-up position, keeping your body in a straight line.",
+      "tags": [
+        "dumbbells",
+        "advanced",
+        "compound",
+        "cardio"
+      ],
+      "baseline": {
+        "sets": 3,
+        "reps": "6-8",
+        "rest_seconds": 90,
+        "unit": "reps"
+      },
+      "gif_url": "videos/1201-0JtKWum.gif",
+      "image": "images/1201-0JtKWum.jpg",
+      "media_id": "0JtKWum",
+      "attribution": "© Gym visual — https://gymvisual.com/"
+    },
+    {
+      "id": "glutes_001",
+      "name": "Low Glute Bridge on Floor",
+      "type": "strength",
+      "primary_target_area": "glutes",
+      "secondary_target_areas": [
+        "hamstrings",
+        "core"
+      ],
+      "movement_patterns": [
+        "hip_extension",
+        "bridge"
+      ],
+      "equipment": [
+        "none"
+      ],
+      "required_space": "indoor",
+      "difficulty": "beginner",
+      "avoid_if_injured": [
+        "lower_back",
+        "hip",
+        "knee"
+      ],
+      "description": "Lie flat on your back with your knees bent and feet flat on the ground. Place your arms by your sides, palms facing down. Engage your glutes and core, then lift your hips off the ground until your body forms a straight line from your knees to your shoulders.",
+      "tags": [
+        "no_equipment",
+        "beginner_friendly",
+        "activation"
+      ],
+      "baseline": {
+        "sets": 3,
+        "reps": "12-15",
+        "rest_seconds": 45,
+        "unit": "reps"
+      },
+      "gif_url": "videos/3013-u0cNiij.gif",
+      "image": "images/3013-u0cNiij.jpg",
+      "media_id": "u0cNiij",
+      "attribution": "© Gym visual — https://gymvisual.com/"
+    },
+    {
+      "id": "glutes_002",
+      "name": "Band Pull Through",
+      "type": "strength",
+      "primary_target_area": "glutes",
+      "secondary_target_areas": [
+        "hamstrings",
+        "lower_back"
+      ],
+      "movement_patterns": [
+        "hip_hinge",
+        "pull"
+      ],
+      "equipment": [
+        "resistance_band"
+      ],
+      "required_space": "indoor",
+      "difficulty": "beginner",
+      "avoid_if_injured": [
+        "lower_back",
+        "hip",
+        "hamstring"
+      ],
+      "description": "Attach a resistance band to a sturdy anchor point at ground level. Stand facing away from the anchor point with your feet shoulder-width apart. Step forward to create tension in the band, keeping your knees slightly bent.",
+      "tags": [
+        "resistance_band",
+        "home_gym",
+        "hip_hinge"
+      ],
+      "baseline": {
+        "sets": 3,
+        "reps": "12-15",
+        "rest_seconds": 60,
+        "unit": "reps"
+      },
+      "gif_url": "videos/0991-VtTbiP3.gif",
+      "image": "images/0991-VtTbiP3.jpg",
+      "media_id": "VtTbiP3",
+      "attribution": "© Gym visual — https://gymvisual.com/"
+    },
+    {
+      "id": "glutes_003",
+      "name": "Glute Bridge March",
+      "type": "strength",
+      "primary_target_area": "glutes",
+      "secondary_target_areas": [
+        "hamstrings",
+        "quads"
+      ],
+      "movement_patterns": [
+        "hip_extension",
+        "bridge",
+        "unilateral"
+      ],
+      "equipment": [
+        "none"
+      ],
+      "required_space": "indoor",
+      "difficulty": "intermediate",
+      "avoid_if_injured": [
+        "lower_back",
+        "hip",
+        "knee",
+        "ankle"
+      ],
+      "description": "Lie flat on your back with your knees bent and feet flat on the ground. Engage your glutes and lift your hips off the ground, forming a straight line from your knees to your shoulders. While keeping your hips lifted, lift one foot off the ground and bring your knee towards your chest.",
+      "tags": [
+        "no_equipment",
+        "unilateral",
+        "stability"
+      ],
+      "baseline": {
+        "sets": 3,
+        "reps": "10-12",
+        "rest_seconds": 45,
+        "unit": "reps_per_side"
+      },
+      "gif_url": "videos/3561-GibBPPg.gif",
+      "image": "images/3561-GibBPPg.jpg",
+      "media_id": "GibBPPg",
+      "attribution": "© Gym visual — https://gymvisual.com/"
+    },
+    {
+      "id": "glutes_004",
+      "name": "Walking Lunge",
+      "type": "strength",
+      "primary_target_area": "glutes",
+      "secondary_target_areas": [
+        "quads",
+        "hamstrings",
+        "calves"
+      ],
+      "movement_patterns": [
+        "lunge",
+        "lower_body_push",
+        "unilateral"
+      ],
+      "equipment": [
+        "none"
+      ],
+      "required_space": "indoor",
+      "difficulty": "intermediate",
+      "avoid_if_injured": [
+        "knee",
+        "hip",
+        "ankle",
+        "lower_back"
+      ],
+      "description": "Stand with your feet shoulder-width apart. Take a step forward with your right leg, lowering your body into a lunge position. Keep your torso upright and your front knee aligned with your ankle.",
+      "tags": [
+        "no_equipment",
+        "travel",
+        "dynamic"
+      ],
+      "baseline": {
+        "sets": 3,
+        "reps": "10-12",
+        "rest_seconds": 60,
+        "unit": "reps_per_side"
+      },
+      "gif_url": "videos/1460-IZVHb27.gif",
+      "image": "images/1460-IZVHb27.jpg",
+      "media_id": "IZVHb27",
+      "attribution": "© Gym visual — https://gymvisual.com/"
+    },
+    {
+      "id": "glutes_005",
+      "name": "Dumbbell Step-Up",
+      "type": "strength",
+      "primary_target_area": "glutes",
+      "secondary_target_areas": [
+        "quads",
+        "hamstrings",
+        "calves"
+      ],
+      "movement_patterns": [
+        "step_up",
+        "lower_body_push",
+        "unilateral"
+      ],
+      "equipment": [
+        "bench",
+        "dumbbells"
+      ],
+      "required_space": "indoor",
+      "difficulty": "intermediate",
+      "avoid_if_injured": [
+        "knee",
+        "hip",
+        "ankle",
+        "lower_back"
+      ],
+      "description": "Stand in front of a bench or step with a dumbbell in each hand, palms facing your body. Place your right foot on the bench or step, ensuring your entire foot is in contact with the surface. Push through your right heel and lift your body up onto the bench or step, straightening your right leg.",
+      "tags": [
+        "dumbbells",
+        "bench",
+        "home_gym",
+        "unilateral"
+      ],
+      "baseline": {
+        "sets": 3,
+        "reps": "8-10",
+        "rest_seconds": 60,
+        "unit": "reps_per_side"
+      },
+      "gif_url": "videos/0431-aXtJhlg.gif",
+      "image": "images/0431-aXtJhlg.jpg",
+      "media_id": "aXtJhlg",
+      "attribution": "© Gym visual — https://gymvisual.com/"
+    },
+    {
+      "id": "glutes_006",
+      "name": "Kettlebell Goblet Squat",
+      "type": "strength",
+      "primary_target_area": "glutes",
+      "secondary_target_areas": [
+        "quads",
+        "hamstrings",
+        "calves"
+      ],
+      "movement_patterns": [
+        "squat",
+        "lower_body_push"
+      ],
+      "equipment": [
+        "kettlebell"
+      ],
+      "required_space": "indoor",
+      "difficulty": "intermediate",
+      "avoid_if_injured": [
+        "knee",
+        "hip",
+        "lower_back",
+        "wrist",
+        "elbow",
+        "shoulder"
+      ],
+      "description": "Stand with your feet shoulder-width apart, holding a kettlebell close to your chest with both hands. Keeping your chest up and core engaged, lower your body down into a squat position by bending at the knees and hips. Continue lowering until your thighs are parallel to the ground, or as low as you can comfortably go.",
+      "tags": [
+        "kettlebell",
+        "home_gym",
+        "squat"
+      ],
+      "baseline": {
+        "sets": 3,
+        "reps": "10-12",
+        "rest_seconds": 90,
+        "unit": "reps"
+      },
+      "gif_url": "videos/0534-ZA8b5hc.gif",
+      "image": "images/0534-ZA8b5hc.jpg",
+      "media_id": "ZA8b5hc",
+      "attribution": "© Gym visual — https://gymvisual.com/"
+    },
+    {
+      "id": "hamstrings_001",
+      "name": "Standing Single Leg Curl",
+      "type": "strength",
+      "primary_target_area": "hamstrings",
+      "secondary_target_areas": [
+        "glutes"
+      ],
+      "movement_patterns": [
+        "curl",
+        "isolation",
+        "unilateral"
+      ],
+      "equipment": [
+        "none"
+      ],
+      "required_space": "indoor",
+      "difficulty": "beginner",
+      "avoid_if_injured": [
+        "knee",
+        "hip",
+        "hamstring",
+        "lower_back"
+      ],
+      "description": "Stand with your feet hip-width apart and your hands on your hips. Shift your weight onto your left leg and lift your right foot off the ground, bending your knee. Slowly curl your right heel towards your glutes, squeezing your hamstring.",
+      "tags": [
+        "no_equipment",
+        "beginner_friendly",
+        "unilateral"
+      ],
+      "baseline": {
+        "sets": 3,
+        "reps": "12-15",
+        "rest_seconds": 45,
+        "unit": "reps_per_side"
+      },
+      "gif_url": "videos/0795-C5jncD2.gif",
+      "image": "images/0795-C5jncD2.jpg",
+      "media_id": "C5jncD2",
+      "attribution": "© Gym visual — https://gymvisual.com/"
+    },
+    {
+      "id": "hamstrings_002",
+      "name": "Self Assisted Inverse Leg Curl",
+      "type": "strength",
+      "primary_target_area": "hamstrings",
+      "secondary_target_areas": [
+        "glutes",
+        "calves"
+      ],
+      "movement_patterns": [
+        "curl",
+        "isolation"
+      ],
+      "equipment": [
+        "none"
+      ],
+      "required_space": "indoor",
+      "difficulty": "beginner",
+      "avoid_if_injured": [
+        "knee",
+        "hip",
+        "hamstring",
+        "lower_back"
+      ],
+      "description": "Lie flat on your back on a mat or bench with your legs extended. Place your hands by your sides or under your glutes for support. Bend your knees and lift your feet off the ground, bringing your thighs towards your chest.",
+      "tags": [
+        "no_equipment",
+        "beginner_friendly",
+        "regression"
+      ],
+      "baseline": {
+        "sets": 3,
+        "reps": "10-12",
+        "rest_seconds": 60,
+        "unit": "reps"
+      },
+      "gif_url": "videos/0697-GwYwElT.gif",
+      "image": "images/0697-GwYwElT.jpg",
+      "media_id": "GwYwElT",
+      "attribution": "© Gym visual — https://gymvisual.com/"
+    },
+    {
+      "id": "hamstrings_003",
+      "name": "Dumbbell Lying Femoral",
+      "type": "strength",
+      "primary_target_area": "hamstrings",
+      "secondary_target_areas": [
+        "glutes"
+      ],
+      "movement_patterns": [
+        "curl",
+        "isolation"
+      ],
+      "equipment": [
+        "dumbbells"
+      ],
+      "required_space": "indoor",
+      "difficulty": "intermediate",
+      "avoid_if_injured": [
+        "knee",
+        "hip",
+        "hamstring",
+        "lower_back"
+      ],
+      "description": "Lie flat on your back with your legs extended and a dumbbell resting on your lower abdomen. Bend your knees and bring the dumbbell towards your glutes, keeping your feet flat on the ground. Pause for a moment at the top, then slowly lower the dumbbell back to the starting position.",
+      "tags": [
+        "dumbbells",
+        "home_gym",
+        "isolation"
+      ],
+      "baseline": {
+        "sets": 3,
+        "reps": "10-12",
+        "rest_seconds": 60,
+        "unit": "reps"
+      },
+      "gif_url": "videos/0339-FkBIE6a.gif",
+      "image": "images/0339-FkBIE6a.jpg",
+      "media_id": "FkBIE6a",
+      "attribution": "© Gym visual — https://gymvisual.com/"
+    },
+    {
+      "id": "hamstrings_004",
+      "name": "Kettlebell Hang Clean",
+      "type": "strength",
+      "primary_target_area": "hamstrings",
+      "secondary_target_areas": [
+        "glutes",
+        "quads",
+        "calves"
+      ],
+      "movement_patterns": [
+        "hip_hinge",
+        "pull",
+        "explosive"
+      ],
+      "equipment": [
+        "kettlebell"
+      ],
+      "required_space": "indoor",
+      "difficulty": "intermediate",
+      "avoid_if_injured": [
+        "lower_back",
+        "hip",
+        "knee",
+        "shoulder",
+        "wrist",
+        "elbow"
+      ],
+      "description": "Stand with your feet shoulder-width apart, holding a kettlebell in front of your thighs. Bend your knees slightly and hinge forward at the hips, keeping your back straight. Lower the kettlebell towards the ground, allowing it to swing between your legs.",
+      "tags": [
+        "kettlebell",
+        "home_gym",
+        "compound",
+        "posterior_chain"
+      ],
+      "baseline": {
+        "sets": 3,
+        "reps": "8-10",
+        "rest_seconds": 90,
+        "unit": "reps_per_side"
+      },
+      "gif_url": "videos/0535-LHWF7us.gif",
+      "image": "images/0535-LHWF7us.jpg",
+      "media_id": "LHWF7us",
+      "attribution": "© Gym visual — https://gymvisual.com/"
+    },
+    {
+      "id": "hamstrings_005",
+      "name": "Glute-Ham Raise",
+      "type": "strength",
+      "primary_target_area": "hamstrings",
+      "secondary_target_areas": [
+        "glutes",
+        "lower_back"
+      ],
+      "movement_patterns": [
+        "extension",
+        "isolation"
+      ],
+      "equipment": [
+        "none"
+      ],
+      "required_space": "indoor",
+      "difficulty": "advanced",
+      "avoid_if_injured": [
+        "knee",
+        "hamstring",
+        "lower_back",
+        "hip"
+      ],
+      "description": "Adjust the glute-ham raise machine to fit your body. Position yourself face down on the machine with your ankles secured. Place your hands on your chest or cross them over your chest.",
+      "tags": [
+        "no_equipment",
+        "advanced",
+        "nordic_curl"
+      ],
+      "baseline": {
+        "sets": 3,
+        "reps": "5-8",
+        "rest_seconds": 90,
+        "unit": "reps"
+      },
+      "gif_url": "videos/3193-Vvwjz6N.gif",
+      "image": "images/3193-Vvwjz6N.jpg",
+      "media_id": "Vvwjz6N",
+      "attribution": "© Gym visual — https://gymvisual.com/"
+    },
+    {
+      "id": "lower_back_001",
+      "name": "Lower Back Curl",
+      "type": "strength",
+      "primary_target_area": "lower_back",
+      "secondary_target_areas": [
+        "glutes",
+        "hamstrings"
+      ],
+      "movement_patterns": [
+        "spinal_extension",
+        "isolation"
+      ],
+      "equipment": [
+        "none"
+      ],
+      "required_space": "indoor",
+      "difficulty": "beginner",
+      "avoid_if_injured": [
+        "lower_back",
+        "hip",
+        "hamstring"
+      ],
+      "description": "Lie flat on your stomach with your legs extended and your arms by your sides. Engage your glutes and hamstrings, and slowly lift your upper body off the ground, curling your back upwards. Pause for a moment at the top, then slowly lower your upper body back down to the starting position.",
+      "tags": [
+        "no_equipment",
+        "beginner_friendly",
+        "spinal_extension"
+      ],
+      "baseline": {
+        "sets": 3,
+        "reps": "12-15",
+        "rest_seconds": 45,
+        "unit": "reps"
+      },
+      "gif_url": "videos/1352-ANbbry2.gif",
+      "image": "images/1352-ANbbry2.jpg",
+      "media_id": "ANbbry2",
+      "attribution": "© Gym visual — https://gymvisual.com/"
+    },
+    {
+      "id": "lower_back_002",
+      "name": "Band Straight Leg Deadlift",
+      "type": "strength",
+      "primary_target_area": "lower_back",
+      "secondary_target_areas": [
+        "hamstrings",
+        "glutes"
+      ],
+      "movement_patterns": [
+        "hip_hinge",
+        "pull"
+      ],
+      "equipment": [
+        "resistance_band"
+      ],
+      "required_space": "indoor",
+      "difficulty": "beginner",
+      "avoid_if_injured": [
+        "lower_back",
+        "hip",
+        "hamstring",
+        "knee"
+      ],
+      "description": "Stand with your feet shoulder-width apart and place the band around your feet. Hold the band with both hands, palms facing your body, and keep your arms straight. Engage your core and maintain a slight bend in your knees.",
+      "tags": [
+        "resistance_band",
+        "home_gym",
+        "beginner_friendly",
+        "posterior_chain"
+      ],
+      "baseline": {
+        "sets": 3,
+        "reps": "12-15",
+        "rest_seconds": 60,
+        "unit": "reps"
+      },
+      "gif_url": "videos/1010-KUaoUV8.gif",
+      "image": "images/1010-KUaoUV8.jpg",
+      "media_id": "KUaoUV8",
+      "attribution": "© Gym visual — https://gymvisual.com/"
+    },
+    {
+      "id": "lower_back_003",
+      "name": "Back Extension on Exercise Ball",
+      "type": "strength",
+      "primary_target_area": "lower_back",
+      "secondary_target_areas": [
+        "glutes",
+        "hamstrings"
+      ],
+      "movement_patterns": [
+        "spinal_extension",
+        "isolation"
+      ],
+      "equipment": [
+        "stability_ball"
+      ],
+      "required_space": "indoor",
+      "difficulty": "beginner",
+      "avoid_if_injured": [
+        "lower_back",
+        "hip",
+        "hamstring",
+        "shoulder",
+        "neck"
+      ],
+      "description": "Place the stability ball on the ground and lie face down on top of it, with your hips resting on the ball and your feet against a wall or other stable surface. Position your hands behind your head or crossed over your chest. Engage your core and slowly lift your upper body off the ball, extending your back until your body forms a straight line from your head to your heels.",
+      "tags": [
+        "stability_ball",
+        "home_gym",
+        "beginner_friendly"
+      ],
+      "baseline": {
+        "sets": 3,
+        "reps": "10-12",
+        "rest_seconds": 45,
+        "unit": "reps"
+      },
+      "gif_url": "videos/1314-qLpO4vV.gif",
+      "image": "images/1314-qLpO4vV.jpg",
+      "media_id": "qLpO4vV",
+      "attribution": "© Gym visual — https://gymvisual.com/"
+    },
+    {
+      "id": "lower_back_004",
+      "name": "Sphinx",
+      "type": "strength",
+      "primary_target_area": "lower_back",
+      "secondary_target_areas": [
+        "glutes",
+        "hamstrings"
+      ],
+      "movement_patterns": [
+        "spinal_extension",
+        "isometric"
+      ],
+      "equipment": [
+        "none"
+      ],
+      "required_space": "indoor",
+      "difficulty": "intermediate",
+      "avoid_if_injured": [
+        "lower_back",
+        "hip",
+        "shoulder",
+        "neck"
+      ],
+      "description": "Lie face down on the ground with your forearms flat on the floor, elbows directly under your shoulders. Engage your core and lift your chest off the ground, keeping your forearms and toes on the floor. Hold this position for a few seconds, making sure to keep your neck in a neutral position.",
+      "tags": [
+        "no_equipment",
+        "isometric",
+        "mobility"
+      ],
+      "baseline": {
+        "sets": 3,
+        "reps": "20-30",
+        "rest_seconds": 30,
+        "unit": "seconds"
+      },
+      "gif_url": "videos/1362-DIVyqrU.gif",
+      "image": "images/1362-DIVyqrU.jpg",
+      "media_id": "DIVyqrU",
+      "attribution": "© Gym visual — https://gymvisual.com/"
+    },
+    {
+      "id": "neck_001",
+      "name": "Neck Side Stretch",
+      "type": "strength",
+      "primary_target_area": "neck",
+      "secondary_target_areas": [
+        "trapezius",
+        "sternocleidomastoid"
+      ],
+      "movement_patterns": [
+        "stretch",
+        "isolation"
+      ],
+      "equipment": [
+        "none"
+      ],
+      "required_space": "indoor",
+      "difficulty": "beginner",
+      "avoid_if_injured": [
+        "neck",
+        "shoulder"
+      ],
+      "description": "Stand or sit up straight with your shoulders relaxed. Tilt your head to one side, bringing your ear towards your shoulder. Hold the stretch for 15-30 seconds.",
+      "tags": [
+        "no_equipment",
+        "beginner_friendly",
+        "stretch",
+        "mobility"
+      ],
+      "baseline": {
+        "sets": 3,
+        "reps": "20-30",
+        "rest_seconds": 30,
+        "unit": "seconds"
+      },
+      "gif_url": "videos/1403-x2chWLO.gif",
+      "image": "images/1403-x2chWLO.jpg",
+      "media_id": "x2chWLO",
+      "attribution": "© Gym visual — https://gymvisual.com/"
+    },
+    {
+      "id": "neck_002",
+      "name": "Side Push Neck Stretch",
+      "type": "strength",
+      "primary_target_area": "neck",
+      "secondary_target_areas": [
+        "trapezius",
+        "sternocleidomastoid"
+      ],
+      "movement_patterns": [
+        "stretch",
+        "isolation"
+      ],
+      "equipment": [
+        "none"
+      ],
+      "required_space": "indoor",
+      "difficulty": "beginner",
+      "avoid_if_injured": [
+        "neck",
+        "shoulder"
+      ],
+      "description": "Stand or sit up straight with your shoulders relaxed. Tilt your head to the right, bringing your right ear towards your right shoulder. Place your right hand on the left side of your head and gently apply pressure to increase the stretch.",
+      "tags": [
+        "no_equipment",
+        "beginner_friendly",
+        "stretch",
+        "mobility"
+      ],
+      "baseline": {
+        "sets": 3,
+        "reps": "20-30",
+        "rest_seconds": 30,
+        "unit": "seconds"
+      },
+      "gif_url": "videos/0716-oQRJYkC.gif",
+      "image": "images/0716-oQRJYkC.jpg",
+      "media_id": "oQRJYkC",
+      "attribution": "© Gym visual — https://gymvisual.com/"
+    },
+    {
+      "id": "quads_001",
+      "name": "Squat to Overhead Reach",
+      "type": "strength",
+      "primary_target_area": "quads",
+      "secondary_target_areas": [
+        "glutes",
+        "hamstrings",
+        "core"
+      ],
+      "movement_patterns": [
+        "squat",
+        "lower_body_push"
+      ],
+      "equipment": [
+        "none"
+      ],
+      "required_space": "indoor",
+      "difficulty": "beginner",
+      "avoid_if_injured": [
+        "knee",
+        "hip",
+        "lower_back",
+        "shoulder"
+      ],
+      "description": "Stand with your feet shoulder-width apart and toes slightly turned out. Lower your body down into a squat position by bending your knees and pushing your hips back. As you come up from the squat, extend your arms overhead, reaching towards the ceiling.",
+      "tags": [
+        "no_equipment",
+        "beginner_friendly",
+        "mobility"
+      ],
+      "baseline": {
+        "sets": 3,
+        "reps": "10-12",
+        "rest_seconds": 45,
+        "unit": "reps"
+      },
+      "gif_url": "videos/1685-QChZi3x.gif",
+      "image": "images/1685-QChZi3x.jpg",
+      "media_id": "QChZi3x",
+      "attribution": "© Gym visual — https://gymvisual.com/"
+    },
+    {
+      "id": "quads_002",
+      "name": "Dumbbell Goblet Squat",
+      "type": "strength",
+      "primary_target_area": "quads",
+      "secondary_target_areas": [
+        "glutes",
+        "hamstrings",
+        "calves"
+      ],
+      "movement_patterns": [
+        "squat",
+        "lower_body_push"
+      ],
+      "equipment": [
+        "dumbbells"
+      ],
+      "required_space": "indoor",
+      "difficulty": "beginner",
+      "avoid_if_injured": [
+        "knee",
+        "hip",
+        "lower_back",
+        "wrist",
+        "elbow",
+        "shoulder"
+      ],
+      "description": "Stand with your feet shoulder-width apart, holding a dumbbell vertically against your chest with both hands. Keeping your chest up and core engaged, lower your body down into a squat position by pushing your hips back and bending your knees. Continue lowering until your thighs are parallel to the ground, or as low as you can comfortably go.",
+      "tags": [
+        "dumbbells",
+        "home_gym",
+        "beginner_friendly"
+      ],
+      "baseline": {
+        "sets": 3,
+        "reps": "10-12",
+        "rest_seconds": 60,
+        "unit": "reps"
+      },
+      "gif_url": "videos/1760-yn8yg1r.gif",
+      "image": "images/1760-yn8yg1r.jpg",
+      "media_id": "yn8yg1r",
+      "attribution": "© Gym visual — https://gymvisual.com/"
+    },
+    {
+      "id": "quads_003",
+      "name": "Resistance Band Leg Extension",
+      "type": "strength",
+      "primary_target_area": "quads",
+      "secondary_target_areas": [
+        "hamstrings"
+      ],
+      "movement_patterns": [
+        "extension",
+        "isolation"
+      ],
+      "equipment": [
+        "resistance_band"
+      ],
+      "required_space": "indoor",
+      "difficulty": "beginner",
+      "avoid_if_injured": [
+        "knee",
+        "hip",
+        "lower_back"
+      ],
+      "description": "Attach the resistance band to a sturdy anchor point and secure it around your ankle. Stand facing the anchor point with your feet shoulder-width apart. Keeping your core engaged and your upper body stable, extend your leg straight out in front of you.",
+      "tags": [
+        "resistance_band",
+        "home_gym",
+        "beginner_friendly",
+        "isolation"
+      ],
+      "baseline": {
+        "sets": 3,
+        "reps": "12-15",
+        "rest_seconds": 45,
+        "unit": "reps_per_side"
+      },
+      "gif_url": "videos/3007-Y1MsI1l.gif",
+      "image": "images/3007-Y1MsI1l.jpg",
+      "media_id": "Y1MsI1l",
+      "attribution": "© Gym visual — https://gymvisual.com/"
+    },
+    {
+      "id": "quads_004",
+      "name": "Split Squats",
+      "type": "strength",
+      "primary_target_area": "quads",
+      "secondary_target_areas": [
+        "glutes",
+        "hamstrings",
+        "calves"
+      ],
+      "movement_patterns": [
+        "lunge",
+        "lower_body_push",
+        "unilateral"
+      ],
+      "equipment": [
+        "none"
+      ],
+      "required_space": "indoor",
+      "difficulty": "intermediate",
+      "avoid_if_injured": [
+        "knee",
+        "hip",
+        "ankle",
+        "lower_back"
+      ],
+      "description": "Stand with your feet shoulder-width apart. Take a step forward with one foot and place it about two feet in front of the other foot. Lower your body by bending your knees and hips, keeping your back straight.",
+      "tags": [
+        "no_equipment",
+        "unilateral",
+        "stability"
+      ],
+      "baseline": {
+        "sets": 3,
+        "reps": "10-12",
+        "rest_seconds": 60,
+        "unit": "reps_per_side"
+      },
+      "gif_url": "videos/2368-9E25EOx.gif",
+      "image": "images/2368-9E25EOx.jpg",
+      "media_id": "9E25EOx",
+      "attribution": "© Gym visual — https://gymvisual.com/"
+    },
+    {
+      "id": "quads_005",
+      "name": "Band Single Leg Split Squat",
+      "type": "strength",
+      "primary_target_area": "quads",
+      "secondary_target_areas": [
+        "glutes",
+        "hamstrings"
+      ],
+      "movement_patterns": [
+        "lunge",
+        "lower_body_push",
+        "unilateral"
+      ],
+      "equipment": [
+        "resistance_band"
+      ],
+      "required_space": "indoor",
+      "difficulty": "intermediate",
+      "avoid_if_injured": [
+        "knee",
+        "hip",
+        "ankle",
+        "lower_back"
+      ],
+      "description": "Stand with your feet hip-width apart and place a resistance band around your ankles. Take a big step forward with your right foot and a smaller step back with your left foot. Bend your knees and lower your body until your right thigh is parallel to the ground, keeping your left knee slightly above the ground.",
+      "tags": [
+        "resistance_band",
+        "home_gym",
+        "unilateral"
+      ],
+      "baseline": {
+        "sets": 3,
+        "reps": "10-12",
+        "rest_seconds": 60,
+        "unit": "reps_per_side"
+      },
+      "gif_url": "videos/1001-y8bYM8w.gif",
+      "image": "images/1001-y8bYM8w.jpg",
+      "media_id": "y8bYM8w",
+      "attribution": "© Gym visual — https://gymvisual.com/"
+    },
+    {
+      "id": "quads_006",
+      "name": "Sissy Squat",
+      "type": "strength",
+      "primary_target_area": "quads",
+      "secondary_target_areas": [
+        "calves",
+        "glutes"
+      ],
+      "movement_patterns": [
+        "squat",
+        "isolation"
+      ],
+      "equipment": [
+        "none"
+      ],
+      "required_space": "indoor",
+      "difficulty": "advanced",
+      "avoid_if_injured": [
+        "knee",
+        "ankle",
+        "hip",
+        "lower_back"
+      ],
+      "description": "Stand with your feet shoulder-width apart and your toes pointing slightly outward. Hold onto a stable object for balance if needed. Slowly lower your body by bending your knees and leaning back, keeping your torso upright.",
+      "tags": [
+        "no_equipment",
+        "advanced",
+        "quad_isolation"
+      ],
+      "baseline": {
+        "sets": 3,
+        "reps": "8-10",
+        "rest_seconds": 60,
+        "unit": "reps"
+      },
+      "gif_url": "videos/1489-xdYPUtE.gif",
+      "image": "images/1489-xdYPUtE.jpg",
+      "media_id": "xdYPUtE",
+      "attribution": "© Gym visual — https://gymvisual.com/"
+    },
+    {
+      "id": "shoulders_001",
+      "name": "Left Hook (Boxing)",
+      "type": "strength",
+      "primary_target_area": "shoulders",
+      "secondary_target_areas": [
+        "biceps",
+        "triceps",
+        "forearms"
+      ],
+      "movement_patterns": [
+        "punch",
+        "rotation"
+      ],
+      "equipment": [
+        "none"
+      ],
+      "required_space": "indoor",
+      "difficulty": "beginner",
+      "avoid_if_injured": [
+        "shoulder",
+        "elbow",
+        "wrist",
+        "back"
+      ],
+      "description": "Stand with your feet shoulder-width apart and your knees slightly bent. Keep your left hand up to protect your face and your right hand by your chin. Rotate your hips and pivot on your left foot as you extend your left arm forward in a punching motion.",
+      "tags": [
+        "no_equipment",
+        "dynamic",
+        "cardio"
+      ],
+      "baseline": {
+        "sets": 3,
+        "reps": "20",
+        "rest_seconds": 30,
+        "unit": "reps_per_side"
+      },
+      "gif_url": "videos/2271-hoXt6wv.gif",
+      "image": "images/2271-hoXt6wv.jpg",
+      "media_id": "hoXt6wv",
+      "attribution": "© Gym visual — https://gymvisual.com/"
+    },
+    {
+      "id": "shoulders_002",
+      "name": "Band Shoulder Press",
+      "type": "strength",
+      "primary_target_area": "shoulders",
+      "secondary_target_areas": [
+        "triceps",
+        "back"
+      ],
+      "movement_patterns": [
+        "push",
+        "vertical_push"
+      ],
+      "equipment": [
+        "resistance_band"
+      ],
+      "required_space": "indoor",
+      "difficulty": "beginner",
+      "avoid_if_injured": [
+        "shoulder",
+        "elbow",
+        "wrist",
+        "neck"
+      ],
+      "description": "Stand with your feet shoulder-width apart and place the band under your feet. Hold the band with your palms facing forward and raise your hands to shoulder height, elbows bent. Press the band overhead, fully extending your arms.",
+      "tags": [
+        "resistance_band",
+        "home_gym",
+        "beginner_friendly"
+      ],
+      "baseline": {
+        "sets": 3,
+        "reps": "10-12",
+        "rest_seconds": 60,
+        "unit": "reps"
+      },
+      "gif_url": "videos/0997-peAeMR3.gif",
+      "image": "images/0997-peAeMR3.jpg",
+      "media_id": "peAeMR3",
+      "attribution": "© Gym visual — https://gymvisual.com/"
+    },
+    {
+      "id": "shoulders_003",
+      "name": "Dumbbell Lateral Raise",
+      "type": "strength",
+      "primary_target_area": "shoulders",
+      "secondary_target_areas": [
+        "back"
+      ],
+      "movement_patterns": [
+        "raise",
+        "isolation"
+      ],
+      "equipment": [
+        "dumbbells"
+      ],
+      "required_space": "indoor",
+      "difficulty": "intermediate",
+      "avoid_if_injured": [
+        "shoulder",
+        "elbow",
+        "wrist"
+      ],
+      "description": "Stand with your feet shoulder-width apart and hold a dumbbell in each hand, palms facing your body. Keep your back straight and engage your core. Raise your arms out to the sides until they are parallel to the floor, keeping a slight bend in your elbows.",
+      "tags": [
+        "dumbbells",
+        "home_gym",
+        "side_delts"
+      ],
+      "baseline": {
+        "sets": 3,
+        "reps": "10-12",
+        "rest_seconds": 45,
+        "unit": "reps"
+      },
+      "gif_url": "videos/0334-DsgkuIt.gif",
+      "image": "images/0334-DsgkuIt.jpg",
+      "media_id": "DsgkuIt",
+      "attribution": "© Gym visual — https://gymvisual.com/"
+    },
+    {
+      "id": "shoulders_004",
+      "name": "Dumbbell Arnold Press",
+      "type": "strength",
+      "primary_target_area": "shoulders",
+      "secondary_target_areas": [
+        "triceps",
+        "chest"
+      ],
+      "movement_patterns": [
+        "push",
+        "vertical_push"
+      ],
+      "equipment": [
+        "dumbbells",
+        "bench"
+      ],
+      "required_space": "indoor",
+      "difficulty": "intermediate",
+      "avoid_if_injured": [
+        "shoulder",
+        "elbow",
+        "wrist",
+        "neck",
+        "back"
+      ],
+      "description": "Sit on a bench with back support and hold a dumbbell in each hand at shoulder level, palms facing your body and elbows bent. Press the dumbbells upward until your arms are fully extended and your palms are facing forward. Rotate your wrists as you lift, so that your palms are facing forward at the top of the movement.",
+      "tags": [
+        "dumbbells",
+        "bench",
+        "home_gym",
+        "compound"
+      ],
+      "baseline": {
+        "sets": 3,
+        "reps": "8-10",
+        "rest_seconds": 60,
+        "unit": "reps"
+      },
+      "gif_url": "videos/2137-Xy4jlWA.gif",
+      "image": "images/2137-Xy4jlWA.jpg",
+      "media_id": "Xy4jlWA",
+      "attribution": "© Gym visual — https://gymvisual.com/"
+    },
+    {
+      "id": "shoulders_005",
+      "name": "Kettlebell Arnold Press",
+      "type": "strength",
+      "primary_target_area": "shoulders",
+      "secondary_target_areas": [
+        "triceps",
+        "back"
+      ],
+      "movement_patterns": [
+        "push",
+        "vertical_push"
+      ],
+      "equipment": [
+        "kettlebell"
+      ],
+      "required_space": "indoor",
+      "difficulty": "intermediate",
+      "avoid_if_injured": [
+        "shoulder",
+        "elbow",
+        "wrist",
+        "neck",
+        "back"
+      ],
+      "description": "Stand with your feet shoulder-width apart, holding a kettlebell in each hand at shoulder height with your palms facing towards you. Engage your core and press the kettlebells overhead, rotating your palms to face forward as you extend your arms. Pause at the top of the movement, then slowly lower the kettlebells back to the starting position.",
+      "tags": [
+        "kettlebell",
+        "home_gym",
+        "compound"
+      ],
+      "baseline": {
+        "sets": 3,
+        "reps": "8-10",
+        "rest_seconds": 60,
+        "unit": "reps"
+      },
+      "gif_url": "videos/0523-UM8mgyG.gif",
+      "image": "images/0523-UM8mgyG.jpg",
+      "media_id": "UM8mgyG",
+      "attribution": "© Gym visual — https://gymvisual.com/"
+    },
+    {
+      "id": "triceps_001",
+      "name": "Bench Dip",
+      "type": "strength",
+      "primary_target_area": "triceps",
+      "secondary_target_areas": [
+        "chest",
+        "shoulders"
+      ],
+      "movement_patterns": [
+        "dip",
+        "push",
+        "compound"
+      ],
+      "equipment": [
+        "bench"
+      ],
+      "required_space": "indoor",
+      "difficulty": "beginner",
+      "avoid_if_injured": [
+        "shoulder",
+        "elbow",
+        "wrist",
+        "lower_back"
+      ],
+      "description": "Sit on the edge of a bench or chair with your hands gripping the edge, fingers pointing forward. Slide your butt off the bench, supporting your weight with your hands. Lower your body by bending your elbows until your upper arms are parallel to the floor.",
+      "tags": [
+        "bench",
+        "beginner_friendly",
+        "compound"
+      ],
+      "baseline": {
+        "sets": 3,
+        "reps": "10-12",
+        "rest_seconds": 45,
+        "unit": "reps"
+      },
+      "gif_url": "videos/1399-9RT8oQW.gif",
+      "image": "images/1399-9RT8oQW.jpg",
+      "media_id": "9RT8oQW",
+      "attribution": "© Gym visual — https://gymvisual.com/"
+    },
+    {
+      "id": "triceps_002",
+      "name": "Dumbbell Kickback",
+      "type": "strength",
+      "primary_target_area": "triceps",
+      "secondary_target_areas": [
+        "shoulders"
+      ],
+      "movement_patterns": [
+        "extension",
+        "isolation"
+      ],
+      "equipment": [
+        "dumbbells"
+      ],
+      "required_space": "indoor",
+      "difficulty": "beginner",
+      "avoid_if_injured": [
+        "shoulder",
+        "elbow",
+        "wrist",
+        "lower_back"
+      ],
+      "description": "Stand with your feet shoulder-width apart and hold a dumbbell in each hand. Bend your knees slightly and hinge forward at the hips, keeping your back straight. Bring your upper arms close to your sides, with your elbows bent at a 90-degree angle.",
+      "tags": [
+        "dumbbells",
+        "home_gym",
+        "isolation",
+        "beginner_friendly"
+      ],
+      "baseline": {
+        "sets": 3,
+        "reps": "12-15",
+        "rest_seconds": 45,
+        "unit": "reps"
+      },
+      "gif_url": "videos/0333-W6PxUkg.gif",
+      "image": "images/0333-W6PxUkg.jpg",
+      "media_id": "W6PxUkg",
+      "attribution": "© Gym visual — https://gymvisual.com/"
+    },
+    {
+      "id": "triceps_003",
+      "name": "Close-Grip Push-Up",
+      "type": "strength",
+      "primary_target_area": "triceps",
+      "secondary_target_areas": [
+        "chest",
+        "shoulders"
+      ],
+      "movement_patterns": [
+        "push_up",
+        "close_grip",
+        "compound"
+      ],
+      "equipment": [
+        "none"
+      ],
+      "required_space": "indoor",
+      "difficulty": "intermediate",
+      "avoid_if_injured": [
+        "shoulder",
+        "elbow",
+        "wrist",
+        "chest",
+        "lower_back"
+      ],
+      "description": "Start in a high plank position with your hands placed close together, directly under your shoulders. Engage your core and lower your body towards the ground, keeping your elbows close to your sides. Push through your palms to extend your arms and return to the starting position.",
+      "tags": [
+        "no_equipment",
+        "compound",
+        "intermediate"
+      ],
+      "baseline": {
+        "sets": 3,
+        "reps": "10-12",
+        "rest_seconds": 60,
+        "unit": "reps"
+      },
+      "gif_url": "videos/0259-x6KpKpq.gif",
+      "image": "images/0259-x6KpKpq.jpg",
+      "media_id": "x6KpKpq",
+      "attribution": "© Gym visual — https://gymvisual.com/"
+    },
+    {
+      "id": "triceps_004",
+      "name": "Side Push-Up",
+      "type": "strength",
+      "primary_target_area": "triceps",
+      "secondary_target_areas": [
+        "shoulders",
+        "chest",
+        "core"
+      ],
+      "movement_patterns": [
+        "push_up",
+        "unilateral",
+        "compound"
+      ],
+      "equipment": [
+        "none"
+      ],
+      "required_space": "indoor",
+      "difficulty": "intermediate",
+      "avoid_if_injured": [
+        "shoulder",
+        "elbow",
+        "wrist",
+        "chest",
+        "lower_back"
+      ],
+      "description": "Start by lying on your side with your legs extended and stacked on top of each other. Place your bottom hand on the ground directly under your shoulder, fingers pointing forward. Press through your bottom hand to lift your body off the ground, keeping your legs straight and your core engaged.",
+      "tags": [
+        "no_equipment",
+        "unilateral",
+        "compound"
+      ],
+      "baseline": {
+        "sets": 3,
+        "reps": "8-10",
+        "rest_seconds": 60,
+        "unit": "reps_per_side"
+      },
+      "gif_url": "videos/0717-wpbD28t.gif",
+      "image": "images/0717-wpbD28t.jpg",
+      "media_id": "wpbD28t",
+      "attribution": "© Gym visual — https://gymvisual.com/"
+    },
+    {
+      "id": "triceps_005",
+      "name": "Band Close-Grip Push-Up",
+      "type": "strength",
+      "primary_target_area": "triceps",
+      "secondary_target_areas": [
+        "chest",
+        "shoulders"
+      ],
+      "movement_patterns": [
+        "push_up",
+        "close_grip",
+        "compound"
+      ],
+      "equipment": [
+        "resistance_band"
+      ],
+      "required_space": "indoor",
+      "difficulty": "intermediate",
+      "avoid_if_injured": [
+        "shoulder",
+        "elbow",
+        "wrist",
+        "chest",
+        "lower_back"
+      ],
+      "description": "Place a band around your upper arms, just above the elbows. Assume a push-up position with your hands directly under your shoulders and your body in a straight line from head to heels. Bend your elbows and lower your chest towards the ground, keeping your elbows close to your sides.",
+      "tags": [
+        "resistance_band",
+        "home_gym",
+        "compound"
+      ],
+      "baseline": {
+        "sets": 3,
+        "reps": "8-10",
+        "rest_seconds": 60,
+        "unit": "reps"
+      },
+      "gif_url": "videos/0975-ufaxB52.gif",
+      "image": "images/0975-ufaxB52.jpg",
+      "media_id": "ufaxB52",
+      "attribution": "© Gym visual — https://gymvisual.com/"
+    },
+    {
+      "id": "triceps_006",
+      "name": "Dumbbell Lying Triceps Extension",
+      "type": "strength",
+      "primary_target_area": "triceps",
+      "secondary_target_areas": [
+        "shoulders"
+      ],
+      "movement_patterns": [
+        "extension",
+        "isolation"
+      ],
+      "equipment": [
+        "dumbbells",
+        "bench"
+      ],
+      "required_space": "indoor",
+      "difficulty": "intermediate",
+      "avoid_if_injured": [
+        "shoulder",
+        "elbow",
+        "wrist",
+        "lower_back",
+        "neck"
+      ],
+      "description": "Lie flat on a bench with a dumbbell in each hand, palms facing each other. Extend your arms straight up over your chest, keeping your elbows close to your body. Lower the dumbbells down towards your forehead, bending your elbows.",
+      "tags": [
+        "dumbbells",
+        "bench",
+        "home_gym",
+        "isolation"
+      ],
+      "baseline": {
+        "sets": 3,
+        "reps": "10-12",
+        "rest_seconds": 60,
+        "unit": "reps"
+      },
+      "gif_url": "videos/0351-mpKZGWz.gif",
+      "image": "images/0351-mpKZGWz.jpg",
+      "media_id": "mpKZGWz",
+      "attribution": "© Gym visual — https://gymvisual.com/"
+    }
+  ]
+}

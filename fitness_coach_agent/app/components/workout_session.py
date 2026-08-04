@@ -13,6 +13,62 @@ from streamlit.components.v1 import html
 from db.mongo_client import get_plans_collection
 from tools.plans import LOCAL_TZ
 from auth.context import get_current_user_id
+from tools.workout_library import _WORKOUTS
+
+
+# ── Exercise media lookup ───────────────────────────────────────────────────
+# workout_library.json stores gif_url/image as paths relative to the
+# exercises-dataset repo (e.g. "videos/0276-iny3m5y.gif"). Plan documents
+# only persist name/sets/reps/etc — not media — so we resolve media by
+# exercise name against the library at render time.
+
+GITHUB_MEDIA_BASE = "https://raw.githubusercontent.com/hasaneyldrm/exercises-dataset/main/"
+
+_MEDIA_BY_NAME = {
+    w["name"].strip().lower(): w
+    for w in _WORKOUTS
+    if w.get("gif_url") or w.get("image")
+}
+
+
+def get_exercise_media(name: str) -> dict | None:
+    """Look up gif/image URLs + attribution for an exercise by name.
+
+    Returns None if the exercise isn't in the library or has no media.
+    Prefers the animated gif; falls back to the static image.
+    """
+    entry = _MEDIA_BY_NAME.get((name or "").strip().lower())
+    if not entry:
+        return None
+
+    gif_url = entry.get("gif_url")
+    image_url = entry.get("image")
+    if not gif_url and not image_url:
+        return None
+
+    return {
+        "gif": f"{GITHUB_MEDIA_BASE}{gif_url}" if gif_url else None,
+        "image": f"{GITHUB_MEDIA_BASE}{image_url}" if image_url else None,
+        "attribution": entry.get("attribution"),
+    }
+
+
+def render_exercise_media(name: str, *, width: int | None = None) -> bool:
+    """Render an exercise's demo gif (falling back to a static image).
+
+    Returns True if something was rendered, False if no media was found
+    (caller can decide whether to show a placeholder).
+    """
+    media = get_exercise_media(name)
+    if not media:
+        return False
+
+    src = media["gif"] or media["image"]
+    kwargs = {"width": width} if width else {"use_container_width": True}
+    st.image(src, **kwargs)
+    if media.get("attribution"):
+        st.caption(media["attribution"])
+    return True
 
 
 def get_today_str() -> str:
@@ -115,16 +171,59 @@ def render_workout_session():
 
         with col2:
             if st.button("⚡ Quick Start (Template)", use_container_width=True):
+                # NOTE: this template is deliberately limited to exercises
+                # confirmed present in the rebuilt (V9.5) workout library
+                # with equipment == ["none"] and a description that matches
+                # that equipment claim. The rebuilt library has no true
+                # stretch/mobility/cooldown-type entries yet (excluded during
+                # curation for lacking media), so "Dead Bug" appears twice —
+                # once at main-work intensity, once reduced for cooldown —
+                # rather than inventing an exercise not in the library.
                 template_exercises = [
-                    {"name": "Joint Mobility Warm-Up", "focus": "full_body", "category": "warmup", "sets": 1, "reps": "5-10 min", "duration_minutes": 5, "completed": False, "completed_quantity": 0},
-                    {"name": "Arm Circles", "focus": "shoulders", "category": "warmup", "sets": 2, "reps": "30 sec", "duration_minutes": 2, "completed": False, "completed_quantity": 0},
-                    {"name": "Push-Ups", "focus": "chest", "category": "main", "sets": 3, "reps": "10-12", "duration_minutes": 5, "completed": False, "completed_quantity": 0},
-                    {"name": "Plank", "focus": "abs", "category": "main", "sets": 3, "reps": "30 sec", "duration_minutes": 3, "completed": False, "completed_quantity": 0},
-                    {"name": "Bodyweight Squats", "focus": "quads", "category": "main", "sets": 3, "reps": "12-15", "duration_minutes": 5, "completed": False, "completed_quantity": 0},
-                    {"name": "Bird Dog", "focus": "abs", "category": "main", "sets": 3, "reps": "10 per side", "duration_minutes": 4, "completed": False, "completed_quantity": 0},
-                    {"name": "Static Stretch", "focus": "full_body", "category": "cooldown", "sets": 1, "reps": "5 min", "duration_minutes": 5, "completed": False, "completed_quantity": 0},
+                    {
+                        "name": "Bear Crawl", "focus": "full_body", "category": "warmup",
+                        "sets": 1, "reps": "8-10", "equipment": ["none"], "duration_minutes": 2,
+                        "description": "Start on all fours with your hands directly under your shoulders and your knees directly under your hips. Lift your knees slightly off the ground, keeping your back flat and your core engaged. Move your right hand and left foot forward simultaneously, followed by your left hand and right foot.",
+                        "completed": False, "completed_quantity": 0,
+                    },
+                    {
+                        "name": "Star Jump (Male)", "focus": "full_body", "category": "warmup",
+                        "sets": 2, "reps": "10", "equipment": ["none"], "duration_minutes": 2,
+                        "description": "Stand with your feet shoulder-width apart and your arms by your sides. Bend your knees slightly and jump up explosively. As you jump, spread your legs and extend your arms out to the sides, forming a star shape with your body.",
+                        "completed": False, "completed_quantity": 0,
+                    },
+                    {
+                        "name": "Dead Bug", "focus": "abs", "category": "main",
+                        "sets": 3, "reps": "10-12 per side", "equipment": ["none"], "duration_minutes": 3,
+                        "description": "Lie flat on your back with your arms extended towards the ceiling. Bend your knees and lift your legs off the ground, creating a 90-degree angle at your hips and knees. Engage your core and lower back to press your lower back into the ground.",
+                        "completed": False, "completed_quantity": 0,
+                    },
+                    {
+                        "name": "Mountain Climber", "focus": "full_body", "category": "main",
+                        "sets": 3, "reps": "20", "equipment": ["none"], "duration_minutes": 3,
+                        "description": "Start in a high plank position with your hands directly under your shoulders and your body in a straight line. Engage your core and bring your right knee towards your chest, then quickly switch and bring your left knee towards your chest. Continue alternating legs in a running motion, keeping your hips low and your core engaged.",
+                        "completed": False, "completed_quantity": 0,
+                    },
+                    {
+                        "name": "Astride Jumps (Male)", "focus": "full_body", "category": "main",
+                        "sets": 3, "reps": "10-12", "equipment": ["none"], "duration_minutes": 3,
+                        "description": "Stand with your feet shoulder-width apart. Bend your knees and lower your body into a squat position. Jump explosively upwards, extending your legs and arms. While in the air, spread your legs apart and bring your arms out to the sides.",
+                        "completed": False, "completed_quantity": 0,
+                    },
+                    {
+                        "name": "Skater Hops", "focus": "full_body", "category": "main",
+                        "sets": 3, "reps": "10-12", "equipment": ["none"], "duration_minutes": 3,
+                        "description": "Stand with your feet shoulder-width apart. Bend your knees slightly and jump to the right, landing on your right foot. As you land, swing your left leg behind your right leg and tap the ground with your left toes.",
+                        "completed": False, "completed_quantity": 0,
+                    },
+                    {
+                        "name": "Dead Bug", "focus": "abs", "category": "cooldown",
+                        "sets": 1, "reps": "8 per side", "equipment": ["none"], "duration_minutes": 2,
+                        "description": "Lie flat on your back with your arms extended towards the ceiling. Bend your knees and lift your legs off the ground, creating a 90-degree angle at your hips and knees. Engage your core and lower back to press your lower back into the ground.",
+                        "completed": False, "completed_quantity": 0,
+                    },
                 ]
-                create_today_plan(template_exercises, focus_area="full_body", duration_minutes=30)
+                create_today_plan(template_exercises, focus_area="full_body", duration_minutes=18)
                 st.success("Template workout created!")
                 st.rerun()
 
@@ -178,6 +277,16 @@ def render_workout_session():
     st.markdown(f"### {cat_labels.get(category, '💪')} — {name}")
 
     with st.container(border=True):
+        # Demo media sits front-and-center above the set/rep info and
+        # controls — this is what the person is meant to be looking at
+        # while they're actually moving.
+        media_col, _spacer = st.columns([1, 2])
+        with media_col:
+            img_left, img_center, img_right = st.columns([1, 3, 1])
+            with img_center:
+                if not render_exercise_media(name, width=280):
+                    st.caption("No demo video available for this exercise.")
+
         col_info, col_action = st.columns([2, 1])
 
         with col_info:
@@ -265,4 +374,12 @@ def render_workout_session():
                 next_ex = exercises[i]
                 next_cat = next_ex.get("category", "main")
                 emoji = {"warmup": "🔥", "main": "💪", "cooldown": "🧘"}.get(next_cat, "💪")
-                st.markdown(f"{emoji} **{next_ex.get('name')}** — {next_ex.get('sets')}x{next_ex.get('reps')}")
+                next_name = next_ex.get("name")
+
+                thumb_col, text_col = st.columns([1, 4])
+                with thumb_col:
+                    media = get_exercise_media(next_name)
+                    if media and (media["image"] or media["gif"]):
+                        st.image(media["image"] or media["gif"], width=64)
+                with text_col:
+                    st.markdown(f"{emoji} **{next_name}** — {next_ex.get('sets')}x{next_ex.get('reps')}")
