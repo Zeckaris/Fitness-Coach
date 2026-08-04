@@ -22,6 +22,7 @@ jobs:
         run: pip install -r requirements.txt
 
       - name: Run scheduled plan generation
+        working-directory: fitness_coach_agent
         env:
           MONGO_URI: ${{ secrets.MONGO_URI }}
           MONGO_DB_NAME: ${{ secrets.MONGO_DB_NAME }}
