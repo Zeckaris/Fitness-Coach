@@ -312,7 +312,7 @@ def run_monthly_review() -> str:
         sync_backlog()
         prev_month = _previous_month_id()
         summary = close_out_month(prev_month)
-        result = refresh_week_themes()
+        result = _refresh_week_themes_impl()
         return f"Closed out {prev_month}.\n{result}"
     except Exception:
         logger.exception("run_monthly_review failed")

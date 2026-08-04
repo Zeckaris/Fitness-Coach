@@ -40,7 +40,14 @@ _WORKOUTS_PATH = os.path.join(
 )
 
 with open(_WORKOUTS_PATH, "r") as f:
-    _WORKOUTS = json.load(f)
+    _workouts_data = json.load(f)
+
+# New build format wraps the list: {"version", "generated_at", "total_exercises", "exercises": [...]}
+_WORKOUTS = (
+    _workouts_data["exercises"]
+    if isinstance(_workouts_data, dict) and "exercises" in _workouts_data
+    else _workouts_data
+)
 
 _VALID_EXERCISE_NAMES = {w["name"] for w in _WORKOUTS}
 
@@ -78,7 +85,9 @@ class ExercisePlanItem(BaseModel):
     reps: Optional[str] = Field(
         default=None, description="Rep range or duration."
     )
-    equipment: Optional[str] = Field(default=None, description="Required equipment.")
+    equipment: Optional[List[str]] = Field(
+        default=None, description="Required equipment, e.g. ['dumbbells', 'bench']."
+    )
     duration_minutes: Optional[int] = Field(
         default=None, description="Estimated duration."
     )
@@ -188,18 +197,6 @@ class DayPlanInput(BaseModel):
                     "Call search_workout_library for stretch/recovery exercises."
                 )
 
-            # Duration sanity check
-            if self.duration_minutes is not None:
-                n = len(self.exercises)
-                min_expected = n * 2
-                max_expected = n * 8
-                if not (min_expected <= self.duration_minutes <= max_expected):
-                    raise ValueError(
-                        f"duration_minutes ({self.duration_minutes}) is unrealistic for "
-                        f"{n} exercises. Expected range: {min_expected}-{max_expected} min "
-                        f"(2-8 min per exercise, accounting for rest periods)."
-                    )
-
         if self.status == "rest" and self.exercises:
             raise ValueError("A 'rest' day must not include exercises.")
 
@@ -267,15 +264,6 @@ class BackfillDayPlanInput(BaseModel):
             if cooldown_count < 1:
                 raise ValueError(f"Need at least 1 cooldown exercise, found {cooldown_count}.")
 
-            if self.duration_minutes is not None:
-                n = len(self.exercises)
-                min_expected = n * 2
-                max_expected = n * 8
-                if not (min_expected <= self.duration_minutes <= max_expected):
-                    raise ValueError(
-                        f"duration_minutes ({self.duration_minutes}) is unrealistic for "
-                        f"{n} exercises. Expected range: {min_expected}-{max_expected} min."
-                    )
         if self.status == "rest" and self.exercises:
             raise ValueError("A 'rest' day must not include exercises.")
 
