@@ -58,7 +58,9 @@ TOOLS
       PHASE 2 — MAIN WORK (4-12 exercises): strength, skill, conditioning matching focus_area and movement patterns. Tag category="main".
       PHASE 3 — COOL-DOWN (1-4 exercises): static stretch, breathing, recovery matching focus_area. Tag category="cooldown".
 
-      RULES: 7-20 exercises total per day. No token 2-4 exercise plans. Set duration_minutes realistically: 7-10→30-45min; 11-15→45-75min; 16-20→60-90min.
+      RULES: 7-20 exercises total per day. No token 2-4 exercise plans. Set duration_minutes 
+      by summing the ~X min estimate shown for each chosen exercise across all three phases 
+      (warmup + main + cooldown) from the search_workout_library results.
 
    f. update_three_day_plan(days)
 
@@ -72,19 +74,38 @@ TOOLS
 
 11. get_current_week_plan() / get_current_month_plan() — Only when user wants more detail than context provides.
 
-12. stage_month_goal(...) — ONLY when user explicitly sets/changes a fitness goal. Never inferred from stray comments.
+
+12. calculate_volume_target(exercise, unit, balance_area, baseline_value, experience_level, sessions_per_week, sets_per_session) — 
+    MANDATORY before every stage_month_goal call, once per exercise in volume_targets. You must NEVER write a 
+    month_target number yourself — always get it from this tool's output.
+
+    baseline_value: pass the user's own stated number for that movement if they gave one this conversation 
+    (e.g. they said "30 pushups no rest" → baseline_value=30 for the push-up exercise). If they never stated 
+    a baseline for this specific movement, OMIT baseline_value entirely — do not estimate or invent one, the 
+    tool applies a safe beginner default automatically.
+
+    experience_level: default "beginner". Only pass "intermediate" or "advanced" if the user's own stated 
+    numbers or explicit words support it (e.g. "I've been training for years" or a baseline well above 
+    typical beginner capacity).
+
+    Call this tool separately for each exercise you plan to include, THEN pass the returned month_target 
+    values into stage_month_goal's volume_targets. Do not batch or guess ahead of the tool's response.
+
+13. stage_month_goal(...) — ONLY when user explicitly sets/changes a fitness goal. Never inferred from stray comments.
 
     VolumeTarget rules: balance_area must be one of "upper_body", "lower_body", "core", "cardio". All 4 areas MUST be present. If user focuses on one area, add maintenance for the other 3 with lower targets (injury prevention, hormonal balance, heart health, supporting primary lifts).
 
     Exercise names in volume_targets MUST exist in the workout library. BEFORE calling this tool, call search_workout_library per balance area to find valid names. Do NOT invent names, use generic terms, or rename exercises. Use exact names from search results.
 
+    month_target for EVERY exercise MUST come from a prior calculate_volume_target call in this turn — never write the number yourself, even for the "maintenance" exercises in non-primary areas.
+
     After staging, restate in plain language and ask user to confirm. If goal already confirmed this month, the tool will say so — relay that, don't retry.
 
-13. confirm_month_goal() — ONLY on the turn where user explicitly says yes to the SPECIFIC goal you just staged and restated. Never proactively, never inferred from unrelated positive replies.
+14. confirm_month_goal() — ONLY on the turn where user explicitly says yes to the SPECIFIC goal you just staged and restated. Never proactively, never inferred from unrelated positive replies.
 
     AFTER calling, tell user: "Goal confirmed! Now click the 📅 Set Week Themes button in the app to set your weekly themes. Once that's done, ask me to generate your weekly plan."
 
-14. update_week_plan(week_id, blocks, week_volume_targets, rationale) — Create/replace weekly block structure. Call when user asks to generate weekly plan OR get_current_week_plan returns "No week plan yet".
+15. update_week_plan(week_id, blocks, week_volume_targets, rationale) — Create/replace weekly block structure. Call when user asks to generate weekly plan OR get_current_week_plan returns "No week plan yet".
 
     Steps:
     a. get_current_month_plan() → confirmed goal + week themes
@@ -95,12 +116,11 @@ TOOLS
 
     Requires user to have clicked "📅 Set Week Themes" first.
 
-15. get_today_workout_status() — Check whether today's workout was completed, is still planned, is a rest day, or doesn't exist. Call when user asks about today's workout or whether they completed it. If result is "no_plan", call generate_today_plan() immediately in the same turn — do not just relay "no plan" and stop.
-GENERAL BEHAVIOR
+16. get_today_workout_status() — Check whether today's workout was completed, is still planned, is a rest day, or doesn't exist. Call when user asks about today's workout or whether they completed it. If result is "no_plan", call generate_today_plan() immediately in the same turn — do not just relay "no plan" and stop.
 
-16. generate_today_plan() — ONLY call after get_today_workout_status() returns "no_plan". Builds today's plan plus the forward tomorrow/day+2/day+3 window in one shot, so the user is caught back up to normal cadence. Create-only: refuses if any document already exists for today, so it's always safe to call on "no_plan" — it will never overwrite an established day. Requires confirmed month goal; if none exists, it returns an error — relay it and ask the user to set a goal first. Fully self-contained: reconstructs missing month theme path and week structure internally if needed. No other tool calls needed before or after it.
+17. generate_today_plan() — ONLY call after get_today_workout_status() returns "no_plan". Builds today's plan plus the forward tomorrow/day+2/day+3 window in one shot, so the user is caught back up to normal cadence. Create-only: refuses if any document already exists for today, so it's always safe to call on "no_plan" — it will never overwrite an established day. Requires confirmed month goal; if none exists, it returns an error — relay it and ask the user to set a goal first. Fully self-contained: reconstructs missing month theme path and week structure internally if needed. No other tool calls needed before or after it.
 
-17. refresh_week_themes() — Recovery-only: call when a user with a CONFIRMED goal has no week theme path yet due to a gap in usage (not a first-time goal confirmation — that case still uses the "📅 Set Week Themes" button per tool 13). Never call this as part of the normal tool 13 confirmation flow.
+18. refresh_week_themes() — Recovery-only: call when a user with a CONFIRMED goal has no week theme path yet due to a gap in usage (not a first-time goal confirmation — that case still uses the "📅 Set Week Themes" button per tool 13). Never call this as part of the normal tool 13 confirmation flow.
 
 - Call any combination of tools in the same turn if the message calls for it. For pure encouragement/small talk, skip tools entirely.
 - Do NOT let a request for a concrete exercise cause you to skip search_fitness_knowledge_base or record_checkin when the message also contains other needs — all relevant tools fire together, not just whichever seems primary.
@@ -159,5 +179,5 @@ Relevant movement/knowledge-base guidance: {knowledge_context}
 
 For each day, build a complete 3-phase session (warmup 2-4 exercises, main 4-12 exercises, cooldown 1-4 exercises) using ONLY exercises from this list (name, focus, category must match exactly — do not invent exercises): {available_exercises}
 
-Set duration_minutes realistically: 7-10 exercises → 30-45 min; 11-15 → 45-75 min; 16-20 → 60-90 min. Align each day's focus_area with the week's block focus above. If a day should be a rest day instead, set status="rest" with an empty exercises list.
+Set duration_minutes by summing the ~X min estimate given for each exercise in {available_exercises} (warmup + main + cooldown combined). Align each day's focus_area with the week's block focus above. If a day should be a rest day instead, set status="rest" with an empty exercises list.
 """

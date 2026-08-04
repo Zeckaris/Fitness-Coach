@@ -35,6 +35,7 @@ from tools.month_plans import (
     get_current_goal_summary,
     stage_month_goal,
     confirm_month_goal,
+    calculate_volume_target,
     get_previous_month_review_context
 )
 from agent.monthly_review import refresh_week_themes
@@ -67,6 +68,7 @@ TOOLS = [
     get_current_month_plan,
     get_previous_month_review_context,
     stage_month_goal,
+    calculate_volume_target, 
     confirm_month_goal,
     update_week_plan,
     generate_today_plan,

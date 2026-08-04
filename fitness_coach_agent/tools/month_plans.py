@@ -13,6 +13,8 @@ from db.mongo_client import get_month_plans_collection
 from db.guards import mongo_guarded
 from auth.context import get_current_user_id
 from typing import List, Optional, Literal, Tuple
+from utils.baseline_targets import calculate_month_target, BEGINNER_BASELINE_BY_AREA
+from tools.week_plans import _weeks_in_month
 
 LOCAL_TZ = ZoneInfo("Africa/Addis_Ababa")
 
@@ -24,7 +26,13 @@ _WORKOUTS_PATH = os.path.join(
 )
 
 with open(_WORKOUTS_PATH, "r") as f:
-    _WORKOUTS = json.load(f)
+    _workouts_data = json.load(f)
+
+_WORKOUTS = (
+    _workouts_data["exercises"]
+    if isinstance(_workouts_data, dict) and "exercises" in _workouts_data
+    else _workouts_data
+)
 
 _VALID_EXERCISE_NAMES = {w["name"] for w in _WORKOUTS}
 
@@ -92,6 +100,68 @@ class StageMonthGoalInput(BaseModel):
         if has_metric and (self.target_value is None or self.unit is None or self.baseline_value is None):
             raise ValueError("metric_name needs target_value, unit, baseline_value.")
         return self
+
+
+
+
+
+class CalculateVolumeTargetInput(BaseModel):
+    exercise: str = Field(description="Exercise name, must exist in the workout library.")
+    unit: str = Field(description="'reps', 'seconds', or 'km'.")
+    balance_area: Literal["upper_body", "lower_body", "core", "cardio"]
+    baseline_value: Optional[float] = Field(
+        default=None,
+        description="The user's stated single-set/single-effort max for this movement "
+        "(e.g. 30 for '30 pushups no rest', 5 for '5km run'). Omit this field entirely "
+        "if the user never stated a baseline for this movement — do NOT guess a number; "
+        "a conservative beginner default will be used automatically.",
+    )
+    experience_level: Literal["beginner", "intermediate", "advanced"] = Field(
+        default="beginner",
+        description="Only set to intermediate/advanced if the user's own baseline numbers "
+        "or explicit statement support it. Default beginner.",
+    )
+    sessions_per_week: int = Field(default=4, description="Training sessions per week for this exercise.")
+    sets_per_session: Optional[int] = Field(
+        default=None, description="Working sets per session. Omit to use a sensible default."
+    )
+
+
+@tool(args_schema=CalculateVolumeTargetInput)
+def calculate_volume_target(
+    exercise: str,
+    unit: str,
+    balance_area: Literal["upper_body", "lower_body", "core", "cardio"],
+    baseline_value: Optional[float] = None,
+    experience_level: Literal["beginner", "intermediate", "advanced"] = "beginner",
+    sessions_per_week: int = 4,
+    sets_per_session: Optional[int] = None,
+) -> str:
+    """
+    FIRST-TIME GOAL SETUP ONLY. Call this once per exercise BEFORE calling
+    stage_month_goal — never invent a month_target yourself. Pass the
+    user's stated baseline for this movement if they gave one; omit
+    baseline_value if they didn't (a beginner default will be used).
+    Returns the computed month_target to use in stage_month_goal's
+    volume_targets 
+    """
+    result = calculate_month_target(
+        unit=unit,
+        balance_area=balance_area,
+        experience_level=experience_level,
+        baseline_value=baseline_value,
+        sessions_per_week=sessions_per_week,
+        sets_per_session=sets_per_session,
+        weeks_in_month=_weeks_in_month(_current_month_id()),
+    )
+    return (
+        f"month_target for {exercise}: {result['month_target']} {unit}. "
+        f"(baseline used: {result['baseline_used']} [{result['baseline_source']}], "
+        f"intensity: {result['intensity_factor']}, "
+        f"{result['sets_per_session']} sets x {result['sessions_per_week']} sessions/week "
+        f"x {result['weeks_in_month']:.2f} weeks)"
+    )
+
 
 
 @tool(args_schema=StageMonthGoalInput)
