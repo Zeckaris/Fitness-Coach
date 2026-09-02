@@ -78,6 +78,11 @@ class VolumeTarget(BaseModel):
                 f"Call search_workout_library to find valid exercises. "
                 f"Examples: {valid_list}"
             )
+        if self.unit in ("km", "mi", "m") and self.balance_area != "cardio":
+            raise ValueError(
+                f"Continuous unit '{self.unit}' can only be used with balance_area='cardio'. "
+                f"For {self.balance_area}, use 'reps' or 'seconds'."
+            )
         return self
 
 

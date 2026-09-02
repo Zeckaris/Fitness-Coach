@@ -1,5 +1,5 @@
 {
-  "version": "9.5",
+  "version": "9.6",
   "generated_at": null,
   "total_exercises": 89,
   "exercises": [
@@ -41,7 +41,7 @@
       "gif_url": "videos/0276-iny3m5y.gif",
       "image": "images/0276-iny3m5y.jpg",
       "media_id": "iny3m5y",
-      "attribution": "© Gym visual — https://gymvisual.com/"
+      "attribution": "\u00a9 Gym visual \u2014 https://gymvisual.com/"
     },
     {
       "id": "abs_002",
@@ -82,7 +82,7 @@
       "gif_url": "videos/0971-zhF9lW4.gif",
       "image": "images/0971-zhF9lW4.jpg",
       "media_id": "zhF9lW4",
-      "attribution": "© Gym visual — https://gymvisual.com/"
+      "attribution": "\u00a9 Gym visual \u2014 https://gymvisual.com/"
     },
     {
       "id": "abs_003",
@@ -121,7 +121,7 @@
       "gif_url": "videos/0687-XVDdcoj.gif",
       "image": "images/0687-XVDdcoj.jpg",
       "media_id": "XVDdcoj",
-      "attribution": "© Gym visual — https://gymvisual.com/"
+      "attribution": "\u00a9 Gym visual \u2014 https://gymvisual.com/"
     },
     {
       "id": "abs_004",
@@ -159,7 +159,7 @@
       "gif_url": "videos/0872-nCU1Ekp.gif",
       "image": "images/0872-nCU1Ekp.jpg",
       "media_id": "nCU1Ekp",
-      "attribution": "© Gym visual — https://gymvisual.com/"
+      "attribution": "\u00a9 Gym visual \u2014 https://gymvisual.com/"
     },
     {
       "id": "abs_005",
@@ -198,7 +198,7 @@
       "gif_url": "videos/0407-IpONWYv.gif",
       "image": "images/0407-IpONWYv.jpg",
       "media_id": "IpONWYv",
-      "attribution": "© Gym visual — https://gymvisual.com/"
+      "attribution": "\u00a9 Gym visual \u2014 https://gymvisual.com/"
     },
     {
       "id": "abs_006",
@@ -241,7 +241,7 @@
       "gif_url": "videos/0517-Kal9cQQ.gif",
       "image": "images/0517-Kal9cQQ.jpg",
       "media_id": "Kal9cQQ",
-      "attribution": "© Gym visual — https://gymvisual.com/"
+      "attribution": "\u00a9 Gym visual \u2014 https://gymvisual.com/"
     },
     {
       "id": "back_001",
@@ -281,7 +281,7 @@
       "gif_url": "videos/0489-zhMwOwE.gif",
       "image": "images/0489-zhMwOwE.jpg",
       "media_id": "zhMwOwE",
-      "attribution": "© Gym visual — https://gymvisual.com/"
+      "attribution": "\u00a9 Gym visual \u2014 https://gymvisual.com/"
     },
     {
       "id": "back_002",
@@ -321,7 +321,7 @@
       "gif_url": "videos/3166-wd4ds3s.gif",
       "image": "images/3166-wd4ds3s.jpg",
       "media_id": "wd4ds3s",
-      "attribution": "© Gym visual — https://gymvisual.com/"
+      "attribution": "\u00a9 Gym visual \u2014 https://gymvisual.com/"
     },
     {
       "id": "back_003",
@@ -364,7 +364,7 @@
       "gif_url": "videos/0970-r1XNRYB.gif",
       "image": "images/0970-r1XNRYB.jpg",
       "media_id": "r1XNRYB",
-      "attribution": "© Gym visual — https://gymvisual.com/"
+      "attribution": "\u00a9 Gym visual \u2014 https://gymvisual.com/"
     },
     {
       "id": "back_004",
@@ -408,7 +408,7 @@
       "gif_url": "videos/0988-km0sQC0.gif",
       "image": "images/0988-km0sQC0.jpg",
       "media_id": "km0sQC0",
-      "attribution": "© Gym visual — https://gymvisual.com/"
+      "attribution": "\u00a9 Gym visual \u2014 https://gymvisual.com/"
     },
     {
       "id": "back_005",
@@ -448,7 +448,7 @@
       "gif_url": "videos/1772-wbUYILZ.gif",
       "image": "images/1772-wbUYILZ.jpg",
       "media_id": "wbUYILZ",
-      "attribution": "© Gym visual — https://gymvisual.com/"
+      "attribution": "\u00a9 Gym visual \u2014 https://gymvisual.com/"
     },
     {
       "id": "back_006",
@@ -489,7 +489,7 @@
       "gif_url": "videos/0652-lBDjFxJ.gif",
       "image": "images/0652-lBDjFxJ.jpg",
       "media_id": "lBDjFxJ",
-      "attribution": "© Gym visual — https://gymvisual.com/"
+      "attribution": "\u00a9 Gym visual \u2014 https://gymvisual.com/"
     },
     {
       "id": "back_007",
@@ -531,7 +531,7 @@
       "gif_url": "videos/0293-BJ0Hz5L.gif",
       "image": "images/0293-BJ0Hz5L.jpg",
       "media_id": "BJ0Hz5L",
-      "attribution": "© Gym visual — https://gymvisual.com/"
+      "attribution": "\u00a9 Gym visual \u2014 https://gymvisual.com/"
     },
     {
       "id": "back_008",
@@ -574,7 +574,7 @@
       "gif_url": "videos/0541-g9AsZ8P.gif",
       "image": "images/0541-g9AsZ8P.jpg",
       "media_id": "g9AsZ8P",
-      "attribution": "© Gym visual — https://gymvisual.com/"
+      "attribution": "\u00a9 Gym visual \u2014 https://gymvisual.com/"
     },
     {
       "id": "biceps_001",
@@ -589,7 +589,7 @@
         "isolation"
       ],
       "equipment": [
-        "none"
+        "dumbbells"
       ],
       "required_space": "indoor",
       "difficulty": "beginner",
@@ -601,7 +601,6 @@
       ],
       "description": "Sit on a bench with your legs spread apart and your feet flat on the ground. Hold a dumbbell in one hand and place your elbow on the inside of your thigh, just above the knee. With your palm facing up, curl the dumbbell towards your shoulder while keeping your upper arm stationary.",
       "tags": [
-        "no_equipment",
         "beginner_friendly",
         "isolation"
       ],
@@ -614,7 +613,7 @@
       "gif_url": "videos/1770-sJFIDIp.gif",
       "image": "images/1770-sJFIDIp.jpg",
       "media_id": "sJFIDIp",
-      "attribution": "© Gym visual — https://gymvisual.com/"
+      "attribution": "\u00a9 Gym visual \u2014 https://gymvisual.com/"
     },
     {
       "id": "biceps_002",
@@ -654,7 +653,7 @@
       "gif_url": "videos/0968-3omWx6P.gif",
       "image": "images/0968-3omWx6P.jpg",
       "media_id": "3omWx6P",
-      "attribution": "© Gym visual — https://gymvisual.com/"
+      "attribution": "\u00a9 Gym visual \u2014 https://gymvisual.com/"
     },
     {
       "id": "biceps_003",
@@ -694,7 +693,7 @@
       "gif_url": "videos/1769-gscGLOU.gif",
       "image": "images/1769-gscGLOU.jpg",
       "media_id": "gscGLOU",
-      "attribution": "© Gym visual — https://gymvisual.com/"
+      "attribution": "\u00a9 Gym visual \u2014 https://gymvisual.com/"
     },
     {
       "id": "biceps_004",
@@ -734,7 +733,7 @@
       "gif_url": "videos/0294-NbVPDMW.gif",
       "image": "images/0294-NbVPDMW.jpg",
       "media_id": "NbVPDMW",
-      "attribution": "© Gym visual — https://gymvisual.com/"
+      "attribution": "\u00a9 Gym visual \u2014 https://gymvisual.com/"
     },
     {
       "id": "biceps_005",
@@ -777,7 +776,7 @@
       "gif_url": "videos/0315-F3xgbjF.gif",
       "image": "images/0315-F3xgbjF.jpg",
       "media_id": "F3xgbjF",
-      "attribution": "© Gym visual — https://gymvisual.com/"
+      "attribution": "\u00a9 Gym visual \u2014 https://gymvisual.com/"
     },
     {
       "id": "biceps_006",
@@ -819,7 +818,7 @@
       "gif_url": "videos/0140-guT8YnS.gif",
       "image": "images/0140-guT8YnS.jpg",
       "media_id": "guT8YnS",
-      "attribution": "© Gym visual — https://gymvisual.com/"
+      "attribution": "\u00a9 Gym visual \u2014 https://gymvisual.com/"
     },
     {
       "id": "calves_001",
@@ -858,7 +857,7 @@
       "gif_url": "videos/1373-bJYHBIN.gif",
       "image": "images/1373-bJYHBIN.jpg",
       "media_id": "bJYHBIN",
-      "attribution": "© Gym visual — https://gymvisual.com/"
+      "attribution": "\u00a9 Gym visual \u2014 https://gymvisual.com/"
     },
     {
       "id": "calves_002",
@@ -900,7 +899,7 @@
       "gif_url": "videos/0999-9JprnPh.gif",
       "image": "images/0999-9JprnPh.jpg",
       "media_id": "9JprnPh",
-      "attribution": "© Gym visual — https://gymvisual.com/"
+      "attribution": "\u00a9 Gym visual \u2014 https://gymvisual.com/"
     },
     {
       "id": "calves_003",
@@ -942,7 +941,7 @@
       "gif_url": "videos/1387-0jp9Rlz.gif",
       "image": "images/1387-0jp9Rlz.jpg",
       "media_id": "0jp9Rlz",
-      "attribution": "© Gym visual — https://gymvisual.com/"
+      "attribution": "\u00a9 Gym visual \u2014 https://gymvisual.com/"
     },
     {
       "id": "calves_004",
@@ -982,7 +981,7 @@
       "gif_url": "videos/0284-u5ESqzH.gif",
       "image": "images/0284-u5ESqzH.jpg",
       "media_id": "u5ESqzH",
-      "attribution": "© Gym visual — https://gymvisual.com/"
+      "attribution": "\u00a9 Gym visual \u2014 https://gymvisual.com/"
     },
     {
       "id": "calves_005",
@@ -1024,7 +1023,7 @@
       "gif_url": "videos/1379-r29jP7S.gif",
       "image": "images/1379-r29jP7S.jpg",
       "media_id": "r29jP7S",
-      "attribution": "© Gym visual — https://gymvisual.com/"
+      "attribution": "\u00a9 Gym visual \u2014 https://gymvisual.com/"
     },
     {
       "id": "calves_006",
@@ -1062,7 +1061,7 @@
       "gif_url": "videos/0417-dPmaUaU.gif",
       "image": "images/0417-dPmaUaU.jpg",
       "media_id": "dPmaUaU",
-      "attribution": "© Gym visual — https://gymvisual.com/"
+      "attribution": "\u00a9 Gym visual \u2014 https://gymvisual.com/"
     },
     {
       "id": "chest_001",
@@ -1106,7 +1105,7 @@
       "gif_url": "videos/3211-ZOuKWir.gif",
       "image": "images/3211-ZOuKWir.jpg",
       "media_id": "ZOuKWir",
-      "attribution": "© Gym visual — https://gymvisual.com/"
+      "attribution": "\u00a9 Gym visual \u2014 https://gymvisual.com/"
     },
     {
       "id": "chest_002",
@@ -1148,7 +1147,7 @@
       "gif_url": "videos/0493-B1EVP9F.gif",
       "image": "images/0493-B1EVP9F.jpg",
       "media_id": "B1EVP9F",
-      "attribution": "© Gym visual — https://gymvisual.com/"
+      "attribution": "\u00a9 Gym visual \u2014 https://gymvisual.com/"
     },
     {
       "id": "chest_003",
@@ -1189,7 +1188,7 @@
       "gif_url": "videos/0856-I1OBLnn.gif",
       "image": "images/0856-I1OBLnn.jpg",
       "media_id": "I1OBLnn",
-      "attribution": "© Gym visual — https://gymvisual.com/"
+      "attribution": "\u00a9 Gym visual \u2014 https://gymvisual.com/"
     },
     {
       "id": "chest_004",
@@ -1231,7 +1230,7 @@
       "gif_url": "videos/0662-I4hDWkc.gif",
       "image": "images/0662-I4hDWkc.jpg",
       "media_id": "I4hDWkc",
-      "attribution": "© Gym visual — https://gymvisual.com/"
+      "attribution": "\u00a9 Gym visual \u2014 https://gymvisual.com/"
     },
     {
       "id": "chest_005",
@@ -1272,7 +1271,7 @@
       "gif_url": "videos/0279-i5cEhka.gif",
       "image": "images/0279-i5cEhka.jpg",
       "media_id": "i5cEhka",
-      "attribution": "© Gym visual — https://gymvisual.com/"
+      "attribution": "\u00a9 Gym visual \u2014 https://gymvisual.com/"
     },
     {
       "id": "chest_006",
@@ -1314,7 +1313,7 @@
       "gif_url": "videos/0989-c16nYGA.gif",
       "image": "images/0989-c16nYGA.jpg",
       "media_id": "c16nYGA",
-      "attribution": "© Gym visual — https://gymvisual.com/"
+      "attribution": "\u00a9 Gym visual \u2014 https://gymvisual.com/"
     },
     {
       "id": "chest_007",
@@ -1356,7 +1355,7 @@
       "gif_url": "videos/1298-rg59QCH.gif",
       "image": "images/1298-rg59QCH.jpg",
       "media_id": "rg59QCH",
-      "attribution": "© Gym visual — https://gymvisual.com/"
+      "attribution": "\u00a9 Gym visual \u2014 https://gymvisual.com/"
     },
     {
       "id": "chest_008",
@@ -1399,7 +1398,7 @@
       "gif_url": "videos/0289-SpYC0Kp.gif",
       "image": "images/0289-SpYC0Kp.jpg",
       "media_id": "SpYC0Kp",
-      "attribution": "© Gym visual — https://gymvisual.com/"
+      "attribution": "\u00a9 Gym visual \u2014 https://gymvisual.com/"
     },
     {
       "id": "chest_009",
@@ -1440,7 +1439,7 @@
       "gif_url": "videos/0251-9WTm7dq.gif",
       "image": "images/0251-9WTm7dq.jpg",
       "media_id": "9WTm7dq",
-      "attribution": "© Gym visual — https://gymvisual.com/"
+      "attribution": "\u00a9 Gym visual \u2014 https://gymvisual.com/"
     },
     {
       "id": "chest_010",
@@ -1484,7 +1483,7 @@
       "gif_url": "videos/0314-ns0SIbU.gif",
       "image": "images/0314-ns0SIbU.jpg",
       "media_id": "ns0SIbU",
-      "attribution": "© Gym visual — https://gymvisual.com/"
+      "attribution": "\u00a9 Gym visual \u2014 https://gymvisual.com/"
     },
     {
       "id": "core_001",
@@ -1525,7 +1524,7 @@
       "gif_url": "videos/0979-9pa4H5m.gif",
       "image": "images/0979-9pa4H5m.jpg",
       "media_id": "9pa4H5m",
-      "attribution": "© Gym visual — https://gymvisual.com/"
+      "attribution": "\u00a9 Gym visual \u2014 https://gymvisual.com/"
     },
     {
       "id": "core_002",
@@ -1567,7 +1566,7 @@
       "gif_url": "videos/3544-5VXmnV5.gif",
       "image": "images/3544-5VXmnV5.jpg",
       "media_id": "5VXmnV5",
-      "attribution": "© Gym visual — https://gymvisual.com/"
+      "attribution": "\u00a9 Gym visual \u2014 https://gymvisual.com/"
     },
     {
       "id": "core_003",
@@ -1609,7 +1608,7 @@
       "gif_url": "videos/0464-CosupLu.gif",
       "image": "images/0464-CosupLu.jpg",
       "media_id": "CosupLu",
-      "attribution": "© Gym visual — https://gymvisual.com/"
+      "attribution": "\u00a9 Gym visual \u2014 https://gymvisual.com/"
     },
     {
       "id": "core_004",
@@ -1651,7 +1650,7 @@
       "gif_url": "videos/2204-XeMvLgE.gif",
       "image": "images/2204-XeMvLgE.jpg",
       "media_id": "XeMvLgE",
-      "attribution": "© Gym visual — https://gymvisual.com/"
+      "attribution": "\u00a9 Gym visual \u2014 https://gymvisual.com/"
     },
     {
       "id": "core_005",
@@ -1691,7 +1690,7 @@
       "gif_url": "videos/3419-UpWmA5E.gif",
       "image": "images/3419-UpWmA5E.jpg",
       "media_id": "UpWmA5E",
-      "attribution": "© Gym visual — https://gymvisual.com/"
+      "attribution": "\u00a9 Gym visual \u2014 https://gymvisual.com/"
     },
     {
       "id": "forearms_001",
@@ -1733,7 +1732,7 @@
       "gif_url": "videos/1421-arvaszz.gif",
       "image": "images/1421-arvaszz.jpg",
       "media_id": "arvaszz",
-      "attribution": "© Gym visual — https://gymvisual.com/"
+      "attribution": "\u00a9 Gym visual \u2014 https://gymvisual.com/"
     },
     {
       "id": "forearms_002",
@@ -1773,7 +1772,7 @@
       "gif_url": "videos/0994-Ezpnw9d.gif",
       "image": "images/0994-Ezpnw9d.jpg",
       "media_id": "Ezpnw9d",
-      "attribution": "© Gym visual — https://gymvisual.com/"
+      "attribution": "\u00a9 Gym visual \u2014 https://gymvisual.com/"
     },
     {
       "id": "forearms_003",
@@ -1812,7 +1811,7 @@
       "gif_url": "videos/0364-q8aHNoF.gif",
       "image": "images/0364-q8aHNoF.jpg",
       "media_id": "q8aHNoF",
-      "attribution": "© Gym visual — https://gymvisual.com/"
+      "attribution": "\u00a9 Gym visual \u2014 https://gymvisual.com/"
     },
     {
       "id": "forearms_004",
@@ -1858,7 +1857,7 @@
       "gif_url": "videos/0518-I4tibZG.gif",
       "image": "images/0518-I4tibZG.jpg",
       "media_id": "I4tibZG",
-      "attribution": "© Gym visual — https://gymvisual.com/"
+      "attribution": "\u00a9 Gym visual \u2014 https://gymvisual.com/"
     },
     {
       "id": "full_body_001",
@@ -1901,12 +1900,12 @@
       "gif_url": "videos/3360-0Yz8WdV.gif",
       "image": "images/3360-0Yz8WdV.jpg",
       "media_id": "0Yz8WdV",
-      "attribution": "© Gym visual — https://gymvisual.com/"
+      "attribution": "\u00a9 Gym visual \u2014 https://gymvisual.com/"
     },
     {
       "id": "full_body_002",
       "name": "Star Jump (Male)",
-      "type": "strength",
+      "type": "plyometric",
       "primary_target_area": "full_body",
       "secondary_target_areas": [
         "quads",
@@ -1945,12 +1944,12 @@
       "gif_url": "videos/3223-HtfCpfi.gif",
       "image": "images/3223-HtfCpfi.jpg",
       "media_id": "HtfCpfi",
-      "attribution": "© Gym visual — https://gymvisual.com/"
+      "attribution": "\u00a9 Gym visual \u2014 https://gymvisual.com/"
     },
     {
       "id": "full_body_003",
       "name": "Jump Rope",
-      "type": "strength",
+      "type": "cardio",
       "primary_target_area": "full_body",
       "secondary_target_areas": [
         "calves",
@@ -1988,12 +1987,12 @@
       "gif_url": "videos/2612-e1e76I2.gif",
       "image": "images/2612-e1e76I2.jpg",
       "media_id": "e1e76I2",
-      "attribution": "© Gym visual — https://gymvisual.com/"
+      "attribution": "\u00a9 Gym visual \u2014 https://gymvisual.com/"
     },
     {
       "id": "full_body_004",
       "name": "Astride Jumps (Male)",
-      "type": "strength",
+      "type": "plyometric",
       "primary_target_area": "full_body",
       "secondary_target_areas": [
         "quads",
@@ -2031,12 +2030,12 @@
       "gif_url": "videos/3220-f9lVSSI.gif",
       "image": "images/3220-f9lVSSI.jpg",
       "media_id": "f9lVSSI",
-      "attribution": "© Gym visual — https://gymvisual.com/"
+      "attribution": "\u00a9 Gym visual \u2014 https://gymvisual.com/"
     },
     {
       "id": "full_body_005",
       "name": "Mountain Climber",
-      "type": "strength",
+      "type": "cardio",
       "primary_target_area": "full_body",
       "secondary_target_areas": [
         "core",
@@ -2075,12 +2074,12 @@
       "gif_url": "videos/0630-RJgzwny.gif",
       "image": "images/0630-RJgzwny.jpg",
       "media_id": "RJgzwny",
-      "attribution": "© Gym visual — https://gymvisual.com/"
+      "attribution": "\u00a9 Gym visual \u2014 https://gymvisual.com/"
     },
     {
       "id": "full_body_006",
       "name": "Skater Hops",
-      "type": "strength",
+      "type": "plyometric",
       "primary_target_area": "full_body",
       "secondary_target_areas": [
         "quads",
@@ -2120,7 +2119,7 @@
       "gif_url": "videos/3361-zfNHMN9.gif",
       "image": "images/3361-zfNHMN9.jpg",
       "media_id": "zfNHMN9",
-      "attribution": "© Gym visual — https://gymvisual.com/"
+      "attribution": "\u00a9 Gym visual \u2014 https://gymvisual.com/"
     },
     {
       "id": "full_body_007",
@@ -2165,12 +2164,12 @@
       "gif_url": "videos/3655-J9zIWig.gif",
       "image": "images/3655-J9zIWig.jpg",
       "media_id": "J9zIWig",
-      "attribution": "© Gym visual — https://gymvisual.com/"
+      "attribution": "\u00a9 Gym visual \u2014 https://gymvisual.com/"
     },
     {
       "id": "full_body_008",
       "name": "Burpee",
-      "type": "strength",
+      "type": "plyometric",
       "primary_target_area": "full_body",
       "secondary_target_areas": [
         "quads",
@@ -2214,12 +2213,12 @@
       "gif_url": "videos/1160-dK9394r.gif",
       "image": "images/1160-dK9394r.jpg",
       "media_id": "dK9394r",
-      "attribution": "© Gym visual — https://gymvisual.com/"
+      "attribution": "\u00a9 Gym visual \u2014 https://gymvisual.com/"
     },
     {
       "id": "full_body_009",
       "name": "Jack Burpee",
-      "type": "strength",
+      "type": "plyometric",
       "primary_target_area": "full_body",
       "secondary_target_areas": [
         "quads",
@@ -2264,12 +2263,12 @@
       "gif_url": "videos/0501-mr7pkqP.gif",
       "image": "images/0501-mr7pkqP.jpg",
       "media_id": "mr7pkqP",
-      "attribution": "© Gym visual — https://gymvisual.com/"
+      "attribution": "\u00a9 Gym visual \u2014 https://gymvisual.com/"
     },
     {
       "id": "full_body_010",
       "name": "Dumbbell Burpee",
-      "type": "strength",
+      "type": "plyometric",
       "primary_target_area": "full_body",
       "secondary_target_areas": [
         "quads",
@@ -2315,7 +2314,7 @@
       "gif_url": "videos/1201-0JtKWum.gif",
       "image": "images/1201-0JtKWum.jpg",
       "media_id": "0JtKWum",
-      "attribution": "© Gym visual — https://gymvisual.com/"
+      "attribution": "\u00a9 Gym visual \u2014 https://gymvisual.com/"
     },
     {
       "id": "glutes_001",
@@ -2355,7 +2354,7 @@
       "gif_url": "videos/3013-u0cNiij.gif",
       "image": "images/3013-u0cNiij.jpg",
       "media_id": "u0cNiij",
-      "attribution": "© Gym visual — https://gymvisual.com/"
+      "attribution": "\u00a9 Gym visual \u2014 https://gymvisual.com/"
     },
     {
       "id": "glutes_002",
@@ -2395,7 +2394,7 @@
       "gif_url": "videos/0991-VtTbiP3.gif",
       "image": "images/0991-VtTbiP3.jpg",
       "media_id": "VtTbiP3",
-      "attribution": "© Gym visual — https://gymvisual.com/"
+      "attribution": "\u00a9 Gym visual \u2014 https://gymvisual.com/"
     },
     {
       "id": "glutes_003",
@@ -2437,7 +2436,7 @@
       "gif_url": "videos/3561-GibBPPg.gif",
       "image": "images/3561-GibBPPg.jpg",
       "media_id": "GibBPPg",
-      "attribution": "© Gym visual — https://gymvisual.com/"
+      "attribution": "\u00a9 Gym visual \u2014 https://gymvisual.com/"
     },
     {
       "id": "glutes_004",
@@ -2480,7 +2479,7 @@
       "gif_url": "videos/1460-IZVHb27.gif",
       "image": "images/1460-IZVHb27.jpg",
       "media_id": "IZVHb27",
-      "attribution": "© Gym visual — https://gymvisual.com/"
+      "attribution": "\u00a9 Gym visual \u2014 https://gymvisual.com/"
     },
     {
       "id": "glutes_005",
@@ -2525,7 +2524,7 @@
       "gif_url": "videos/0431-aXtJhlg.gif",
       "image": "images/0431-aXtJhlg.jpg",
       "media_id": "aXtJhlg",
-      "attribution": "© Gym visual — https://gymvisual.com/"
+      "attribution": "\u00a9 Gym visual \u2014 https://gymvisual.com/"
     },
     {
       "id": "glutes_006",
@@ -2569,7 +2568,7 @@
       "gif_url": "videos/0534-ZA8b5hc.gif",
       "image": "images/0534-ZA8b5hc.jpg",
       "media_id": "ZA8b5hc",
-      "attribution": "© Gym visual — https://gymvisual.com/"
+      "attribution": "\u00a9 Gym visual \u2014 https://gymvisual.com/"
     },
     {
       "id": "hamstrings_001",
@@ -2610,7 +2609,7 @@
       "gif_url": "videos/0795-C5jncD2.gif",
       "image": "images/0795-C5jncD2.jpg",
       "media_id": "C5jncD2",
-      "attribution": "© Gym visual — https://gymvisual.com/"
+      "attribution": "\u00a9 Gym visual \u2014 https://gymvisual.com/"
     },
     {
       "id": "hamstrings_002",
@@ -2651,7 +2650,7 @@
       "gif_url": "videos/0697-GwYwElT.gif",
       "image": "images/0697-GwYwElT.jpg",
       "media_id": "GwYwElT",
-      "attribution": "© Gym visual — https://gymvisual.com/"
+      "attribution": "\u00a9 Gym visual \u2014 https://gymvisual.com/"
     },
     {
       "id": "hamstrings_003",
@@ -2691,7 +2690,7 @@
       "gif_url": "videos/0339-FkBIE6a.gif",
       "image": "images/0339-FkBIE6a.jpg",
       "media_id": "FkBIE6a",
-      "attribution": "© Gym visual — https://gymvisual.com/"
+      "attribution": "\u00a9 Gym visual \u2014 https://gymvisual.com/"
     },
     {
       "id": "hamstrings_004",
@@ -2737,7 +2736,7 @@
       "gif_url": "videos/0535-LHWF7us.gif",
       "image": "images/0535-LHWF7us.jpg",
       "media_id": "LHWF7us",
-      "attribution": "© Gym visual — https://gymvisual.com/"
+      "attribution": "\u00a9 Gym visual \u2014 https://gymvisual.com/"
     },
     {
       "id": "hamstrings_005",
@@ -2778,7 +2777,7 @@
       "gif_url": "videos/3193-Vvwjz6N.gif",
       "image": "images/3193-Vvwjz6N.jpg",
       "media_id": "Vvwjz6N",
-      "attribution": "© Gym visual — https://gymvisual.com/"
+      "attribution": "\u00a9 Gym visual \u2014 https://gymvisual.com/"
     },
     {
       "id": "lower_back_001",
@@ -2818,7 +2817,7 @@
       "gif_url": "videos/1352-ANbbry2.gif",
       "image": "images/1352-ANbbry2.jpg",
       "media_id": "ANbbry2",
-      "attribution": "© Gym visual — https://gymvisual.com/"
+      "attribution": "\u00a9 Gym visual \u2014 https://gymvisual.com/"
     },
     {
       "id": "lower_back_002",
@@ -2860,7 +2859,7 @@
       "gif_url": "videos/1010-KUaoUV8.gif",
       "image": "images/1010-KUaoUV8.jpg",
       "media_id": "KUaoUV8",
-      "attribution": "© Gym visual — https://gymvisual.com/"
+      "attribution": "\u00a9 Gym visual \u2014 https://gymvisual.com/"
     },
     {
       "id": "lower_back_003",
@@ -2902,12 +2901,12 @@
       "gif_url": "videos/1314-qLpO4vV.gif",
       "image": "images/1314-qLpO4vV.jpg",
       "media_id": "qLpO4vV",
-      "attribution": "© Gym visual — https://gymvisual.com/"
+      "attribution": "\u00a9 Gym visual \u2014 https://gymvisual.com/"
     },
     {
       "id": "lower_back_004",
       "name": "Sphinx",
-      "type": "strength",
+      "type": "stretch",
       "primary_target_area": "lower_back",
       "secondary_target_areas": [
         "glutes",
@@ -2943,12 +2942,12 @@
       "gif_url": "videos/1362-DIVyqrU.gif",
       "image": "images/1362-DIVyqrU.jpg",
       "media_id": "DIVyqrU",
-      "attribution": "© Gym visual — https://gymvisual.com/"
+      "attribution": "\u00a9 Gym visual \u2014 https://gymvisual.com/"
     },
     {
       "id": "neck_001",
       "name": "Neck Side Stretch",
-      "type": "strength",
+      "type": "stretch",
       "primary_target_area": "neck",
       "secondary_target_areas": [
         "trapezius",
@@ -2983,12 +2982,12 @@
       "gif_url": "videos/1403-x2chWLO.gif",
       "image": "images/1403-x2chWLO.jpg",
       "media_id": "x2chWLO",
-      "attribution": "© Gym visual — https://gymvisual.com/"
+      "attribution": "\u00a9 Gym visual \u2014 https://gymvisual.com/"
     },
     {
       "id": "neck_002",
       "name": "Side Push Neck Stretch",
-      "type": "strength",
+      "type": "stretch",
       "primary_target_area": "neck",
       "secondary_target_areas": [
         "trapezius",
@@ -3023,12 +3022,12 @@
       "gif_url": "videos/0716-oQRJYkC.gif",
       "image": "images/0716-oQRJYkC.jpg",
       "media_id": "oQRJYkC",
-      "attribution": "© Gym visual — https://gymvisual.com/"
+      "attribution": "\u00a9 Gym visual \u2014 https://gymvisual.com/"
     },
     {
       "id": "quads_001",
       "name": "Squat to Overhead Reach",
-      "type": "strength",
+      "type": "mobility",
       "primary_target_area": "quads",
       "secondary_target_areas": [
         "glutes",
@@ -3065,7 +3064,7 @@
       "gif_url": "videos/1685-QChZi3x.gif",
       "image": "images/1685-QChZi3x.jpg",
       "media_id": "QChZi3x",
-      "attribution": "© Gym visual — https://gymvisual.com/"
+      "attribution": "\u00a9 Gym visual \u2014 https://gymvisual.com/"
     },
     {
       "id": "quads_002",
@@ -3109,7 +3108,7 @@
       "gif_url": "videos/1760-yn8yg1r.gif",
       "image": "images/1760-yn8yg1r.jpg",
       "media_id": "yn8yg1r",
-      "attribution": "© Gym visual — https://gymvisual.com/"
+      "attribution": "\u00a9 Gym visual \u2014 https://gymvisual.com/"
     },
     {
       "id": "quads_003",
@@ -3149,7 +3148,7 @@
       "gif_url": "videos/3007-Y1MsI1l.gif",
       "image": "images/3007-Y1MsI1l.jpg",
       "media_id": "Y1MsI1l",
-      "attribution": "© Gym visual — https://gymvisual.com/"
+      "attribution": "\u00a9 Gym visual \u2014 https://gymvisual.com/"
     },
     {
       "id": "quads_004",
@@ -3192,7 +3191,7 @@
       "gif_url": "videos/2368-9E25EOx.gif",
       "image": "images/2368-9E25EOx.jpg",
       "media_id": "9E25EOx",
-      "attribution": "© Gym visual — https://gymvisual.com/"
+      "attribution": "\u00a9 Gym visual \u2014 https://gymvisual.com/"
     },
     {
       "id": "quads_005",
@@ -3234,7 +3233,7 @@
       "gif_url": "videos/1001-y8bYM8w.gif",
       "image": "images/1001-y8bYM8w.jpg",
       "media_id": "y8bYM8w",
-      "attribution": "© Gym visual — https://gymvisual.com/"
+      "attribution": "\u00a9 Gym visual \u2014 https://gymvisual.com/"
     },
     {
       "id": "quads_006",
@@ -3275,12 +3274,12 @@
       "gif_url": "videos/1489-xdYPUtE.gif",
       "image": "images/1489-xdYPUtE.jpg",
       "media_id": "xdYPUtE",
-      "attribution": "© Gym visual — https://gymvisual.com/"
+      "attribution": "\u00a9 Gym visual \u2014 https://gymvisual.com/"
     },
     {
       "id": "shoulders_001",
       "name": "Left Hook (Boxing)",
-      "type": "strength",
+      "type": "cardio",
       "primary_target_area": "shoulders",
       "secondary_target_areas": [
         "biceps",
@@ -3317,7 +3316,7 @@
       "gif_url": "videos/2271-hoXt6wv.gif",
       "image": "images/2271-hoXt6wv.jpg",
       "media_id": "hoXt6wv",
-      "attribution": "© Gym visual — https://gymvisual.com/"
+      "attribution": "\u00a9 Gym visual \u2014 https://gymvisual.com/"
     },
     {
       "id": "shoulders_002",
@@ -3358,7 +3357,7 @@
       "gif_url": "videos/0997-peAeMR3.gif",
       "image": "images/0997-peAeMR3.jpg",
       "media_id": "peAeMR3",
-      "attribution": "© Gym visual — https://gymvisual.com/"
+      "attribution": "\u00a9 Gym visual \u2014 https://gymvisual.com/"
     },
     {
       "id": "shoulders_003",
@@ -3397,7 +3396,7 @@
       "gif_url": "videos/0334-DsgkuIt.gif",
       "image": "images/0334-DsgkuIt.jpg",
       "media_id": "DsgkuIt",
-      "attribution": "© Gym visual — https://gymvisual.com/"
+      "attribution": "\u00a9 Gym visual \u2014 https://gymvisual.com/"
     },
     {
       "id": "shoulders_004",
@@ -3441,7 +3440,7 @@
       "gif_url": "videos/2137-Xy4jlWA.gif",
       "image": "images/2137-Xy4jlWA.jpg",
       "media_id": "Xy4jlWA",
-      "attribution": "© Gym visual — https://gymvisual.com/"
+      "attribution": "\u00a9 Gym visual \u2014 https://gymvisual.com/"
     },
     {
       "id": "shoulders_005",
@@ -3483,7 +3482,7 @@
       "gif_url": "videos/0523-UM8mgyG.gif",
       "image": "images/0523-UM8mgyG.jpg",
       "media_id": "UM8mgyG",
-      "attribution": "© Gym visual — https://gymvisual.com/"
+      "attribution": "\u00a9 Gym visual \u2014 https://gymvisual.com/"
     },
     {
       "id": "triceps_001",
@@ -3525,7 +3524,7 @@
       "gif_url": "videos/1399-9RT8oQW.gif",
       "image": "images/1399-9RT8oQW.jpg",
       "media_id": "9RT8oQW",
-      "attribution": "© Gym visual — https://gymvisual.com/"
+      "attribution": "\u00a9 Gym visual \u2014 https://gymvisual.com/"
     },
     {
       "id": "triceps_002",
@@ -3566,7 +3565,7 @@
       "gif_url": "videos/0333-W6PxUkg.gif",
       "image": "images/0333-W6PxUkg.jpg",
       "media_id": "W6PxUkg",
-      "attribution": "© Gym visual — https://gymvisual.com/"
+      "attribution": "\u00a9 Gym visual \u2014 https://gymvisual.com/"
     },
     {
       "id": "triceps_003",
@@ -3609,7 +3608,7 @@
       "gif_url": "videos/0259-x6KpKpq.gif",
       "image": "images/0259-x6KpKpq.jpg",
       "media_id": "x6KpKpq",
-      "attribution": "© Gym visual — https://gymvisual.com/"
+      "attribution": "\u00a9 Gym visual \u2014 https://gymvisual.com/"
     },
     {
       "id": "triceps_004",
@@ -3653,7 +3652,7 @@
       "gif_url": "videos/0717-wpbD28t.gif",
       "image": "images/0717-wpbD28t.jpg",
       "media_id": "wpbD28t",
-      "attribution": "© Gym visual — https://gymvisual.com/"
+      "attribution": "\u00a9 Gym visual \u2014 https://gymvisual.com/"
     },
     {
       "id": "triceps_005",
@@ -3696,7 +3695,7 @@
       "gif_url": "videos/0975-ufaxB52.gif",
       "image": "images/0975-ufaxB52.jpg",
       "media_id": "ufaxB52",
-      "attribution": "© Gym visual — https://gymvisual.com/"
+      "attribution": "\u00a9 Gym visual \u2014 https://gymvisual.com/"
     },
     {
       "id": "triceps_006",
@@ -3739,7 +3738,7 @@
       "gif_url": "videos/0351-mpKZGWz.gif",
       "image": "images/0351-mpKZGWz.jpg",
       "media_id": "mpKZGWz",
-      "attribution": "© Gym visual — https://gymvisual.com/"
+      "attribution": "\u00a9 Gym visual \u2014 https://gymvisual.com/"
     }
   ]
 }

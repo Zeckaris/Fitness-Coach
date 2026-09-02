@@ -1,5 +1,6 @@
 import json
 import os
+import random
 import re
 from typing import List, Literal, Optional
 
@@ -23,6 +24,7 @@ def _load_workouts() -> list[dict]:
 
 
 _WORKOUTS = _load_workouts()
+_WORKOUTS_BY_NAME: dict[str, dict] = {w["name"]: w for w in _WORKOUTS}
 
 # Controlled vocabulary, derived from the rebuilt workout library (V9.5).
 TargetArea = Literal[
@@ -65,6 +67,29 @@ def _estimate_duration_minutes(baseline: dict) -> Optional[float]:
 
     total_seconds = (active_per_set * sets) + (rest * max(sets - 1, 0))
     return round(total_seconds / 60, 1)
+
+
+def get_workouts_by_names(names: List[str]) -> List[dict]:
+    """Look up exercises by exact name, preserving input order. Names not found
+    in the library are silently skipped."""
+    return [_WORKOUTS_BY_NAME[n] for n in names if n in _WORKOUTS_BY_NAME]
+
+
+def format_workout_lines(workouts: List[dict]) -> str:
+    """Render a list of workout dicts into the standard bullet-point string
+    used by search_workout_library and callers that need identical formatting."""
+    lines = []
+    for w in workouts:
+        secondary = w.get("secondary_target_areas") or []
+        secondary_str = f", also works: {', '.join(secondary)}" if secondary else ""
+        equipment_str = ", ".join(w.get("equipment", [])) or "none"
+        est_duration = _estimate_duration_minutes(w.get("baseline", {}))
+        duration_str = f"~{est_duration:g} min" if est_duration is not None else "duration n/a"
+        lines.append(
+            f"- {w['name']} (primary: {w['primary_target_area']}{secondary_str}; "
+            f"{equipment_str}, {w['difficulty']}, {duration_str}): {w['description']}"
+        )
+    return "\n".join(lines)
 
 
 class WorkoutQuery(BaseModel):
@@ -187,18 +212,8 @@ def search_workout_library(
     if not matches:
         return "No workouts found matching those filters. Try relaxing a constraint."
 
-    lines = []
-    for w in matches[:5]:
-        secondary = w.get("secondary_target_areas") or []
-        secondary_str = f", also works: {', '.join(secondary)}" if secondary else ""
-        equipment_str = ", ".join(w.get("equipment", [])) or "none"
-        est_duration = _estimate_duration_minutes(w.get("baseline", {}))
-        duration_str = f"~{est_duration:g} min" if est_duration is not None else "duration n/a"
-        lines.append(
-            f"- {w['name']} (primary: {w['primary_target_area']}{secondary_str}; "
-            f"{equipment_str}, {w['difficulty']}, {duration_str}): {w['description']}"
-        )
-    return "\n".join(lines)
+    sampled = random.sample(matches, min(len(matches), 10))
+    return format_workout_lines(sampled)
 
 
 # Quick manual test: python tools/workout_library.py

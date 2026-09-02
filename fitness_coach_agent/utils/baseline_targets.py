@@ -37,9 +37,9 @@ BEGINNER_BASELINE_BY_AREA: dict[BalanceArea, float] = {
 
 # Fraction of single-set/single-effort max used per *working* set.
 INTENSITY_FACTOR: dict[ExperienceLevel, float] = {
-    "beginner": 0.50,
-    "intermediate": 0.65,
-    "advanced": 0.75,
+    "beginner": 0.75,
+    "intermediate": 0.80,
+    "advanced": 0.85,
 }
 
 DEFAULT_SESSIONS_PER_WEEK = 4
@@ -48,6 +48,34 @@ DEFAULT_SETS_PER_SESSION_BY_UNIT = {
     "seconds": 3,
 }
 _CONTINUOUS_UNITS = {"km", "m", "mi"}
+WeekThemeEnum = Literal["Foundation", "Volume", "Intensity", "Peak", "Deload"]
+
+THEME_WEIGHT_MATRIX: dict[str, float] = {
+    "Foundation": 1.00,
+    "Volume": 1.15,
+    "Intensity": 1.00,
+    "Peak": 1.25,
+    "Deload": 0.60,
+}
+
+THEME_SETS_CONFIG: dict[str, int] = {
+    "Foundation": 3,
+    "Volume": 5,
+    "Intensity": 2,
+    "Peak": 4,
+    "Deload": 2,
+}
+
+
+def get_theme_dosing_structure(theme: Optional[str], target_qty: int) -> tuple[int, int]:
+    """
+    Returns (sets, reps_per_set) based on week theme and target quantity.
+    """
+    sets = THEME_SETS_CONFIG.get(theme or "Foundation", 3)
+    if target_qty <= 0:
+        return (sets, 0)
+    reps_per_set = max(1, round(target_qty / sets))
+    return (sets, reps_per_set)
 
 
 def calculate_month_target(

@@ -124,46 +124,29 @@ def render_week_plan():
             st.caption("No week plan yet. Ask the coach to generate one.")
             return
 
-        blocks = doc.get("blocks") or []
-        if not blocks:
-            st.caption("No blocks defined.")
-            return
+        focus = doc.get("focus", "Unspecified").replace("_", " ").title()
+        st.markdown(f"**Focus: {focus}**")
 
-        current_block = None
-        next_block = None
-        for block in blocks:
-            dates = block.get("dates", [])
-            if today_str in dates:
-                current_block = block
-            elif dates and dates[0] > today_str:
-                next_block = block
-
-        if not current_block:
-            current_block = blocks[-1]
-
-        block_num = current_block.get("block_number", "?")
-        total_blocks = len(blocks)
-        focus = current_block.get("focus", "Unspecified").replace("_", " ").title()
-        dates = current_block.get("dates", [])
-        date_range = f"{dates[0]} — {dates[-1]}" if dates else ""
-
-        st.markdown(f"**Block {block_num}/{total_blocks}: {focus}**")
-        if date_range:
-            st.caption(date_range)
-
-        volume_targets = current_block.get("block_volume_targets") or []
-        if volume_targets:
-            for vt in volume_targets:
+        week_targets = doc.get("week_volume_targets") or []
+        if week_targets:
+            st.markdown("**Weekly Volume Targets**")
+            for vt in week_targets:
                 exercise = vt.get("exercise", "?")
-                target = vt.get("block_target", "?")
+                target = vt.get("week_target", "?")
                 unit = vt.get("unit", "")
                 st.caption(f"• {exercise}: {target} {unit}")
-
-        if next_block:
-            next_dates = next_block.get("dates", [])
-            next_focus = next_block.get("focus", "").replace("_", " ").title()
-            next_start = next_dates[0] if next_dates else ""
-            st.caption(f"Next: Block {next_block.get('block_number', '?')} starts {next_start} — {next_focus}")
+        else:
+            daily_volume_targets = doc.get("daily_volume_targets") or []
+            if daily_volume_targets and daily_volume_targets[0].get("targets"):
+                st.markdown("**Weekly Volume Targets**")
+                first_day_targets = daily_volume_targets[0].get("targets") or []
+                for vt in first_day_targets:
+                    exercise = vt.get("exercise", "?")
+                    unit = vt.get("unit", "")
+                    daily_t = vt.get("daily_target", 0)
+                    st.caption(f"• {exercise}: {daily_t * 4} {unit} (approx)")
+            else:
+                st.caption("No weekly targets defined.")
 
 
 def render_upcoming_plans():

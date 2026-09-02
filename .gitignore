@@ -1,0 +1,12 @@
+.env
+/data/documents
+/fitness_coach_agent/rag/preprocessor.py
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+env/
+
+# Streamlit
+.streamlit/secrets.toml

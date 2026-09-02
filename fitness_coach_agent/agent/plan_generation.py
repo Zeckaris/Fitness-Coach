@@ -19,10 +19,7 @@ langfuse_handler = CallbackHandler()
 
 
 def generate_backfill_days(
-    today_date: str,
-    tomorrow_date: str,
-    day_plus_2_date: str,
-    day_plus_3_date: str,
+    dates_to_plan: list,
     goal_description: str,
     week_focus: str,
     backlog_items: str,
@@ -31,8 +28,8 @@ def generate_backfill_days(
     available_exercises: str,
 ):
     """
-    Generates workout plans for today and the next 3 days using a
-    structured LLM call.
+    Generates workout plans for the specified dates (today through Saturday)
+    using a structured LLM call.
 
     Assembles the prompt from the provided context and returns a validated
     BackfillPlanOutput.
@@ -42,11 +39,12 @@ def generate_backfill_days(
     """
     from tools.plans import BackfillPlanOutput
 
+    dates_to_plan_str = ", ".join(dates_to_plan)
+    num_days = len(dates_to_plan)
+
     prompt = BACKFILL_DAY_PLAN_PROMPT.format(
-        today_date=today_date,
-        tomorrow_date=tomorrow_date,
-        day_plus_2_date=day_plus_2_date,
-        day_plus_3_date=day_plus_3_date,
+        num_days=num_days,
+        dates_to_plan_str=dates_to_plan_str,
         goal_description=goal_description,
         week_focus=week_focus,
         backlog_items=backlog_items,
@@ -62,7 +60,7 @@ def generate_backfill_days(
         )
     except StructuredOutputFailed:
         logger.exception(
-            "Backfill day-plan generation failed after retry + re-prompt (today=%s)",
-            today_date,
+            "Backfill day-plan generation failed after retry + re-prompt (dates=%s)",
+            dates_to_plan_str,
         )
         raise
