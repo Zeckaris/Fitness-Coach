@@ -22,11 +22,11 @@ from tools.progress import _calculate_volume_progress
 from tools.week_plans import (
     ensure_week_plan_exists, save_week_plan, _get_week_id_for_date,
     _get_week_number_from_date, _weeks_in_month, _find_week_doc_for_date,
-    get_week_focus_for_date, get_week_block_targets_for_date, BlockInput, VolumeTargetInput,
+    get_week_focus_for_date, get_daily_volume_targets_for_date, DailyVolumeTargetsInput, WeekVolumeTargetInput,
 )
 from tools.month_plans import has_theme_path_for_current_month
 from utils.theme_defaults import default_theme_path
-from agent.monthly_review import build_week_blocks
+from agent.monthly_review import build_week_plan_data
 from agent.plan_generation import generate_backfill_days
 from agent.error_handling import StructuredOutputFailed
 from tools.plan_history import get_past_plans
@@ -58,13 +58,24 @@ _WORKOUTS = (
 _VALID_EXERCISE_NAMES = {w["name"] for w in _WORKOUTS}
 
 
+def _get_remaining_week_dates(from_date=None) -> List[str]:
+    """Returns YYYY-MM-DD date strings from from_date (default: today) through Saturday of current week."""
+    if from_date is None:
+        from_date = datetime.now(LOCAL_TZ).date()
+    days_to_saturday = (5 - from_date.weekday()) % 7
+    saturday = from_date + timedelta(days=days_to_saturday)
+    
+    dates = []
+    curr = from_date
+    while curr <= saturday:
+        dates.append(curr.strftime("%Y-%m-%d"))
+        curr += timedelta(days=1)
+    return dates
+
+
 def _valid_plan_dates() -> set:
-    """Valid plan dates are tomorrow, day+2, and day+3."""
-    today = datetime.now(LOCAL_TZ).date()
-    return {
-        (today + timedelta(days=offset)).strftime("%Y-%m-%d")
-        for offset in (1, 2, 3)
-    }
+    """Valid plan dates are today through Saturday of the current week."""
+    return set(_get_remaining_week_dates())
 
 
 def _current_month_id() -> str:
@@ -208,12 +219,33 @@ class DayPlanInput(BaseModel):
 
         if self.date not in _valid_plan_dates():
             raise ValueError(
-                f"'{self.date}' is not a valid plan date. Plans may only target tomorrow, "
-                "day+2, or day+3 - never today. Use record_checkin for today's coaching."
+                f"'{self.date}' is not a valid plan date. Plans may only target dates from "
+                "today through Saturday of the current week."
             )
 
-        return self
+        # Target dosing enforcement against daily_volume_targets & dynamic theme-aware reps calculation
+        if self.status == "planned" and self.exercises:
+            from utils.baseline_targets import get_theme_dosing_structure
+            daily_targets = get_daily_volume_targets_for_date(self.date) or []
+            target_map = {dt["exercise"]: dt for dt in daily_targets}
+            week_focus = get_week_focus_for_date(self.date)
+            for ex in self.exercises:
+                if ex.name in target_map:
+                    dt = target_map[ex.name]
+                    if dt.get("daily_target") is not None:
+                        ex.target_quantity = int(dt["daily_target"])
+                        ex.unit = dt["unit"]
+                if ex.target_quantity is not None:
+                    theme_sets, reps_per_set = get_theme_dosing_structure(week_focus, ex.target_quantity)
+                    ex.sets = theme_sets
+                    if ex.unit in ("seconds", "sec"):
+                        ex.reps = f"{reps_per_set} sec"
+                    elif ex.unit in ("reps", "rep"):
+                        ex.reps = f"{reps_per_set} reps"
+                    elif ex.unit in ("km", "m", "mi"):
+                        ex.reps = f"{ex.target_quantity} {ex.unit}"
 
+        return self
 
 
 class BackfillDayPlanInput(BaseModel):
@@ -273,9 +305,27 @@ class BackfillDayPlanInput(BaseModel):
         if self.status == "rest" and self.exercises:
             raise ValueError("A 'rest' day must not include exercises.")
 
-        # NOTE: deliberately no date-membership check here — see class
-        # docstring. generate_today_plan validates exact date values
-        # post-generation.
+        # Target dosing enforcement against daily_volume_targets & dynamic theme-aware reps calculation
+        if self.status == "planned" and self.exercises:
+            from utils.baseline_targets import get_theme_dosing_structure
+            daily_targets = get_daily_volume_targets_for_date(self.date) or []
+            target_map = {dt["exercise"]: dt for dt in daily_targets}
+            week_focus = get_week_focus_for_date(self.date)
+            for ex in self.exercises:
+                if ex.name in target_map:
+                    dt = target_map[ex.name]
+                    if dt.get("daily_target") is not None:
+                        ex.target_quantity = int(dt["daily_target"])
+                        ex.unit = dt["unit"]
+                if ex.target_quantity is not None:
+                    theme_sets, reps_per_set = get_theme_dosing_structure(week_focus, ex.target_quantity)
+                    ex.sets = theme_sets
+                    if ex.unit in ("seconds", "sec"):
+                        ex.reps = f"{reps_per_set} sec"
+                    elif ex.unit in ("reps", "rep"):
+                        ex.reps = f"{reps_per_set} reps"
+                    elif ex.unit in ("km", "m", "mi"):
+                        ex.reps = f"{ex.target_quantity} {ex.unit}"
 
         return self
 
@@ -284,20 +334,20 @@ class BackfillPlanOutput(BaseModel):
     """
     Output schema for generate_today_plan.
 
-    Validates that the output contains exactly 4 unique day plans.
+    Validates that the output contains unique day plans for the requested window.
     Date correctness is validated by the caller.
     """
 
     days: List[BackfillDayPlanInput] = Field(
-        description="Exactly 4 day plans: today, tomorrow, day+2, day+3, in that order."
+        description="Day plans for the generation window (today through Saturday)."
     )
 
     @model_validator(mode="after")
     def _validate_shape(self):
-        if len(self.days) != 4:
-            raise ValueError(f"Expected exactly 4 days, got {len(self.days)}.")
+        if not (1 <= len(self.days) <= 7):
+            raise ValueError(f"Expected between 1 and 7 days, got {len(self.days)}.")
         dates = [d.date for d in self.days]
-        if len(set(dates)) != 4:
+        if len(set(dates)) != len(self.days):
             raise ValueError(f"Day dates must be unique, got {dates}.")
         return self
 
@@ -376,18 +426,16 @@ def _get_month_doc() -> Optional[dict]:
 @mongo_guarded
 def generate_today_plan() -> str:
     """
-    Create-only backfill: builds today's plan plus the forward
-    tomorrow/day+2/day+3 window when NO plan document exists for today
-    at all. Refuses immediately if any document already exists for
-    today, for any reason. Reconstructs missing month theme path
-    (non-LLM default) and week block structure (reused generation
-    logic) as needed first.
+    Create-only backfill: builds today's plan plus the remaining days
+    of the current calendar week (today through Saturday) when NO plan
+    document exists for today at all. Refuses immediately if any document
+    already exists for today, for any reason. Reconstructs missing month
+    theme path (non-LLM default) and week block structure (reused
+    generation logic) as needed first.
     """
     today = datetime.now(LOCAL_TZ).date()
     today_str = today.strftime("%Y-%m-%d")
-    tomorrow_str = (today + timedelta(days=1)).strftime("%Y-%m-%d")
-    day2_str = (today + timedelta(days=2)).strftime("%Y-%m-%d")
-    day3_str = (today + timedelta(days=3)).strftime("%Y-%m-%d")
+    dates_to_plan = _get_remaining_week_dates(today)
 
     # Guard 1: confirmed goal must exist
     if not _has_confirmed_goal():
@@ -422,17 +470,15 @@ def generate_today_plan() -> str:
         "Volume",
     )
 
-    # Step 2: week block structure — reuse build_week_blocks, single write here
+    # Step 2: week block structure — reuse build_week_plan_data, single write here
     if not ensure_week_plan_exists(today_str):
         week_id = _get_week_id_for_date(today_str)
         sunday = datetime.strptime(week_id, "%Y-%m-%d").date()
-        block_1_dates = [(sunday + timedelta(days=d)).strftime("%Y-%m-%d") for d in (1, 2, 3)]
-        block_2_dates = [(sunday + timedelta(days=d)).strftime("%Y-%m-%d") for d in (4, 5, 6)]
+        week_dates = [(sunday + timedelta(days=d)).strftime("%Y-%m-%d") for d in range(7)]
 
-        week_result = build_week_blocks(
+        week_result = build_week_plan_data(
             week_id=week_id,
-            block_1_dates=block_1_dates,
-            block_2_dates=block_2_dates,
+            week_dates=week_dates,
             week_theme=week_theme,
             month_goal=goal,
             week_number=week_number,
@@ -440,9 +486,10 @@ def generate_today_plan() -> str:
         )
         save_week_plan(
             week_id=week_id,
-            blocks=[BlockInput(**b) for b in week_result["blocks"]],
+            focus=week_result["focus"],
+            daily_volume_targets=[DailyVolumeTargetsInput(**d) for d in week_result["daily_volume_targets"]],
             week_volume_targets=(
-                [VolumeTargetInput(**v) for v in week_result["week_volume_targets"]]
+                [WeekVolumeTargetInput(**v) for v in week_result["week_volume_targets"]]
                 if week_result["week_volume_targets"] else None
             ),
             rationale=week_result["rationale"],
@@ -468,8 +515,8 @@ def generate_today_plan() -> str:
     recency = get_exercise_recency(goal_exercise_names, lookback_days=7)
     pct_by_name = {vp["exercise"]: vp.get("pct") for vp in volume_progress}
 
-    block_targets = get_week_block_targets_for_date(today_str) or []
-    block_target_by_name = {bt["exercise"]: bt for bt in block_targets}
+    daily_targets = get_daily_volume_targets_for_date(today_str) or []
+    daily_target_by_name = {dt["exercise"]: dt for dt in daily_targets}
 
     def _priority_key(name: str):
         pct = pct_by_name.get(name, 0) or 0  # None pct -> treated as 0
@@ -494,15 +541,15 @@ def generate_today_plan() -> str:
         recency_str = (
             "not planned in the last 7 days" if days is None else f"last planned {days}d ago"
         )
-        bt = block_target_by_name.get(vt["exercise"])
-        block_str = (
-            f", this block (~4 days): {bt['block_target']} {bt['unit']}"
-            if bt else ", no block target available for this exercise"
+        dt = daily_target_by_name.get(vt["exercise"])
+        daily_str = (
+            f", daily target: {dt['daily_target']} {dt['unit']}"
+            if dt else ", no daily target available for this exercise"
         )
         return (
             f"- {vt['exercise']}: {completed}/{vt['month_target']} {vt['unit']} this month "
             f"({pct_str} — {recency_str}) (balance_area: {vt['balance_area']})"
-            f"{block_str}"
+            f"{daily_str}"
         )
 
     goal_targets_str = (
@@ -524,10 +571,7 @@ def generate_today_plan() -> str:
     # Step 3: today + forward window, one combined structured call
     try:
         result = generate_backfill_days(
-            today_date=today_str,
-            tomorrow_date=tomorrow_str,
-            day_plus_2_date=day2_str,
-            day_plus_3_date=day3_str,
+            dates_to_plan=dates_to_plan,
             goal_description=goal.get("description", "unspecified"),
             week_focus=week_focus,
             backlog_items=backlog_items,
@@ -541,9 +585,7 @@ def generate_today_plan() -> str:
             "actual workout plan just now — please ask again in a moment."
         )
 
-    # Validate the 4 returned dates are EXACTLY what we expect — the
-    # schema only checks "4 unique dates", not that they match reality.
-    expected_dates = {today_str, tomorrow_str, day2_str, day3_str}
+    expected_dates = set(dates_to_plan)
     returned_dates = {d.date for d in result.days}
     if returned_dates != expected_dates:
         return (
@@ -588,40 +630,11 @@ def generate_today_plan() -> str:
                     }},
                 )
 
+    end_date_str = dates_to_plan[-1]
     return (
-        f"Backfilled plan for {today_str} through {day3_str}. "
+        f"Backfilled plan for {today_str} through {end_date_str}. "
         f"You're caught back up to your normal weekly rhythm."
     )
-    
-    
 
-    
-# Quick manual test: python -m tools.plans
 if __name__ == "__main__":
-    tomorrow = (datetime.now(LOCAL_TZ) + timedelta(days=1)).strftime("%Y-%m-%d")
-    print(
-        update_three_day_plan.invoke(
-            {
-                "days": [
-                    {
-                        "date": tomorrow,
-                        "focus_area": "upper_body",
-                        "status": "planned",
-                        "duration_minutes": 45,
-                        "exercises": [
-                            {"name": "Joint Mobility Warm-Up", "focus": "full_body", "category": "warmup", "duration_minutes": 5},
-                            {"name": "Arm Circles", "focus": "shoulders", "category": "warmup", "duration_minutes": 3},
-                            {"name": "Push-Ups", "focus": "chest", "category": "main", "sets": 3, "reps": "10-12", "duration_minutes": 5},
-                            {"name": "Pull-Ups", "focus": "back", "category": "main", "sets": 3, "reps": "8-10", "duration_minutes": 5},
-                            {"name": "Overhead Press", "focus": "shoulders", "category": "main", "sets": 3, "reps": "8-10", "duration_minutes": 5},
-                            {"name": "Dumbbell Rows", "focus": "back", "category": "main", "sets": 3, "reps": "10-12", "duration_minutes": 5},
-                            {"name": "Tricep Dips", "focus": "triceps", "category": "main", "sets": 3, "reps": "12-15", "duration_minutes": 5},
-                            {"name": "Bicep Curls", "focus": "biceps", "category": "main", "sets": 3, "reps": "12-15", "duration_minutes": 5},
-                            {"name": "Static Chest Stretch", "focus": "chest", "category": "cooldown", "duration_minutes": 3},
-                        ],
-                        "notes": "Test entry with 9 exercises (2 warmup + 6 main + 1 cooldown).",
-                    }
-                ]
-            }
-        )
-    )
+    print(generate_today_plan.invoke({}))
