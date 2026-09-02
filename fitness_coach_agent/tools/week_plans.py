@@ -127,6 +127,25 @@ def get_week_focus_for_date(date_str: str) -> Optional[str]:
     return None
 
 
+def get_week_block_targets_for_date(date_str: str) -> Optional[list]:
+    """NOT @mongo_guarded: called directly from generate_today_plan
+    (tools/plans.py), a critical path whose failures must propagate to
+    the caller, not be swallowed here — same rationale as
+    get_week_focus_for_date.
+
+    Returns the matching block's block_volume_targets — a list of
+    {exercise, unit, block_target} dicts — or None if no doc exists,
+    no block contains date, or the block has no targets set.
+    """
+    doc = _find_week_doc_for_date(date_str)
+    if not doc:
+        return None
+    for block in doc.get("blocks", []):
+        if date_str in block.get("dates", []):
+            return block.get("block_volume_targets")
+    return None
+
+
 def format_week_plan(doc: Optional[dict]) -> str:
     if not doc:
         return "No week plan yet."

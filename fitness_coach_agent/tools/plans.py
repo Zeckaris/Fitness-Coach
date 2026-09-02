@@ -14,13 +14,15 @@ from db.guards import mongo_guarded
 from tools.week_plans import ensure_week_plan_exists
 from auth.context import get_current_user_id
 from tools.backlog import get_backlog
+from tools.plan_history import get_exercise_recency
+from tools.progress import _calculate_volume_progress
 
 
 
 from tools.week_plans import (
     ensure_week_plan_exists, save_week_plan, _get_week_id_for_date,
     _get_week_number_from_date, _weeks_in_month, _find_week_doc_for_date,
-    get_week_focus_for_date, BlockInput, VolumeTargetInput,
+    get_week_focus_for_date, get_week_block_targets_for_date, BlockInput, VolumeTargetInput,
 )
 from tools.month_plans import has_theme_path_for_current_month
 from utils.theme_defaults import default_theme_path
@@ -29,7 +31,11 @@ from agent.plan_generation import generate_backfill_days
 from agent.error_handling import StructuredOutputFailed
 from tools.plan_history import get_past_plans
 from tools.knowledge_base import search_fitness_knowledge_base
-from tools.workout_library import search_workout_library
+from tools.workout_library import (
+    get_workouts_by_names,
+    format_workout_lines,
+    search_workout_library,
+)
 from db.mongo_client import get_backlog_collection
 
 LOCAL_TZ = ZoneInfo("Africa/Addis_Ababa")
@@ -451,9 +457,69 @@ def generate_today_plan() -> str:
         {"query": f"{week_focus} training guidance for {goal.get('description', 'general fitness')}"}
     )
 
+    goal_volume_targets = goal.get("volume_targets") or []
+    goal_exercise_names = [vt["exercise"] for vt in goal_volume_targets]
+
+    # Priority ordering for goal exercises: most-behind-first on monthly
+    # progress pct, tiebroken by recency (longest since last planned).
+    # A None pct (e.g. a zero month_target) is treated as 0 — the most
+    # urgent bucket, since there's no target to measure progress against.
+    volume_progress = _calculate_volume_progress(goal, _current_month_id())
+    recency = get_exercise_recency(goal_exercise_names, lookback_days=7)
+    pct_by_name = {vp["exercise"]: vp.get("pct") for vp in volume_progress}
+
+    block_targets = get_week_block_targets_for_date(today_str) or []
+    block_target_by_name = {bt["exercise"]: bt for bt in block_targets}
+
+    def _priority_key(name: str):
+        pct = pct_by_name.get(name, 0) or 0  # None pct -> treated as 0
+        days = recency.get(name)
+        # None (never planned in the window) sorts as more overdue than any
+        # real day count.
+        days_value = days if days is not None else float("inf")
+        return (pct, -days_value)
+
+    goal_exercise_names = sorted(goal_exercise_names, key=_priority_key)
+    vt_by_name = {vt["exercise"]: vt for vt in goal_volume_targets}
+
+    goal_workouts = get_workouts_by_names(goal_exercise_names)
+    goal_pool_str = format_workout_lines(goal_workouts) if goal_workouts else "None for this goal."
+
+    def _target_line(vt: dict) -> str:
+        vp = next((p for p in volume_progress if p["exercise"] == vt["exercise"]), {})
+        completed = vp.get("completed_so_far", 0)
+        pct = vp.get("pct")
+        pct_str = f"{pct:.0f}%" if pct is not None else "n/a"
+        days = recency.get(vt["exercise"])
+        recency_str = (
+            "not planned in the last 7 days" if days is None else f"last planned {days}d ago"
+        )
+        bt = block_target_by_name.get(vt["exercise"])
+        block_str = (
+            f", this block (~4 days): {bt['block_target']} {bt['unit']}"
+            if bt else ", no block target available for this exercise"
+        )
+        return (
+            f"- {vt['exercise']}: {completed}/{vt['month_target']} {vt['unit']} this month "
+            f"({pct_str} — {recency_str}) (balance_area: {vt['balance_area']})"
+            f"{block_str}"
+        )
+
+    goal_targets_str = (
+        "\n".join(_target_line(vt_by_name[name]) for name in goal_exercise_names)
+        or "None."
+    )
+
     main_pool = search_workout_library.invoke({})
     short_pool = search_workout_library.invoke({"max_duration_minutes": 6})
-    available_exercises = f"{main_pool}\n{short_pool}"
+    available_exercises = (
+        "GOAL-TRACKED EXERCISES (ordered by priority — earlier entries are more "
+        "behind on monthly progress and/or have gone longer without being planned; "
+        "prioritize these over later ones)\n"
+        f"{goal_pool_str}\n\n"
+        f"MONTHLY VOLUME TARGETS\n{goal_targets_str}\n\n"
+        f"GENERAL EXERCISE POOL\n{main_pool}\n{short_pool}"
+    )
 
     # Step 3: today + forward window, one combined structured call
     try:

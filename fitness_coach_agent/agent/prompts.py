@@ -177,7 +177,15 @@ Open backlog items to fold in (max 2 per day, mark which day each is placed in):
 Recent past plans for continuity: {past_plans_context}
 Relevant movement/knowledge-base guidance: {knowledge_context}
 
-For each day, build a complete 3-phase session (warmup 2-4 exercises, main 4-12 exercises, cooldown 1-4 exercises) using ONLY exercises from this list (name, focus, category must match exactly — do not invent exercises): {available_exercises}
+For each day, build a complete 3-phase session (warmup 2-4 exercises, main 4-12 exercises, cooldown 1-4 exercises) using ONLY exercises from {available_exercises} (name, focus, category must match exactly — do not invent exercises). The available exercises are in three sections:
+
+1. GOAL-TRACKED EXERCISES — These exercises are listed in priority order: earlier entries are more behind on monthly progress and/or have gone longer without being planned. Treat earlier-listed exercises as higher priority for today and tomorrow; if a day's target_quantity or duration won't allow all of them, defer the later-listed ones (or trim their per-day volume) — later entries are the ones to sacrifice first. These exercises must each still appear at least once across the 4 days (not necessarily every day; spread naturally across today, tomorrow, day+2, day+3). Assign each category="main" unless the exercise is naturally a warmup or cooldown movement. Set target_quantity and unit primarily against the exercise's "this block (~4 days)" figure in MONTHLY VOLUME TARGETS — spread that block total across the days the exercise appears, and do not meaningfully exceed it across all 4 days combined. If an exercise has no block target available (marked "no block target available for this exercise"), fall back to the monthly target for that exercise only: set per-day target_quantity toward the month_target but do not exceed that monthly target in a single day.
+
+2. MONTHLY VOLUME TARGETS — Reference only; each line gives the monthly target (month_target + unit) and balance_area for the corresponding goal-tracked exercise above. Use these to set per-day target_quantity values for the goal-tracked exercises.
+
+3. GENERAL EXERCISE POOL — Use these to fill out warmup exercises, cooldown exercises, and remaining main-phase variety beyond the goal-tracked exercises above.
+
+If GOAL-TRACKED EXERCISES says "None for this goal.", skip that requirement entirely and build all phases from the GENERAL EXERCISE POOL.
 
 Set duration_minutes by summing the ~X min estimate given for each exercise in {available_exercises} (warmup + main + cooldown combined). Align each day's focus_area with the week's block focus above. If a day should be a rest day instead, set status="rest" with an empty exercises list.
 """

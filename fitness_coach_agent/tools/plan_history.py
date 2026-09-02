@@ -36,6 +36,38 @@ def _backward_dates() -> list:
     return [(today - timedelta(days=offset)).strftime("%Y-%m-%d") for offset in (1, 2, 3)]
 
 
+def _window_dates(days: int) -> list:
+    """Return the previous `days` calendar days, most recent first."""
+    today = datetime.now(LOCAL_TZ).date()
+    return [(today - timedelta(days=offset)).strftime("%Y-%m-%d") for offset in range(1, days + 1)]
+
+
+def get_exercise_recency(names: list, lookback_days: int = 7) -> dict:
+    """For each name, days since it last appeared in a plan doc within the
+    last `lookback_days` days. None if the name never appears across the
+    window. When a name appears in multiple docs, uses the smallest days_ago
+    (most recent occurrence). Plain function — called directly by plans.py.
+    """
+    collection = get_plans_collection()
+    name_set = {name for name in names}
+    recency = {name: None for name in names}
+    today = datetime.now(LOCAL_TZ).date()
+
+    # _window_dates lists most-recent first, so the first doc we see a name
+    # in is its most recent occurrence — keep it, ignore later (older) hits.
+    for date in _window_dates(lookback_days):
+        doc = collection.find_one({"user_id": get_current_user_id(), "date": date})
+        if not doc:
+            continue
+        days_ago = (today - datetime.strptime(date, "%Y-%m-%d").date()).days
+        for ex in doc.get("exercises", []):
+            name = ex.get("name")
+            if name in name_set and recency.get(name) is None:
+                recency[name] = days_ago
+
+    return recency
+
+
 def format_plan_day(doc: dict, date: str) -> str:
     """
     Format one plan entry as a readable summary.
