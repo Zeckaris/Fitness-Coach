@@ -28,7 +28,7 @@ from auth.context import get_current_user_id
 from agent.llm import build_review_llm
 from agent.error_handling import call_structured_llm_with_reprompt, StructuredOutputFailed
 from utils.theme_defaults import default_theme_path
-from agent.prompts import WEEK_BLOCK_PROMPT
+from utils.baseline_targets import WeekThemeEnum
 
 LOCAL_TZ = ZoneInfo("Africa/Addis_Ababa")
 
@@ -124,7 +124,7 @@ def close_out_month(month_id: str) -> dict:
 
 class WeekThemeOutput(BaseModel):
     week_number: int
-    theme: str
+    theme: WeekThemeEnum
 
 
 class ThemePathOutput(BaseModel):
@@ -162,96 +162,57 @@ def generate_theme_path(prev_close_out: dict, current_goal: dict, total_weeks: i
 
 
 
-class WeekBlockOutput(BaseModel):
-    block_1_focus: str = Field(description="Training focus label for Block 1 (days 1-3 of the week).")
-    block_2_focus: str = Field(description="Training focus label for Block 2 (days 4-6 of the week).")
-    rationale: str = Field(description="1-2 sentence rationale for these focus choices.")
-
-
-def build_week_blocks(
+def build_week_plan_data(
     week_id: str,
-    block_1_dates: List[str],
-    block_2_dates: List[str],
+    week_dates: List[str],
     week_theme: str,
     month_goal: dict,
     week_number: int,
     total_weeks: int,
 ) -> dict:
     """
-    Plain function (no decorators): builds week block structure for the
+    Plain function (no decorators): builds week plan structure for the
     V9.3 backfill path. Mirrors generate_theme_path's shape — pure
-    logic + one structured LLM call, no Mongo I/O, no @mongo_guarded.
+    logic, no Mongo I/O, no @mongo_guarded.
     The caller (generate_today_plan, in tools/plans.py) does its own
     single @mongo_guarded wrap and its own write to week_plans_collection
     — this function never touches Mongo directly.
 
-    Hard numbers (per-exercise week/block volume targets) come from
-    _calculate_week_targets(), NOT the LLM — reusing existing,
-    previously-dead-code math rather than asking the LLM to redo
-    arithmetic. The LLM's only job is choosing the two blocks'
-    qualitative focus labels and a short rationale, informed by the
-    week's theme and the goal description.
+    Hard numbers (per-exercise week/daily volume targets) come from
+    _calculate_week_targets(). The qualitative focus simply reuses
+    the week's theme directly, no LLM call required.
 
-    Returns a dict shaped for save_week_plan(week_id, blocks,
-    week_volume_targets, rationale, require_theme_path=...):
-        {"blocks": [...], "week_volume_targets": [...], "rationale": str}
+    Returns a dict shaped for save_week_plan(week_id, focus,
+    daily_volume_targets, week_volume_targets, rationale=...):
+        {"focus": str, "daily_volume_targets": [...], "week_volume_targets": [...], "rationale": str}
     """
     week_targets = _calculate_week_targets(month_goal, week_number, total_weeks)
 
-    prompt = WEEK_BLOCK_PROMPT.format(
-        week_theme=week_theme,
-        goal_description=month_goal.get("description", "unspecified"),
-        week_targets=week_targets,
-    )
-
-    try:
-        result = call_structured_llm_with_reprompt(
-            build_review_llm, prompt, WeekBlockOutput,
-            config={"callbacks": [langfuse_handler]},
-        )
-        block_1_focus = result.block_1_focus
-        block_2_focus = result.block_2_focus
-        rationale = result.rationale
-    except StructuredOutputFailed:
-        logger.exception(
-            "Week block focus generation failed after retry + re-prompt (week_id=%s), using theme as fallback focus",
-            week_id,
-        )
-        block_1_focus = week_theme
-        block_2_focus = week_theme
-        rationale = f"Auto-generated during backfill; focus defaulted to week theme ({week_theme}) after generation failure."
-
-    def _block_volume_targets(scope: str) -> List[dict]:
-        # scope is "block_target" per _calculate_week_targets' return shape
-        return [
-            {"exercise": name, "unit": data["unit"], "block_target": data["block_target"]}
-            for name, data in week_targets.items()
-        ]
+    daily_volume_targets = []
+    for date_str in week_dates:
+        targets_for_day = []
+        for name, data in week_targets.items():
+            targets_for_day.append({
+                "exercise": name,
+                "unit": data["unit"],
+                "daily_target": data["daily_target"]
+            })
+        
+        daily_volume_targets.append({
+            "date": date_str,
+            "targets": targets_for_day
+        })
 
     week_volume_targets = [
-        {"exercise": name, "unit": data["unit"], "block_target": data["week_target"]}
+        {"exercise": name, "unit": data["unit"], "week_target": data["week_target"]}
         for name, data in week_targets.items()
     ] if week_targets else None
 
-    blocks = [
-        {
-            "block_number": 1,
-            "dates": block_1_dates,
-            "focus": block_1_focus,
-            "block_volume_targets": _block_volume_targets("block_1") if week_targets else None,
-        },
-        {
-            "block_number": 2,
-            "dates": block_2_dates,
-            "focus": block_2_focus,
-            "block_volume_targets": _block_volume_targets("block_2") if week_targets else None,
-        },
-    ]
-
     return {
-        "blocks": blocks,
+        "focus": week_theme,
+        "daily_volume_targets": daily_volume_targets,
         "week_volume_targets": week_volume_targets,
-        "rationale": rationale,
+        "rationale": f"Auto-generated during backfill; focus set to week theme ({week_theme}).",
     }
 
 
