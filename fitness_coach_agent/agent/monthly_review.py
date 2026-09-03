@@ -12,16 +12,21 @@ from dotenv import load_dotenv
 load_dotenv()
 
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, model_validator
 import logging
 from langfuse.langchain import CallbackHandler
 from langchain_core.tools import tool
 
 from db.mongo_client import get_month_plans_collection
-from db.guards import mongo_guarded, MONGO_FALLBACK_MESSAGE
+from db.guards import mongo_guarded
 from tools.backlog import sync_backlog
-from tools.month_plans import _current_month_id
-from tools.week_plans import _weeks_in_month, _calculate_week_targets
+from tools.week_plans import _calculate_week_targets
+from utils.calendar_weeks import (
+    weeks_in_month,
+    compute_month_weeks,
+    current_month_id,
+    LOCAL_TZ,
+)
 from tools.progress import calculate_progress
 from agent.prompts import MONTHLY_REVIEW_PROMPT, THEME_PATH_PROMPT
 from auth.context import get_current_user_id
@@ -29,8 +34,6 @@ from agent.llm import build_review_llm
 from agent.error_handling import call_structured_llm_with_reprompt, StructuredOutputFailed
 from utils.theme_defaults import default_theme_path
 from utils.baseline_targets import WeekThemeEnum
-
-LOCAL_TZ = ZoneInfo("Africa/Addis_Ababa")
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
@@ -123,20 +126,61 @@ def close_out_month(month_id: str) -> dict:
 
 
 class WeekThemeOutput(BaseModel):
-    week_number: int
+    week_number: int = Field(ge=1, description="1-indexed week number within the month.")
     theme: WeekThemeEnum
 
 
 class ThemePathOutput(BaseModel):
     week_plan_path: List[WeekThemeOutput]
 
+    @model_validator(mode="after")
+    def _validate_week_numbers(self) -> "ThemePathOutput":
+        nums = [w.week_number for w in self.week_plan_path]
+        expected = set(range(1, len(self.week_plan_path) + 1))
+        if set(nums) != expected:
+            raise ValueError(
+                f"Invalid week_number values in theme path: {nums}. "
+                f"Must be a contiguous 1-indexed sequence from 1 to {len(self.week_plan_path)} with no gaps, duplicates, or out-of-range numbers."
+            )
+        return self
 
-def generate_theme_path(prev_close_out: dict, current_goal: dict, total_weeks: int) -> List[dict]:
+def generate_theme_path(
+    prev_close_out: dict,
+    current_goal: dict,
+    total_weeks: int,
+    week_descriptors: List[dict] | None = None,
+) -> tuple[List[dict], str]:
+    """
+    Returns (week_plan_path, theme_path_source).
+
+    theme_path_source values:
+      "llm"                      -- LLM produced a valid, complete path
+      "fallback_length_mismatch" -- LLM returned wrong number of themes
+      "fallback_parse_failure"   -- StructuredOutputFailed
+
+    The caller is responsible for writing theme_path_source alongside
+    week_plan_path in the month document.
+    """
+    # Build week structure context for the LLM if descriptors are available.
+    if week_descriptors:
+        week_lines = "\n".join(
+            f"  Week {w['week_number']}: {w['start_date']} to {w['end_date']} ({w['day_count']} days)"
+            for w in week_descriptors
+        )
+        week_structure_note = (
+            f"\nWeek structure for this month:\n{week_lines}\n"
+            "For short boundary weeks (3-4 days), prefer Foundation or Deload. "
+            "Avoid Peak or Volume for very short weeks."
+        )
+    else:
+        week_structure_note = ""
+
     prompt = THEME_PATH_PROMPT.format(
         total_weeks=total_weeks,
         goal_description=current_goal.get("description", "unspecified"),
         last_month_narrative=prev_close_out.get("narrative", "No prior review available."),
         last_month_adherence=prev_close_out.get("adherence"),
+        week_structure_note=week_structure_note,
     )
 
     try:
@@ -147,17 +191,19 @@ def generate_theme_path(prev_close_out: dict, current_goal: dict, total_weeks: i
         themes = sorted(result.week_plan_path, key=lambda t: t.week_number)
         if len(themes) != total_weeks:
             logger.warning(
-                "Theme path generation returned %d themes, expected %d (total_weeks=%s), using fallback",
+                "Theme path generation returned %d themes, expected %d "
+                "(total_weeks=%s), using fallback",
                 len(themes), total_weeks, total_weeks,
             )
-            return default_theme_path(total_weeks)
-        return [{"week_number": i + 1, "theme": t.theme} for i, t in enumerate(themes)]
+            return default_theme_path(total_weeks), "fallback_length_mismatch"
+        return [{"week_number": i + 1, "theme": t.theme} for i, t in enumerate(themes)], "llm"
     except StructuredOutputFailed:
         logger.exception(
-            "Theme path generation failed after retry + re-prompt (total_weeks=%s), using fallback",
+            "Theme path generation failed after retry + re-prompt "
+            "(total_weeks=%s), using fallback",
             total_weeks,
         )
-        return default_theme_path(total_weeks)
+        return default_theme_path(total_weeks), "fallback_parse_failure"
 
 
 
@@ -186,22 +232,19 @@ def build_week_plan_data(
     daily_volume_targets, week_volume_targets, rationale=...):
         {"focus": str, "daily_volume_targets": [...], "week_volume_targets": [...], "rationale": str}
     """
-    week_targets = _calculate_week_targets(month_goal, week_number, total_weeks)
+    day_count = len(week_dates)
+    week_targets = _calculate_week_targets(
+        month_goal, week_number, total_weeks,
+        week_id=week_id, day_count=day_count,
+    )
 
     daily_volume_targets = []
     for date_str in week_dates:
-        targets_for_day = []
-        for name, data in week_targets.items():
-            targets_for_day.append({
-                "exercise": name,
-                "unit": data["unit"],
-                "daily_target": data["daily_target"]
-            })
-        
-        daily_volume_targets.append({
-            "date": date_str,
-            "targets": targets_for_day
-        })
+        targets_for_day = [
+            {"exercise": name, "unit": data["unit"], "daily_target": data["daily_target"]}
+            for name, data in week_targets.items()
+        ]
+        daily_volume_targets.append({"date": date_str, "targets": targets_for_day})
 
     week_volume_targets = [
         {"exercise": name, "unit": data["unit"], "week_target": data["week_target"]}
@@ -228,27 +271,35 @@ def _refresh_week_themes_impl() -> str:
     rather than raising. Same pattern as generate_theme_path /
     build_week_blocks."""
     month_plans = get_month_plans_collection()
-    current_month = _current_month_id()
+    current_month = current_month_id()
     doc = month_plans.find_one({"user_id": get_current_user_id(), "month_id": current_month})
 
     if not doc or not doc.get("goal") or doc["goal"].get("status") != "confirmed":
         return "No confirmed goal for this month. Set a goal first."
 
-    total_weeks = _weeks_in_month(current_month)
+    total_weeks = weeks_in_month(current_month)
+    week_descriptors = compute_month_weeks(current_month)
     prev_doc = month_plans.find_one({"user_id": get_current_user_id(), "month_id": _previous_month_id()})
     prev_close_out = (prev_doc or {}).get("close_out_summary") or {}
 
-    week_plan_path = generate_theme_path(prev_close_out, doc["goal"], total_weeks)
+    week_plan_path, source = generate_theme_path(
+        prev_close_out, doc["goal"], total_weeks,
+        week_descriptors=week_descriptors,
+    )
 
     month_plans.update_one(
         {"user_id": get_current_user_id(), "month_id": current_month},
         {"$set": {
             "week_plan_path": week_plan_path,
-            "updated_at": datetime.now(ZoneInfo("UTC"))
+            "theme_path_source": source,
+            "updated_at": datetime.now(ZoneInfo("UTC")),
         }}
     )
     theme_str = " → ".join(t["theme"] for t in week_plan_path)
-    return f"Week themes set for {current_month} ({total_weeks} weeks): {theme_str}"
+    return (
+        f"Week themes set for {current_month} ({total_weeks} weeks): {theme_str} "
+        f"[source: {source}]"
+    )
 
 
 @tool

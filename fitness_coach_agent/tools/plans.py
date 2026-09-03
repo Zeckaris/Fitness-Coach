@@ -24,6 +24,7 @@ from tools.week_plans import (
     _get_week_number_from_date, _weeks_in_month, _find_week_doc_for_date,
     get_week_focus_for_date, get_daily_volume_targets_for_date, DailyVolumeTargetsInput, WeekVolumeTargetInput,
 )
+from utils.calendar_weeks import get_week_for_date, date_range, weeks_in_month, month_id_for_date
 from tools.month_plans import has_theme_path_for_current_month
 from utils.theme_defaults import default_theme_path
 from agent.monthly_review import build_week_plan_data
@@ -59,18 +60,17 @@ _VALID_EXERCISE_NAMES = {w["name"] for w in _WORKOUTS}
 
 
 def _get_remaining_week_dates(from_date=None) -> List[str]:
-    """Returns YYYY-MM-DD date strings from from_date (default: today) through Saturday of current week."""
+    """
+    Returns YYYY-MM-DD date strings from from_date (default: today) through
+    the last day of the current calendar-aligned month week.
+    """
     if from_date is None:
         from_date = datetime.now(LOCAL_TZ).date()
-    days_to_saturday = (5 - from_date.weekday()) % 7
-    saturday = from_date + timedelta(days=days_to_saturday)
-    
-    dates = []
-    curr = from_date
-    while curr <= saturday:
-        dates.append(curr.strftime("%Y-%m-%d"))
-        curr += timedelta(days=1)
-    return dates
+    from_date_str = from_date.strftime("%Y-%m-%d")
+    week = get_week_for_date(from_date_str)
+    all_dates = date_range(week["start_date"], week["end_date"])
+    # Only return dates from from_date onwards (don't include past days of the week).
+    return [d for d in all_dates if d >= from_date_str]
 
 
 def _valid_plan_dates() -> set:
@@ -344,8 +344,8 @@ class BackfillPlanOutput(BaseModel):
 
     @model_validator(mode="after")
     def _validate_shape(self):
-        if not (1 <= len(self.days) <= 7):
-            raise ValueError(f"Expected between 1 and 7 days, got {len(self.days)}.")
+        if not (1 <= len(self.days) <= 9):
+            raise ValueError(f"Expected between 1 and 9 days, got {len(self.days)}.")
         dates = [d.date for d in self.days]
         if len(set(dates)) != len(self.days):
             raise ValueError(f"Day dates must be unique, got {dates}.")
@@ -452,19 +452,30 @@ def generate_today_plan() -> str:
     month_id = _current_month_id()
     month_doc = _get_month_doc()
     goal = (month_doc or {}).get("goal") or {}
-    total_weeks = _weeks_in_month(month_id)
+    total_weeks = weeks_in_month(month_id)
 
-    # Step 1: month theme path — non-LLM fallback (V9.3 addendum item 3)
+    # Step 1: month theme path — consolidated fallback write path (v1.7 Section 3.4)
     if not has_theme_path_for_current_month():
-        theme_path = default_theme_path(total_weeks)
-        get_month_plans_collection().update_one(
-            {"user_id": get_current_user_id(), "month_id": month_id},
-            {"$set": {"week_plan_path": theme_path, "updated_at": datetime.now(ZoneInfo("UTC"))}},
-        )
+        try:
+            from agent.monthly_review import _refresh_week_themes_impl
+            _refresh_week_themes_impl()
+        except Exception:
+            pass
+
+        if not has_theme_path_for_current_month():
+            theme_path = default_theme_path(total_weeks)
+            get_month_plans_collection().update_one(
+                {"user_id": get_current_user_id(), "month_id": month_id},
+                {"$set": {
+                    "week_plan_path": theme_path,
+                    "theme_path_source": "fallback_parse_failure",
+                    "updated_at": datetime.now(ZoneInfo("UTC")),
+                }},
+            )
         month_doc = _get_month_doc()  # re-fetch: now has week_plan_path
 
     week_plan_path = (month_doc or {}).get("week_plan_path") or []
-    week_number = _get_week_number_from_date(today_str)
+    week_number = get_week_for_date(today_str)["week_number"]
     week_theme = next(
         (t["theme"] for t in week_plan_path if t["week_number"] == week_number),
         "Volume",
@@ -472,9 +483,11 @@ def generate_today_plan() -> str:
 
     # Step 2: week block structure — reuse build_week_plan_data, single write here
     if not ensure_week_plan_exists(today_str):
-        week_id = _get_week_id_for_date(today_str)
-        sunday = datetime.strptime(week_id, "%Y-%m-%d").date()
-        week_dates = [(sunday + timedelta(days=d)).strftime("%Y-%m-%d") for d in range(7)]
+        week_descriptor = get_week_for_date(today_str)
+        week_id = week_descriptor["start_date"]
+        week_dates = date_range(week_descriptor["start_date"], week_descriptor["end_date"])
+        week_number = week_descriptor["week_number"]
+        total_weeks = weeks_in_month(month_id_for_date(week_id))
 
         week_result = build_week_plan_data(
             week_id=week_id,

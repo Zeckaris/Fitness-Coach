@@ -1,12 +1,20 @@
-"""Week plan tools 
+"""Week plan tools
 The agent generates week plans on-demand via update_week_plan (LLM tool).
 ensure_week_plan_exists is read-only; it never creates.
 """
 
-from datetime import datetime, timedelta
-import calendar
+from datetime import datetime
 from zoneinfo import ZoneInfo
 from typing import List, Optional
+
+from utils.calendar_weeks import (
+    compute_month_weeks,
+    get_week_for_date,
+    weeks_in_month,
+    month_id_for_date,
+    current_month_id,
+    date_range,
+)
 
 from langchain_core.tools import tool
 from pydantic import BaseModel, Field
@@ -18,55 +26,72 @@ from auth.context import get_current_user_id
 LOCAL_TZ = ZoneInfo("Africa/Addis_Ababa")
 
 
+# ---------------------------------------------------------------------------
+# Thin shims for backwards-compatibility with callers inside this module.
+# External modules should import from utils.calendar_weeks directly.
+# ---------------------------------------------------------------------------
+
 def _current_month_id() -> str:
-    return datetime.now(LOCAL_TZ).date().strftime("%Y-%m")
+    return current_month_id()
 
 
 def _get_week_id_for_date(date_str: str) -> str:
-    """Return the Sunday date (week_id) that this date belongs to."""
-    date_obj = datetime.strptime(date_str, "%Y-%m-%d").date()
-    days_since_sunday = (date_obj.weekday() + 1) % 7
-    sunday = date_obj - timedelta(days=days_since_sunday)
-    return sunday.strftime("%Y-%m-%d")
+    """Return the start date (week_id) of the calendar-aligned week containing date_str."""
+    return get_week_for_date(date_str)["start_date"]
 
 
 def _weeks_in_month(month_id: str) -> int:
-    """Number of 7-day windows in this month, day-1 anchored (4 or 5)."""
-    year, month = map(int, month_id.split("-"))
-    days_in_month = calendar.monthrange(year, month)[1]
-    return -(-days_in_month // 7)  # ceil division
+    """Number of calendar-aligned weeks in this month (post-merge)."""
+    return weeks_in_month(month_id)
 
 
 def _get_week_number_from_date(date_str: str) -> int:
-    """Determine week number within the month, using the real week count (4 or 5)."""
-    date_obj = datetime.strptime(date_str, "%Y-%m-%d").date()
-    month_start = date_obj.replace(day=1)
-    days_since_month_start = (date_obj - month_start).days
-    total_weeks = _weeks_in_month(date_obj.strftime("%Y-%m"))
-    return min(total_weeks, (days_since_month_start // 7) + 1)
+    """Return the 1-indexed week number within the month for date_str."""
+    return get_week_for_date(date_str)["week_number"]
 
 
-def _calculate_week_targets(month_goal: dict, week_number: int, total_weeks: Optional[int] = None) -> dict:
-    """Calculate remaining volume targets for a given week."""
+def _calculate_week_targets(
+    month_goal: dict,
+    week_number: int,
+    total_weeks: Optional[int] = None,
+    week_id: Optional[str] = None,
+    day_count: int = 7,
+) -> dict:
+    """
+    Calculate remaining volume targets for a given week.
+
+    month_id is derived from week_id (the week's own start date), not from
+    today's clock — this prevents the cross-month anchor mismatch that was
+    the root cause of the v1.6 volume-target corruption bug.
+
+    day_count drives proportional session scaling: sessions_in_week =
+    max(1, round(4 * day_count / 7)), so 3-day and 9-day boundary weeks
+    get the right per-session dose instead of always assuming 4 sessions.
+    """
     volume_targets = month_goal.get("volume_targets") or []
     if not volume_targets:
         return {}
 
+    # Derive month_id from the week being processed, not from today.
+    if week_id is not None:
+        month_id = month_id_for_date(week_id)
+    else:
+        month_id = current_month_id()
+
     if total_weeks is None:
-        total_weeks = _weeks_in_month(_current_month_id())
+        total_weeks = weeks_in_month(month_id)
 
     from db.mongo_client import get_plans_collection, get_month_plans_collection
     from utils.baseline_targets import THEME_WEIGHT_MATRIX
     plans = get_plans_collection()
     month_plans = get_month_plans_collection()
-    month_id = _current_month_id()
 
     month_doc = month_plans.find_one({"user_id": get_current_user_id(), "month_id": month_id})
     week_plan_path = (month_doc or {}).get("week_plan_path") or []
 
     current_week_theme = next(
         (t["theme"] for t in week_plan_path if t.get("week_number") == week_number),
-        "Foundation"
+        "Foundation",
     )
 
     remaining_theme_weights = [
@@ -74,9 +99,16 @@ def _calculate_week_targets(month_goal: dict, week_number: int, total_weeks: Opt
         for t in week_plan_path
         if t.get("week_number") >= week_number
     ]
-    sum_remaining_weights = sum(remaining_theme_weights) if remaining_theme_weights else float(max(1, total_weeks - week_number + 1))
+    sum_remaining_weights = (
+        sum(remaining_theme_weights)
+        if remaining_theme_weights
+        else float(max(1, total_weeks - week_number + 1))
+    )
     current_theme_weight = THEME_WEIGHT_MATRIX.get(current_week_theme, 1.00)
     theme_fraction = current_theme_weight / sum_remaining_weights
+
+    # Proportional session scaling: a 5-day week ~3 sessions, 9-day ~5 sessions.
+    sessions_in_week = max(1, round(4 * day_count / 7))
 
     results = {}
     for vt in volume_targets:
@@ -98,19 +130,13 @@ def _calculate_week_targets(month_goal: dict, week_number: int, total_weeks: Opt
         remaining = max(0, month_target - completed_so_far)
         week_target = remaining * theme_fraction
 
-        # Returning both week_target and session daily_target (divided by
-        # 4 active training sessions per week rather than 7 calendar days)
-        # so active workout sessions cover 100% of the weekly target volume.
-        sessions_per_week = 4
         _CONTINUOUS_UNITS = {"km", "m", "mi"}
         if unit in _CONTINUOUS_UNITS:
-            # Distance: keep 1 decimal place
             wt = round(week_target, 1)
-            dt = round(week_target / sessions_per_week, 2)
+            dt = round(week_target / sessions_in_week, 2)
         else:
-            # Reps / seconds: whole numbers only, no decimal points
             wt = int(round(week_target))
-            dt = int(round(week_target / sessions_per_week))
+            dt = int(round(week_target / sessions_in_week))
 
         results[exercise] = {
             "unit": unit,
@@ -137,11 +163,15 @@ def ensure_week_plan_exists(target_date: str) -> bool:
 
 
 def _find_week_doc_for_date(date_str: str) -> Optional[dict]:
+    """Find the week plan document covering date_str. Returns None if not found."""
     collection = get_week_plans_collection()
-    doc = collection.find_one({"user_id": get_current_user_id(), "daily_volume_targets.date": date_str})
-    if doc:
-        return doc
-    return collection.find_one({"user_id": get_current_user_id()}, sort=[("week_id", -1)])
+    return collection.find_one({
+        "user_id": get_current_user_id(),
+        "$or": [
+            {"daily_volume_targets.date": date_str},
+            {"week_id": _get_week_id_for_date(date_str)},
+        ],
+    })
 
 
 def get_week_focus_for_date(date_str: str) -> Optional[str]:
@@ -217,11 +247,15 @@ class WeekVolumeTargetInput(BaseModel):
 
 class UpdateWeekPlanInput(BaseModel):
     week_id: str = Field(
-        description="Sunday date YYYY-MM-DD of the week to generate. Use the Sunday of the current calendar week."
+        description=(
+            "Start date YYYY-MM-DD of the current week. Use the first day of the "
+            "current calendar-aligned month week (not necessarily a Sunday — call "
+            "get_current_week_plan to confirm the correct start date)."
+        )
     )
     rationale: Optional[str] = Field(
         default=None,
-        description="Brief note on why this week's training focus was chosen (1-2 sentences)."
+        description="Brief note on why this week's training focus was chosen (1-2 sentences).",
     )
 
 
@@ -283,8 +317,9 @@ def update_week_plan(
     month goal and the stored week theme — the LLM must NOT supply these numbers.
     Only week_id (Sunday YYYY-MM-DD) and an optional rationale are needed.
     """
+    # Derive month from the week's own start date — not from today's clock.
+    month_id = month_id_for_date(week_id)
     month_plans_col = get_month_plans_collection()
-    month_id = _current_month_id()
     month_doc = month_plans_col.find_one({
         "user_id": get_current_user_id(),
         "month_id": month_id,
@@ -307,25 +342,30 @@ def update_week_plan(
     if not month_goal:
         return "ERROR: No confirmed goal data in month document. Ask the user to confirm their goal first."
 
-    total_weeks = _weeks_in_month(month_id)
-    week_number = _get_week_number_from_date(week_id)
+    # Derive week descriptor from the canonical module — single source of truth.
+    week_descriptor = get_week_for_date(week_id)
+    week_number = week_descriptor["week_number"]
+    day_count = week_descriptor["day_count"]
+    total_weeks = weeks_in_month(month_id)
 
-    # Determine this week's theme from the stored path
+    # Determine this week's theme from the stored path.
     week_theme = next(
         (t["theme"] for t in week_plan_path if t.get("week_number") == week_number),
         "Foundation",
     )
 
-    # Compute all volume targets deterministically — no LLM math
-    week_targets = _calculate_week_targets(month_goal, week_number, total_weeks)
+    # Compute all volume targets deterministically — no LLM math.
+    week_targets = _calculate_week_targets(
+        month_goal, week_number, total_weeks,
+        week_id=week_id, day_count=day_count,
+    )
     if not week_targets:
         return "ERROR: Could not calculate week targets. Check that the month goal has volume_targets."
 
-    # Build daily entries for each day of the week (Sun–Sat)
-    week_id_date = datetime.strptime(week_id, "%Y-%m-%d").date()
+    # Build daily entries for each actual day of the week (3-9 days, not always 7).
+    week_dates = date_range(week_descriptor["start_date"], week_descriptor["end_date"])
     daily_volume_targets: List[DailyVolumeTargetsInput] = []
-    for offset in range(7):
-        date_str = (week_id_date + timedelta(days=offset)).strftime("%Y-%m-%d")
+    for date_str in week_dates:
         targets_for_day = [
             DailyVolumeTargetInput(
                 exercise=name,
@@ -352,7 +392,7 @@ def update_week_plan(
         focus=week_theme,
         daily_volume_targets=daily_volume_targets,
         week_volume_targets=week_volume_targets,
-        rationale=rationale or f"Auto-computed for {week_theme} week (W{week_number}/{total_weeks}).",
+        rationale=rationale or f"Auto-computed for {week_theme} week (W{week_number}/{total_weeks}, {day_count}d).",
         require_theme_path=False,
     )
 

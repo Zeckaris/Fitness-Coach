@@ -13,8 +13,8 @@ from db.mongo_client import get_month_plans_collection
 from db.guards import mongo_guarded
 from auth.context import get_current_user_id
 from typing import List, Optional, Literal, Tuple
-from utils.baseline_targets import calculate_month_target, BEGINNER_BASELINE_BY_AREA
-from tools.week_plans import _weeks_in_month
+from utils.baseline_targets import calculate_month_target, BEGINNER_BASELINE_BY_AREA, WeekThemeEnum
+from utils.calendar_weeks import weeks_in_month, current_month_id
 
 LOCAL_TZ = ZoneInfo("Africa/Addis_Ababa")
 
@@ -55,7 +55,7 @@ def get_previous_month_review_context() -> Optional[str]:
 
 
 def _current_month_id() -> str:
-    return datetime.now(LOCAL_TZ).date().strftime("%Y-%m")
+    return current_month_id()
 
 
 class VolumeTarget(BaseModel):
@@ -95,6 +95,7 @@ class StageMonthGoalInput(BaseModel):
     volume_targets: Optional[List[VolumeTarget]] = Field(
         default=None, description="List of {exercise, unit, month_target, balance_area}"
     )
+    month_id: Optional[str] = Field(default=None, description="Target month in YYYY-MM format. Defaults to current month.")
 
     @model_validator(mode="after")
     def _validate(self):
@@ -105,9 +106,6 @@ class StageMonthGoalInput(BaseModel):
         if has_metric and (self.target_value is None or self.unit is None or self.baseline_value is None):
             raise ValueError("metric_name needs target_value, unit, baseline_value.")
         return self
-
-
-
 
 
 class CalculateVolumeTargetInput(BaseModel):
@@ -130,6 +128,9 @@ class CalculateVolumeTargetInput(BaseModel):
     sets_per_session: Optional[int] = Field(
         default=None, description="Working sets per session. Omit to use a sensible default."
     )
+    month_id: Optional[str] = Field(
+        default=None, description="Target month in YYYY-MM format. Defaults to current month."
+    )
 
 
 @tool(args_schema=CalculateVolumeTargetInput)
@@ -141,6 +142,7 @@ def calculate_volume_target(
     experience_level: Literal["beginner", "intermediate", "advanced"] = "beginner",
     sessions_per_week: int = 4,
     sets_per_session: Optional[int] = None,
+    month_id: Optional[str] = None,
 ) -> str:
     """
     FIRST-TIME GOAL SETUP ONLY. Call this once per exercise BEFORE calling
@@ -150,6 +152,7 @@ def calculate_volume_target(
     Returns the computed month_target to use in stage_month_goal's
     volume_targets 
     """
+    target_month = month_id or _current_month_id()
     result = calculate_month_target(
         unit=unit,
         balance_area=balance_area,
@@ -157,7 +160,7 @@ def calculate_volume_target(
         baseline_value=baseline_value,
         sessions_per_week=sessions_per_week,
         sets_per_session=sets_per_session,
-        weeks_in_month=_weeks_in_month(_current_month_id()),
+        weeks_in_month=weeks_in_month(target_month),
     )
     return (
         f"month_target for {exercise}: {result['month_target']} {unit}. "
@@ -166,7 +169,6 @@ def calculate_volume_target(
         f"{result['sets_per_session']} sets x {result['sessions_per_week']} sessions/week "
         f"x {result['weeks_in_month']:.2f} weeks)"
     )
-
 
 
 @tool(args_schema=StageMonthGoalInput)
@@ -178,14 +180,15 @@ def stage_month_goal(
     unit: Optional[str] = None,
     baseline_value: Optional[float] = None,
     volume_targets: Optional[List[VolumeTarget]] = None,
+    month_id: Optional[str] = None,
 ) -> str:
     """Stage a monthly goal. Call once you have enough to propose. Ask user to confirm."""
     collection = get_month_plans_collection()
-    month_id = _current_month_id()
+    target_month = month_id or _current_month_id()
 
-    existing = collection.find_one({"user_id": get_current_user_id(), "month_id": month_id})
+    existing = collection.find_one({"user_id": get_current_user_id(), "month_id": target_month})
     if existing and existing.get("goal", {}).get("status") == "confirmed":
-        return f"Goal already confirmed for {month_id}. Cannot change."
+        return f"Goal already confirmed for {target_month}. Cannot change."
 
     if volume_targets:
         covered = {vt.balance_area for vt in volume_targets}
@@ -213,7 +216,7 @@ def stage_month_goal(
     }
 
     collection.update_one(
-        {"user_id": get_current_user_id(), "month_id": month_id},
+        {"user_id": get_current_user_id(), "month_id": target_month},
         {
             "$set": {"goal": goal, "updated_at": now},
             "$setOnInsert": {"created_at": now, "week_plan_path": []},
@@ -225,21 +228,21 @@ def stage_month_goal(
 
 @tool
 @mongo_guarded
-def confirm_month_goal() -> str:
+def confirm_month_goal(month_id: Optional[str] = None) -> str:
     """Lock staged goal. Call ONLY after explicit user yes."""
     collection = get_month_plans_collection()
-    month_id = _current_month_id()
+    target_month = month_id or _current_month_id()
 
-    existing = collection.find_one({"user_id": get_current_user_id(), "month_id": month_id})
+    existing = collection.find_one({"user_id": get_current_user_id(), "month_id": target_month})
     if not existing or existing.get("goal", {}).get("status") != "pending":
-        return "No staged goal waiting for confirmation."
+        return f"No staged goal waiting for confirmation for {target_month}."
 
     now = datetime.now(ZoneInfo("UTC"))
     collection.update_one(
-        {"user_id": get_current_user_id(), "month_id": month_id},
+        {"user_id": get_current_user_id(), "month_id": target_month},
         {"$set": {"goal.status": "confirmed", "goal.confirmed_at": now, "updated_at": now}},
     )
-    return f"Goal confirmed for {month_id}. Locked for the month."
+    return f"Goal confirmed for {target_month}. Locked for the month."
 
 
 def format_month_plan(doc: Optional[dict]) -> str:
@@ -300,8 +303,8 @@ def get_current_month_plan() -> str:
 
 
 class WeekThemeInput(BaseModel):
-    week_number: int = Field(description="1-4")
-    theme: str = Field(description="e.g. 'Volume'")
+    week_number: int = Field(ge=1, description="1-indexed week number within the month (1 to N where N = total weeks).")
+    theme: WeekThemeEnum = Field(description="Strict theme enum: 'Foundation', 'Volume', 'Intensity', 'Peak', 'Deload'")
 
 
 class UpdateMonthPlanInput(BaseModel):
