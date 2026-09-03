@@ -9,9 +9,8 @@ import streamlit as st
 import streamlit_antd_components as sac
 
 from db.mongo_client import get_plans_collection, get_month_plans_collection
-from tools.plans import LOCAL_TZ
+from utils.calendar_weeks import LOCAL_TZ, current_month_id
 from tools.progress import calculate_progress
-from tools.month_plans import _current_month_id
 from tools.week_plans import _find_week_doc_for_date
 from auth.context import get_current_user_id
 
@@ -66,7 +65,7 @@ def render_progress_dashboard():
 
 def render_month_goal():
     collection = get_month_plans_collection()
-    doc = collection.find_one({"user_id": get_current_user_id(), "month_id": _current_month_id()})
+    doc = collection.find_one({"user_id": get_current_user_id(), "month_id": current_month_id()})
 
     with st.container(border=True):
         st.markdown("### 🎯 Monthly Goal")
@@ -112,6 +111,10 @@ def render_month_goal():
             )
             st.caption(theme_text)
 
+            source = doc.get("theme_path_source")
+            if source and source != "llm":
+                st.warning("⚠️ Week themes were set by default (LLM failed). Click **Set Week Themes** to regenerate.")
+
 
 def render_week_plan():
     today_str = datetime.now(LOCAL_TZ).date().strftime("%Y-%m-%d")
@@ -140,11 +143,12 @@ def render_week_plan():
             if daily_volume_targets and daily_volume_targets[0].get("targets"):
                 st.markdown("**Weekly Volume Targets**")
                 first_day_targets = daily_volume_targets[0].get("targets") or []
+                sessions_approx = max(1, round(4 * len(daily_volume_targets) / 7))
                 for vt in first_day_targets:
                     exercise = vt.get("exercise", "?")
                     unit = vt.get("unit", "")
                     daily_t = vt.get("daily_target", 0)
-                    st.caption(f"• {exercise}: {daily_t * 4} {unit} (approx)")
+                    st.caption(f"• {exercise}: {daily_t * sessions_approx} {unit} (approx)")
             else:
                 st.caption("No weekly targets defined.")
 
