@@ -3,12 +3,11 @@ The agent graph itself.
 """
 
 import os
+import logging
 from datetime import datetime, timedelta
-from zoneinfo import ZoneInfo
 
 from langgraph.graph import StateGraph, START, END
 from langgraph.prebuilt import ToolNode, tools_condition
-from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_core.messages import SystemMessage, AIMessage
 from langfuse.langchain import CallbackHandler
 from pymongo import MongoClient
@@ -39,14 +38,13 @@ from tools.month_plans import (
     get_previous_month_review_context
 )
 from agent.monthly_review import refresh_week_themes
+from utils.calendar_weeks import LOCAL_TZ
 
-
+logger = logging.getLogger(__name__)
 
 GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY_2")
 MONGO_URI = os.environ.get("MONGO_URI")
 MONGO_DB_NAME = os.environ.get("MONGO_DB_NAME")
-
-LOCAL_TZ = ZoneInfo("Africa/Addis_Ababa")
 
 langfuse_handler = CallbackHandler()
 
@@ -118,9 +116,10 @@ def goal_context_node(state: CoachState) -> dict:
     if state.get("goal_context_checked"):
         return {}
 
+    today_str = datetime.now(LOCAL_TZ).date().strftime("%Y-%m-%d")
     tomorrow = (datetime.now(LOCAL_TZ) + timedelta(days=1)).strftime("%Y-%m-%d")
     goal_summary = get_current_goal_summary()
-    week_focus = get_week_focus_for_date(tomorrow)
+    week_focus = get_week_focus_for_date(today_str) or get_week_focus_for_date(tomorrow)
     prev_review = get_previous_month_review_context()
 
     parts = []
