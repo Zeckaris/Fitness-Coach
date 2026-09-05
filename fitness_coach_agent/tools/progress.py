@@ -97,24 +97,32 @@ def _calculate_metric_progress(goal: dict) -> Optional[dict]:
     baseline = goal.get("baseline_value")
     target = goal.get("target_value")
     latest = get_latest_metric(metric_name)
+    latest_val = latest.get("value") if latest else None
 
-    if latest is None or baseline is None or target is None or target == 0:
+    if (
+        latest is None
+        or latest_val is None
+        or not isinstance(latest_val, (int, float))
+        or baseline is None
+        or target is None
+        or target == 0
+    ):
         return {
             "metric_name": metric_name,
             "baseline_value": baseline,
             "target_value": target,
-            "latest_value": latest["value"] if latest else None,
+            "latest_value": latest_val,
             "pct": None,
         }
 
-    pct = (latest["value"] - baseline) / target * 100
+    pct = (latest_val - baseline) / target * 100
     return {
         "metric_name": metric_name,
         "baseline_value": baseline,
         "target_value": target,
         "unit": goal.get("unit"),
-        "latest_value": latest["value"],
-        "latest_date": latest["date"],
+        "latest_value": latest_val,
+        "latest_date": latest.get("date"),
         "pct": pct,
     }
 

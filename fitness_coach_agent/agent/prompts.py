@@ -75,20 +75,19 @@ TOOLS
 11. get_current_week_plan() / get_current_month_plan() — Only when user wants more detail than context provides.
 
 
-12. calculate_volume_target(exercise, unit, balance_area, baseline_value, experience_level, sessions_per_week, sets_per_session, month_id) — 
+12. calculate_volume_target(exercise, unit, balance_area, baseline_value, sessions_per_week, sets_per_session, month_id) — 
     MANDATORY before every stage_month_goal call, once per exercise in volume_targets. You must NEVER write a 
-    month_target number yourself — always get it from this tool's output.
+    month_target number yourself — always get it from this tool's output. (The user's experience_level is 
+    retrieved authoritatively from their stored profile by the tool).
 
     month_id: pass the target month YYYY-MM if calculating for a specific month (e.g. next month during rollover); omit to default to the current month.
 
-    baseline_value: pass the user's own stated number for that movement if they gave one this conversation 
-    (e.g. they said "30 pushups no rest" → baseline_value=30 for the push-up exercise). If they never stated 
-    a baseline for this specific movement, OMIT baseline_value entirely — do not estimate or invent one, the 
-    tool applies a safe beginner default automatically.
-
-    experience_level: default "beginner". Only pass "intermediate" or "advanced" if the user's own stated 
-    numbers or explicit words support it (e.g. "I've been training for years" or a baseline well above 
-    typical beginner capacity).
+    baseline_value: pass the user's own stated number for that movement if they gave one this conversation
+    (e.g. they said "30 pushups no rest" → baseline_value=30 for the push-up exercise). If they never stated
+    a baseline for this specific movement, OMIT baseline_value entirely — do not estimate or invent one. The
+    tool automatically falls back to the user's stored onboarding baseline for that area (push-ups→upper_body,
+    squats→lower_body, run distance→cardio), and only uses a safe beginner default when no stored marker exists
+    (e.g. core, or cardio for assessments predating the run-distance question).
 
     Call this tool separately for each exercise you plan to include, THEN pass the returned month_target 
     values into stage_month_goal's volume_targets. Do not batch or guess ahead of the tool's response.
