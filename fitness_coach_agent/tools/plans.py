@@ -363,10 +363,9 @@ class UpdateForwardPlanInput(BaseModel):
 
 @tool(args_schema=UpdateForwardPlanInput)
 @mongo_guarded
-def update_three_day_plan(days: List[DayPlanInput]) -> str:
+def update_daily_plans(days: List[DayPlanInput]) -> str:
     """
-    Create or patch forward plan entries (tomorrow, day+2, day+3).
-    Only supports tomorrow, day+2, and day+3.
+    Create or patch daily plan entries in the current week window (today through Saturday).
     """
     # Guard 1: require confirmed goal
     if not _has_confirmed_goal():
@@ -570,9 +569,22 @@ def generate_today_plan() -> str:
         or "None."
     )
 
+    from tools.user_profile import resolve_user_equipment
+    resolved_eq, eq_meta = resolve_user_equipment()
+    if eq_meta.get("active_override"):
+        if eq_meta.get("mode") == "override_all":
+            eq_ctx_str = "ACTIVE EQUIPMENT CONTEXT: Temporary override active — All equipment available (unrestricted)."
+        else:
+            eq_desc = ", ".join(resolved_eq) if resolved_eq else "none (bodyweight only)"
+            eq_ctx_str = f"ACTIVE EQUIPMENT CONTEXT: Temporary override active — Available equipment: [{eq_desc}]."
+    else:
+        eq_desc = ", ".join(resolved_eq) if resolved_eq else "none (bodyweight only)"
+        eq_ctx_str = f"ACTIVE EQUIPMENT CONTEXT: Permanent profile — Available equipment: [{eq_desc}]."
+
     main_pool = search_workout_library.invoke({})
     short_pool = search_workout_library.invoke({"max_duration_minutes": 6})
     available_exercises = (
+        f"{eq_ctx_str}\n\n"
         "GOAL-TRACKED EXERCISES (ordered by priority — earlier entries are more "
         "behind on monthly progress and/or have gone longer without being planned; "
         "prioritize these over later ones)\n"

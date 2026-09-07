@@ -1,6 +1,9 @@
 .env
 /data/documents
 /fitness_coach_agent/rag/preprocessor.py
+fitness_coach_agent/tests/test_baseline_level.py
+fitness_coach_agent/tests/test_onboarding_and_persistence.py
+fitness_coach_agent/tests/test_wiring_and_targets.py
 # Python
 __pycache__/
 *.pyc

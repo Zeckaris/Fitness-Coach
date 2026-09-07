@@ -13,8 +13,16 @@ from db.mongo_client import get_month_plans_collection
 from db.guards import mongo_guarded
 from auth.context import get_current_user_id
 from typing import List, Optional, Literal, Tuple
-from utils.baseline_targets import calculate_month_target, BEGINNER_BASELINE_BY_AREA, WeekThemeEnum
+from utils.baseline_targets import (
+    calculate_month_target,
+    BEGINNER_BASELINE_BY_AREA,
+    BEGINNER_BASELINE_CARDIO_REPS,
+    WeekThemeEnum,
+    baseline_value_from_markers,
+)
 from utils.calendar_weeks import weeks_in_month, current_month_id
+from tools.user_profile import get_user_profile
+from tools.baseline_assessment import get_latest_baseline_assessment
 
 LOCAL_TZ = ZoneInfo("Africa/Addis_Ababa")
 
@@ -35,6 +43,27 @@ _WORKOUTS = (
 )
 
 _VALID_EXERCISE_NAMES = {w["name"] for w in _WORKOUTS}
+_WORKOUTS_BY_NAME = {w["name"]: w for w in _WORKOUTS}
+
+# Units that represent continuous distance cardio (e.g. running), where the
+# onboarding run_distance_km marker is a valid baseline. Any other unit
+# (reps, seconds, reps_per_side, ...) means the exercise is rep/time based and
+# must NOT be seeded from a running-distance marker.
+_DISTANCE_UNITS = {"km", "mi", "m"}
+
+
+def _exercise_unit(exercise: str, fallback_unit: str) -> str:
+    """Return the exercise's canonical unit from the workout library, falling
+    back to the caller-supplied unit when the exercise isn't in the library
+    (e.g. distance-based 'Continuous Run' is not stored in workouts.json)."""
+    workout = _WORKOUTS_BY_NAME.get(exercise)
+    unit = (workout or {}).get("baseline", {}).get("unit")
+    return unit if unit else fallback_unit
+
+
+def _is_distance_unit(unit: str) -> bool:
+    """True if the unit represents continuous distance (km/mi/m)."""
+    return unit in _DISTANCE_UNITS
 
 
 def _previous_month_id() -> str:
@@ -78,6 +107,11 @@ class VolumeTarget(BaseModel):
                 f"Call search_workout_library to find valid exercises. "
                 f"Examples: {valid_list}"
             )
+        # The workout library is the single source of truth for the unit of a
+        # stored volume target. Whatever unit the LLM passed in is overwritten
+        # by the exercise's canonical unit so the saved/displayed target is
+        # never mislabelled (e.g. Jump Rope must be 'reps', never 'seconds').
+        self.unit = _exercise_unit(self.exercise, self.unit)
         if self.unit in ("km", "mi", "m") and self.balance_area != "cardio":
             raise ValueError(
                 f"Continuous unit '{self.unit}' can only be used with balance_area='cardio'. "
@@ -119,10 +153,9 @@ class CalculateVolumeTargetInput(BaseModel):
         "if the user never stated a baseline for this movement — do NOT guess a number; "
         "a conservative beginner default will be used automatically.",
     )
-    experience_level: Literal["beginner", "intermediate", "advanced"] = Field(
-        default="beginner",
-        description="Only set to intermediate/advanced if the user's own baseline numbers "
-        "or explicit statement support it. Default beginner.",
+    experience_level: Optional[Literal["beginner", "intermediate", "advanced"]] = Field(
+        default=None,
+        description="Deprecated/ignored: experience_level is now read authoritatively from the stored user profile.",
     )
     sessions_per_week: int = Field(default=4, description="Training sessions per week for this exercise.")
     sets_per_session: Optional[int] = Field(
@@ -139,7 +172,7 @@ def calculate_volume_target(
     unit: str,
     balance_area: Literal["upper_body", "lower_body", "core", "cardio"],
     baseline_value: Optional[float] = None,
-    experience_level: Literal["beginner", "intermediate", "advanced"] = "beginner",
+    experience_level: Optional[Literal["beginner", "intermediate", "advanced"]] = None,
     sessions_per_week: int = 4,
     sets_per_session: Optional[int] = None,
     month_id: Optional[str] = None,
@@ -150,21 +183,70 @@ def calculate_volume_target(
     user's stated baseline for this movement if they gave one; omit
     baseline_value if they didn't (a beginner default will be used).
     Returns the computed month_target to use in stage_month_goal's
-    volume_targets 
+    volume_targets.
     """
     target_month = month_id or _current_month_id()
+
+    # Single source of truth for the unit: the exercise's canonical unit in the
+    # workout library. Whatever unit the LLM passed in is only used as a
+    # fallback when the exercise is absent from the library (it still feeds
+    # the rest of the calculation AND the final label in that rare case).
+    resolved_unit = _exercise_unit(exercise, unit)
+
+    # Authoritative source: read experience_level directly from stored user_profile
+    profile = get_user_profile()
+    stored_exp = profile.get("experience_level") if profile else None
+    if not stored_exp:
+        raise RuntimeError(
+            "No stored experience_level found in user profile. User must complete onboarding baseline assessment first."
+        )
+
+    # Baseline resolution order:
+    #   1. baseline_value explicitly passed by the LLM (user stated it this turn)
+    #   2. the user's stored onboarding baseline marker for this area
+    #   3. the conservative beginner default (handled inside calculate_month_target
+    #      when baseline_value is None)
+    resolved_baseline = baseline_value
+    # Cardio is the only area whose onboarding marker (run_distance_km) is a
+    # running *distance*, so the marker path only applies to distance-based
+    # cardio exercises (unit km/mi/m). All other areas, incl. rep/time-based
+    # cardio, skip this marker path and use a beginner default instead.
+    use_stored_marker = balance_area != "cardio" or _is_distance_unit(
+        resolved_unit
+    )
+    if resolved_baseline is None and use_stored_marker:
+        assessment = get_latest_baseline_assessment()
+        raw_markers = (assessment or {}).get("answers", {}).get("raw_markers")
+        resolved_baseline = baseline_value_from_markers(raw_markers, balance_area)
+
+    # Rep/time-based cardio (e.g. Mountain Climber) must not be seeded from the
+    # distance marker nor from the distance beginner default (1.5 km). It gets
+    # the dedicated rep-based cardio default instead.
+    default_baseline = None
+    if balance_area == "cardio" and not use_stored_marker:
+        default_baseline = BEGINNER_BASELINE_CARDIO_REPS
+
     result = calculate_month_target(
-        unit=unit,
+        unit=resolved_unit,
         balance_area=balance_area,
-        experience_level=experience_level,
-        baseline_value=baseline_value,
+        experience_level=stored_exp,
+        baseline_value=resolved_baseline,
         sessions_per_week=sessions_per_week,
         sets_per_session=sets_per_session,
         weeks_in_month=weeks_in_month(target_month),
+        default_baseline=default_baseline,
     )
+
+    # Distinguish the stored-onboarding source from an LLM-provided one so the
+    # output is honest about where the baseline came from.
+    baseline_source = result["baseline_source"]
+    if baseline_source == "provided" and baseline_value is None:
+        baseline_source = "stored_baseline"
+
     return (
-        f"month_target for {exercise}: {result['month_target']} {unit}. "
-        f"(baseline used: {result['baseline_used']} [{result['baseline_source']}], "
+        f"month_target for {exercise}: {result['month_target']} {resolved_unit}. "
+        f"(baseline used: {result['baseline_used']} [{baseline_source}], "
+        f"experience: {stored_exp}, "
         f"intensity: {result['intensity_factor']}, "
         f"{result['sets_per_session']} sets x {result['sessions_per_week']} sessions/week "
         f"x {result['weeks_in_month']:.2f} weeks)"

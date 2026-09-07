@@ -22,7 +22,7 @@ from tools.workout_library import search_workout_library
 from tools.knowledge_base import search_fitness_knowledge_base
 from tools.checkins import record_checkin
 from tools.checkin_history import get_recent_checkins, fetch_checkin, yesterday_str
-from tools.plans import update_three_day_plan, generate_today_plan
+from tools.plans import update_daily_plans, generate_today_plan
 from tools.plan_history import get_current_plan, get_past_plans
 from tools.backlog import sync_backlog, get_backlog, mark_backlog_reinserted
 from tools.metrics import log_metric
@@ -37,6 +37,7 @@ from tools.month_plans import (
     calculate_volume_target,
     get_previous_month_review_context
 )
+from tools.user_profile import set_equipment_override
 from agent.monthly_review import refresh_week_themes
 from utils.calendar_weeks import LOCAL_TZ
 
@@ -56,7 +57,7 @@ TOOLS = [
     get_recent_checkins,
     get_current_plan,
     get_past_plans,
-    update_three_day_plan,
+    update_daily_plans,
     get_backlog,
     mark_backlog_reinserted,
     log_metric,
@@ -71,6 +72,7 @@ TOOLS = [
     update_week_plan,
     generate_today_plan,
     refresh_week_themes,
+    set_equipment_override,
 ]
 
 def _coach_llm_factory(api_key: str):

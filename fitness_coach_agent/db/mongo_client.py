@@ -132,6 +132,29 @@ def get_users_collection() -> Collection:
     return db[MONGO_USERS_COLLECTION]
 
 
+MONGO_USER_PROFILE_COLLECTION = os.environ.get("MONGO_USER_PROFILE_COLLECTION", "user_profile")
+def get_user_profile_collection() -> Collection:
+    """
+    Returns the MongoDB collection used to store user profiles.
+    One document per user: {DOB, gender, height, unit_preferences, experience_level}.
+    experience_level is a denormalized mirror of the latest baseline assessment.
+    """
+    client = get_mongo_client()
+    db = client[MONGO_DB_NAME]
+    return db[MONGO_USER_PROFILE_COLLECTION]
+
+
+MONGO_BASELINE_ASSESSMENT_COLLECTION = os.environ.get("MONGO_BASELINE_ASSESSMENT_COLLECTION", "baseline_assessment")
+def get_baseline_assessment_collection() -> Collection:
+    """
+    Returns the MongoDB collection used to store baseline assessments.
+    Append-only, one doc per assessment event.
+    Source of truth for experience_level.
+    """
+    client = get_mongo_client()
+    db = client[MONGO_DB_NAME]
+    return db[MONGO_BASELINE_ASSESSMENT_COLLECTION]
+
 def ensure_email_index() -> None:
     """
     Creates a unique index on email if it doesn't already exist.
@@ -169,3 +192,11 @@ if __name__ == "__main__":
     users = get_users_collection()
     print(f"Connected to MongoDB collection '{users.name}'")
     print(f"Existing user count: {users.count_documents({})}")
+
+    user_profile = get_user_profile_collection()
+    print(f"Connected to MongoDB collection '{user_profile.name}'")
+    print(f"Existing user profile count: {user_profile.count_documents({})}")
+
+    baseline_assessment = get_baseline_assessment_collection()
+    print(f"Connected to MongoDB collection '{baseline_assessment.name}'")
+    print(f"Existing baseline assessment count: {baseline_assessment.count_documents({})}")

@@ -15,6 +15,7 @@ from agent.graph import build_graph
 from db.mongo_client import get_plans_collection
 from agent.monthly_review import run_monthly_review
 from app.components.auth_ui import ensure_logged_in, render_logout_button
+from app.components.onboarding_ui import ensure_onboarded
 from app.components.dashboard_cards import (
     render_progress_dashboard,
     render_month_goal,
@@ -35,6 +36,7 @@ def start_new_conversation():
 
 st.set_page_config(page_title="AI Fitness Coach", page_icon="🏋️", layout="wide")
 ensure_logged_in()
+ensure_onboarded()
 
 if "graph" not in st.session_state:
     st.session_state.graph = build_graph()
