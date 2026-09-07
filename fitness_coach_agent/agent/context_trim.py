@@ -15,7 +15,7 @@ from langchain_core.messages import AIMessage, ToolMessage, HumanMessage
 
 UNTRIMMED_TOOLS = {
     "record_checkin",
-    "update_three_day_plan",
+    "update_daily_plans",
     "update_week_plan",
 }
 

@@ -92,14 +92,14 @@ def format_workout_lines(workouts: List[dict]) -> str:
     return "\n".join(lines)
 
 
+EQUIPMENT_VOCABULARY = [
+    "ab_wheel", "bench", "dumbbells", "kettlebell",
+    "pull_up_bar", "resistance_band", "rope", "stability_ball"
+]
+
+
 class WorkoutQuery(BaseModel):
 
-    equipment: Optional[List[str]] = Field(
-        default=None,
-        description="Equipment available to the user, e.g. ['dumbbells', 'bench']. An exercise "
-        "matches only if all the equipment it requires is in this list (bodyweight-only "
-        "exercises always match regardless). Omit if equipment isn't a constraint.",
-    )
     target_area: Optional[List[TargetArea]] = Field(
         default=None,
         description="Muscle/body areas to target, e.g. ['chest', 'triceps'] for "
@@ -139,14 +139,14 @@ class WorkoutQuery(BaseModel):
     )
 
 
-def _matches(workout: dict, q: WorkoutQuery) -> bool:
+def _matches(workout: dict, q: WorkoutQuery, resolved_equipment: Optional[List[str]] = None) -> bool:
 
-    if q.equipment is not None:
+    if resolved_equipment is not None:
         required = {
             e for e in workout.get("equipment", [])
             if e.strip().lower() not in _NO_EQUIPMENT_TOKENS
         }
-        user_has = {e.strip().lower() for e in q.equipment}
+        user_has = {e.strip().lower() for e in resolved_equipment}
         required_lower = {e.strip().lower() for e in required}
         if not required_lower.issubset(user_has):
             return False
@@ -186,7 +186,6 @@ def _matches(workout: dict, q: WorkoutQuery) -> bool:
 
 @tool(args_schema=WorkoutQuery)
 def search_workout_library(
-    equipment: Optional[List[str]] = None,
     target_area: Optional[List[str]] = None,
     movement_patterns: Optional[List[str]] = None,
     difficulty: Optional[str] = None,
@@ -195,9 +194,8 @@ def search_workout_library(
     avoid_body_parts: Optional[List[str]] = None,
     tags: Optional[List[str]] = None,
 ) -> str:
-    """Search the workout library using structured filters."""
+    """Search the workout library using structured filters. Equipment filtering is performed automatically based on the user's profile and active overrides."""
     query = WorkoutQuery(
-        equipment=equipment,
         target_area=target_area,
         movement_patterns=movement_patterns,
         difficulty=difficulty,
@@ -207,7 +205,10 @@ def search_workout_library(
         tags=tags,
     )
 
-    matches = [w for w in _WORKOUTS if _matches(w, query)]
+    from tools.user_profile import resolve_user_equipment
+    resolved_equipment, _ = resolve_user_equipment()
+
+    matches = [w for w in _WORKOUTS if _matches(w, query, resolved_equipment=resolved_equipment)]
 
     if not matches:
         return "No workouts found matching those filters. Try relaxing a constraint."
@@ -218,9 +219,9 @@ def search_workout_library(
 
 # Quick manual test: python tools/workout_library.py
 if __name__ == "__main__":
-    print(search_workout_library.invoke({"equipment": [], "target_area": ["chest"]}))
+    print(search_workout_library.invoke({"target_area": ["chest"]}))
     print()
-    print(search_workout_library.invoke({"avoid_body_parts": ["shoulder"], "equipment": ["dumbbells"]}))
+    print(search_workout_library.invoke({"avoid_body_parts": ["shoulder"]}))
     print()
     print(search_workout_library.invoke({"max_duration_minutes": 4}))
     print()

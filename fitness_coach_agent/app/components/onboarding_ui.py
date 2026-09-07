@@ -162,14 +162,29 @@ def render_onboarding_screen(is_reassessment: bool = False):
 
         st.divider()
         st.subheader("3. Equipment Access")
-        has_weights = st.checkbox(
-            "I have access to weights (dumbbells, kettlebells, or gym equipment)",
-            value=False,
-            help="If checked, you can provide an optional weighted lift benchmark.",
+        from tools.workout_library import EQUIPMENT_VOCABULARY
+
+        EQUIPMENT_LABELS = {
+            "dumbbells": "Dumbbells",
+            "kettlebell": "Kettlebell",
+            "bench": "Bench",
+            "pull_up_bar": "Pull-up Bar",
+            "resistance_band": "Resistance Band",
+            "ab_wheel": "Ab Wheel",
+            "rope": "Jump Rope",
+            "stability_ball": "Stability Ball",
+        }
+
+        selected_equipment = st.multiselect(
+            "Select all equipment you have access to (leave empty for bodyweight only):",
+            options=EQUIPMENT_VOCABULARY,
+            format_func=lambda x: EQUIPMENT_LABELS.get(x, x),
+            help="Your workout plans will only include exercises matching your available equipment.",
         )
 
+        has_weighted_gear = any(e in selected_equipment for e in ["dumbbells", "kettlebell", "bench"])
         weighted_lift_val = 0.0
-        if has_weights:
+        if has_weighted_gear:
             weighted_lift_val = st.number_input(
                 f"Heaviest 8-rep lift ({weight_unit}) — goblet squat or DB press",
                 min_value=0.0,
@@ -195,10 +210,10 @@ def render_onboarding_screen(is_reassessment: bool = False):
             # Normalize weight and lift to kg for the calculator
             if weight_unit == "lb":
                 weight_kg = weight_val * 0.45359237
-                lift_kg = weighted_lift_val * 0.45359237 if has_weights else None
+                lift_kg = weighted_lift_val * 0.45359237 if has_weighted_gear else None
             else:
                 weight_kg = weight_val
-                lift_kg = weighted_lift_val if has_weights else None
+                lift_kg = weighted_lift_val if has_weighted_gear else None
 
             # Normalize run distance to km (stored alongside the raw value/unit)
             if run_distance_val and run_distance_unit == "mi":
@@ -214,7 +229,7 @@ def render_onboarding_screen(is_reassessment: bool = False):
                 "run": float(run_minutes),
                 "frequency": float(frequency),
             }
-            if has_weights and lift_kg is not None and lift_kg > 0:
+            if has_weighted_gear and lift_kg is not None and lift_kg > 0:
                 markers["weighted_lift"] = float(lift_kg)
 
             # Score using Phase 2 calculator
@@ -240,6 +255,7 @@ def render_onboarding_screen(is_reassessment: bool = False):
                 height_value=float(height_val),
                 height_unit=height_unit,
                 weight_unit_preference=weight_unit,
+                equipment=selected_equipment,
             )
 
             # 2. Record append-only baseline assessment (mirrors experience_level)
@@ -253,7 +269,7 @@ def render_onboarding_screen(is_reassessment: bool = False):
                     "unit": weight_unit,
                     "weight_kg": round(weight_kg, 2),
                 },
-                "has_weights": has_weights,
+                "equipment": selected_equipment,
                 "raw_markers": {
                     "push_ups": push_ups,
                     "squats": squats,
@@ -262,9 +278,9 @@ def render_onboarding_screen(is_reassessment: bool = False):
                     "run_distance_unit": run_distance_unit if run_distance_val else None,
                     "run_distance_km": round(run_distance_km, 2) if run_distance_km else None,
                     "frequency": frequency,
-                    "weighted_lift_val": weighted_lift_val if has_weights else None,
-                    "weighted_lift_unit": weight_unit if has_weights else None,
-                    "weighted_lift_kg": round(lift_kg, 2) if (has_weights and lift_kg) else None,
+                    "weighted_lift_val": weighted_lift_val if has_weighted_gear else None,
+                    "weighted_lift_unit": weight_unit if has_weighted_gear else None,
+                    "weighted_lift_kg": round(lift_kg, 2) if (has_weighted_gear and lift_kg) else None,
                 },
                 "evaluation": evaluation,
             }
