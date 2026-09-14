@@ -29,7 +29,7 @@ from utils.calendar_weeks import get_week_for_date, date_range, weeks_in_month, 
 from tools.month_plans import has_theme_path_for_current_month
 from utils.theme_defaults import default_theme_path
 from agent.monthly_review import build_week_plan_data
-from agent.plan_generation import generate_backfill_days
+from agent.plan_generation import generate_backfill_days, pre_schedule_goal_exercises
 from agent.error_handling import StructuredOutputFailed
 from utils.exercise_ordering import reorder_phase
 from tools.plan_history import get_past_plans
@@ -626,7 +626,14 @@ def generate_today_plan() -> str:
     vt_by_name = {vt["exercise"]: vt for vt in goal_volume_targets}
 
     goal_workouts = get_workouts_by_names(goal_exercise_names)
-    goal_pool_str = format_workout_lines(goal_workouts) if goal_workouts else "None for this goal."
+
+    pre_scheduled_map, goal_by_day_str = pre_schedule_goal_exercises(
+        dates_to_plan=dates_to_plan,
+        goal_exercise_names=goal_exercise_names,
+        goal_workouts=goal_workouts,
+        user_id=get_current_user_id(),
+        week_id=week_id,
+    )
 
     def _target_line(vt: dict) -> str:
         vp = next((p for p in volume_progress if p["exercise"] == vt["exercise"]), {})
@@ -668,10 +675,9 @@ def generate_today_plan() -> str:
     per_day_pools_str = get_per_day_filler_pools(dates_to_plan)
     available_exercises = (
         f"{eq_ctx_str}\n\n"
-        "GOAL-TRACKED EXERCISES (ordered by priority — earlier entries are more "
-        "behind on monthly progress and/or have gone longer without being planned; "
-        "prioritize these over later ones)\n"
-        f"{goal_pool_str}\n\n"
+        "GOAL-TRACKED EXERCISES BY DAY (Pre-scheduled to ensure 100% weekly volume targets are met):\n"
+        "FOR EACH DAY, YOU MUST INCLUDE EXACTLY THE PRE-ASSIGNED GOAL-TRACKED EXERCISES LISTED BELOW IN THAT DAY'S MAIN PHASE (plus any general fillers):\n"
+        f"{goal_by_day_str}\n\n"
         f"MONTHLY VOLUME TARGETS\n{goal_targets_str}\n\n"
         f"GENERAL EXERCISE POOLS BY DAY\n{per_day_pools_str}"
     )
@@ -686,6 +692,8 @@ def generate_today_plan() -> str:
             past_plans_context=past_plans_context,
             knowledge_context=knowledge_context,
             available_exercises=available_exercises,
+            pre_scheduled_map=pre_scheduled_map,
+            goal_workouts=goal_workouts,
         )
     except StructuredOutputFailed:
         return (
