@@ -26,6 +26,16 @@ def _load_workouts() -> list[dict]:
 _WORKOUTS = _load_workouts()
 _WORKOUTS_BY_NAME: dict[str, dict] = {w["name"]: w for w in _WORKOUTS}
 
+
+def get_exercise_metadata(name: str) -> dict | None:
+    """Return the full library record for an exercise by name, or None if not found.
+
+    Used by utils.exercise_ordering to resolve primary_target_area and
+    movement_patterns for rotation-group classification without re-loading
+    workouts.json.
+    """
+    return _WORKOUTS_BY_NAME.get(name)
+
 # Controlled vocabulary, derived from the rebuilt workout library (V9.5).
 TargetArea = Literal[
     "abs", "back", "biceps", "calves", "chest", "forearms",

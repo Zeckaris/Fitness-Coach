@@ -30,6 +30,7 @@ from utils.theme_defaults import default_theme_path
 from agent.monthly_review import build_week_plan_data
 from agent.plan_generation import generate_backfill_days
 from agent.error_handling import StructuredOutputFailed
+from utils.exercise_ordering import reorder_phase
 from tools.plan_history import get_past_plans
 from tools.knowledge_base import search_fitness_knowledge_base
 from tools.workout_library import (
@@ -389,6 +390,10 @@ def update_daily_plans(days: List[DayPlanInput]) -> str:
     updated_dates = []
 
     for day in days:
+        exercises = [e.model_dump() for e in day.exercises] if day.exercises else []
+        if exercises:
+            exercises = reorder_phase(exercises)
+
         set_fields = {
             "user_id": get_current_user_id(),
             "date": day.date,
@@ -396,7 +401,7 @@ def update_daily_plans(days: List[DayPlanInput]) -> str:
             "focus_area": day.focus_area,
             "status": day.status,
             "duration_minutes": day.duration_minutes,
-            "exercises": [e.model_dump() for e in day.exercises] if day.exercises else [],
+            "exercises": exercises,
             "notes": day.notes,
             "avoid_body_parts": day.avoid_body_parts,
             "source_checkin_date": day.source_checkin_date,
