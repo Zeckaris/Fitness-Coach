@@ -178,9 +178,9 @@ For each day, build a complete 3-phase session (warmup 2-4 exercises, main 4-12 
 
 2. MONTHLY VOLUME TARGETS — Reference only; each line gives the monthly target (month_target + unit) and balance_area for the corresponding goal-tracked exercise above. Use these to set per-day target_quantity values for the goal-tracked exercises.
 
-3. GENERAL EXERCISE POOL — Use these to fill out warmup exercises, cooldown exercises, and remaining main-phase variety beyond the goal-tracked exercises above.
+3. GENERAL EXERCISE POOLS BY DAY — These filler pools are listed per date. For each day, draw warmup exercises, cooldown exercises, and remaining main-phase variety beyond the goal-tracked exercises ONLY from that specific day's listed filler pool.
 
-If GOAL-TRACKED EXERCISES says "None for this goal.", skip that requirement entirely and build all phases from the GENERAL EXERCISE POOL.
+If GOAL-TRACKED EXERCISES says "None for this goal.", skip that requirement entirely and build all phases from the GENERAL EXERCISE POOLS BY DAY.
 
 Set duration_minutes by summing the ~X min estimate given for each exercise in {available_exercises} (warmup + main + cooldown combined). Align each day's focus_area with the week's focus above. If a day should be a rest day instead, set status="rest" with an empty exercises list.
 """

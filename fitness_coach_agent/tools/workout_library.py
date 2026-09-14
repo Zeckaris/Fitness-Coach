@@ -227,6 +227,66 @@ def search_workout_library(
     return format_workout_lines(sampled)
 
 
+def get_per_day_filler_pools(dates_to_plan: List[str]) -> str:
+    """Constructs per-day general exercise filler pools formatted as a string.
+
+    Each day's pool excludes the filler exercises sampled for the immediately
+    preceding day (Day N vs Day N-1 exclusion only). Day 1 samples normally;
+    Day 2 excludes Day 1's picks; Day 3 excludes Day 2's picks (Day 1's are
+    eligible again).
+    """
+    from tools.user_profile import resolve_user_equipment
+    resolved_equipment, _ = resolve_user_equipment()
+
+    query_main = WorkoutQuery()
+    query_short = WorkoutQuery(max_duration_minutes=6)
+
+    matches_main = [w for w in _WORKOUTS if _matches(w, query_main, resolved_equipment=resolved_equipment)]
+    matches_short = [w for w in _WORKOUTS if _matches(w, query_short, resolved_equipment=resolved_equipment)]
+
+    prev_day_filler_names: set[str] = set()
+    day_sections = []
+
+    def _sample_candidates(candidates: list[dict], exclude_names: set[str], count: int = 10) -> list[dict]:
+        target_count = min(len(candidates), count)
+        if target_count == 0:
+            return []
+        primary = [w for w in candidates if w["name"] not in exclude_names]
+        if len(primary) >= target_count:
+            return random.sample(primary, target_count)
+        # Take all non-excluded primary candidates, fill remaining from excluded
+        result = list(primary)
+        needed = target_count - len(result)
+        excluded = [w for w in candidates if w["name"] in exclude_names]
+        if excluded and needed > 0:
+            result.extend(random.sample(excluded, min(len(excluded), needed)))
+        return result
+
+    for date_str in dates_to_plan:
+        sampled_main = _sample_candidates(matches_main, prev_day_filler_names, count=10)
+        main_names = {w["name"] for w in sampled_main}
+
+        exclude_for_short = prev_day_filler_names | main_names
+        sampled_short = _sample_candidates(matches_short, exclude_for_short, count=10)
+
+        seen = set()
+        day_workouts = []
+        for w in sampled_main + sampled_short:
+            if w["name"] not in seen:
+                seen.add(w["name"])
+                day_workouts.append(w)
+
+        current_filler_names = {w["name"] for w in day_workouts}
+
+        formatted = format_workout_lines(day_workouts)
+        day_sections.append(f"DAY {date_str} FILLER POOL:\n{formatted}")
+
+        # Update prev_day_filler_names for next iteration (Day N vs N-1 exclusion ONLY)
+        prev_day_filler_names = current_filler_names
+
+    return "\n\n".join(day_sections)
+
+
 # Quick manual test: python tools/workout_library.py
 if __name__ == "__main__":
     print(search_workout_library.invoke({"target_area": ["chest"]}))
@@ -235,4 +295,4 @@ if __name__ == "__main__":
     print()
     print(search_workout_library.invoke({"max_duration_minutes": 4}))
     print()
-    print(search_workout_library.invoke({"target_area": ["chest", "triceps"]}))
+    print(search_workout_library.invoke({"target_area": ["chest", "triceps"]}))

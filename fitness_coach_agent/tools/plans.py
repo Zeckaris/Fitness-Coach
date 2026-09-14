@@ -37,6 +37,7 @@ from tools.workout_library import (
     get_workouts_by_names,
     format_workout_lines,
     search_workout_library,
+    get_per_day_filler_pools,
 )
 from db.mongo_client import get_backlog_collection
 
@@ -586,8 +587,7 @@ def generate_today_plan() -> str:
         eq_desc = ", ".join(resolved_eq) if resolved_eq else "none (bodyweight only)"
         eq_ctx_str = f"ACTIVE EQUIPMENT CONTEXT: Permanent profile — Available equipment: [{eq_desc}]."
 
-    main_pool = search_workout_library.invoke({})
-    short_pool = search_workout_library.invoke({"max_duration_minutes": 6})
+    per_day_pools_str = get_per_day_filler_pools(dates_to_plan)
     available_exercises = (
         f"{eq_ctx_str}\n\n"
         "GOAL-TRACKED EXERCISES (ordered by priority — earlier entries are more "
@@ -595,7 +595,7 @@ def generate_today_plan() -> str:
         "prioritize these over later ones)\n"
         f"{goal_pool_str}\n\n"
         f"MONTHLY VOLUME TARGETS\n{goal_targets_str}\n\n"
-        f"GENERAL EXERCISE POOL\n{main_pool}\n{short_pool}"
+        f"GENERAL EXERCISE POOLS BY DAY\n{per_day_pools_str}"
     )
 
     # Step 3: today + forward window, one combined structured call
