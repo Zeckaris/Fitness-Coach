@@ -172,7 +172,7 @@ def _interleave(
     if len(exercises) <= 1:
         return list(exercises)
 
-    # 1. Map each exercise to its rotation key
+    # 1. Map each exercise to its rotation key and group identity
     ex_keys = [_rotation_key(ex, metadata_lookup) for ex in exercises]
     unique_keys = list(set(ex_keys))
 
@@ -198,32 +198,38 @@ def _interleave(
             if _conflicts_with(k1, k2):
                 union(k1, k2)
 
-    # 3. Group exercises by cluster ID (root key) and sub-bucket (rotation key)
-    clusters: dict[tuple[str, str], dict[tuple[str, str], deque[dict]]] = {}
+    # 3. Group exercises by cluster ID (root key) and sub-bucket (rotation_key, group_identity)
+    clusters: dict[tuple[str, str], dict[tuple[tuple[str, str], str], deque[dict]]] = {}
     for ex in exercises:
         k = _rotation_key(ex, metadata_lookup)
+        group_id = ex.get("set_group_id") or ex.get("name", "unknown")
+        sub_k = (k, group_id)
         root = find(k)
         if root not in clusters:
             clusters[root] = {}
-        if k not in clusters[root]:
-            clusters[root][k] = deque()
-        clusters[root][k].append(ex)
+        if sub_k not in clusters[root]:
+            clusters[root][sub_k] = deque()
+        clusters[root][sub_k].append(ex)
 
     def cluster_size(root_key: tuple[str, str]) -> int:
         return sum(len(q) for q in clusters[root_key].values())
 
-    if len(clusters) == 1:
-        # All exercises belong to a single conflict cluster — nothing can be separated.
+    unique_groups = {ex.get("set_group_id") or ex.get("name") for ex in exercises}
+
+    if len(clusters) == 1 and len(unique_groups) == 1:
+        # All exercises belong to a single conflict cluster and share the exact same set group — nothing can be separated.
         logger.debug(
-            "reorder_phase: all %d exercises belong to single conflict cluster %s, returning as-is.",
+            "reorder_phase: all %d exercises belong to single conflict cluster %s and group %s, returning as-is.",
             len(exercises),
             next(iter(clusters)),
+            next(iter(unique_groups)),
         )
         return list(exercises)
 
     result: list[dict] = []
     cooldown_cluster: Optional[tuple[str, str]] = None
     cooldown_key: Optional[tuple[str, str]] = None
+    cooldown_group_id: Optional[str] = None
 
     while clusters:
         active_clusters = [c for c in clusters if cluster_size(c) > 0]
@@ -245,22 +251,38 @@ def _interleave(
 
         sub_buckets = clusters[chosen_cluster]
 
+        # Prefer sub-buckets whose rotation key doesn't conflict AND group_id isn't on cooldown
         eligible_subs = [
-            k for k, q in sub_buckets.items()
-            if len(q) > 0 and not _conflicts_with(k, cooldown_key)
+            sk for sk, q in sub_buckets.items()
+            if len(q) > 0 and not _conflicts_with(sk[0], cooldown_key) and sk[1] != cooldown_group_id
         ]
 
+        if not eligible_subs:
+            # Secondary option: allow same rotation key, but different group_id
+            eligible_subs = [
+                sk for sk, q in sub_buckets.items()
+                if len(q) > 0 and sk[1] != cooldown_group_id
+            ]
+
+        if not eligible_subs:
+            # Fallback: allow non-conflicting key regardless of group_id
+            eligible_subs = [
+                sk for sk, q in sub_buckets.items()
+                if len(q) > 0 and not _conflicts_with(sk[0], cooldown_key)
+            ]
+
         if eligible_subs:
-            chosen_key = max(eligible_subs, key=lambda k: (len(sub_buckets[k]), k))
+            chosen_key = max(eligible_subs, key=lambda sk: (len(sub_buckets[sk]), sk))
         else:
-            active_subs = [k for k, q in sub_buckets.items() if len(q) > 0]
-            chosen_key = max(active_subs, key=lambda k: (len(sub_buckets[k]), k))
+            active_subs = [sk for sk, q in sub_buckets.items() if len(q) > 0]
+            chosen_key = max(active_subs, key=lambda sk: (len(sub_buckets[sk]), sk))
 
         ex = sub_buckets[chosen_key].popleft()
         result.append(ex)
 
         cooldown_cluster = chosen_cluster
-        cooldown_key = chosen_key
+        cooldown_key = chosen_key[0]
+        cooldown_group_id = chosen_key[1]
 
         if len(sub_buckets[chosen_key]) == 0:
             del sub_buckets[chosen_key]

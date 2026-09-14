@@ -2,6 +2,7 @@
 
 import json
 import os
+import uuid
 from datetime import datetime, timedelta
 from zoneinfo import ZoneInfo
 from typing import List, Optional, Literal
@@ -132,6 +133,10 @@ class ExercisePlanItem(BaseModel):
         "exercises (e.g. '20 min mobility'). Always False at creation - "
         "filled in later via the Streamlit UI, never set by this tool.",
     )
+    set_group_id: Optional[str] = Field(
+        default=None,
+        description="Group ID linking split set entries of the same exercise within a session.",
+    )
 
     @model_validator(mode="after")
     def _validate_unit_pairing(self):
@@ -151,6 +156,72 @@ class ExercisePlanItem(BaseModel):
                 f"Examples: {valid_list}"
             )
         return self
+
+
+MAX_CONSECUTIVE_SETS = 2
+
+
+def split_exercise_sets(exercises: list[dict], max_consecutive_sets: int = MAX_CONSECUTIVE_SETS) -> list[dict]:
+    """
+    Post-dosing transform that splits any main-phase exercise exceeding max_consecutive_sets
+    into multiple list entries with a shared set_group_id.
+    Total prescribed volume (target_quantity, sets) is computed at the parent level before
+    splitting — split entries divide that total proportionally.
+    """
+    if not exercises:
+        return []
+
+    result = []
+    for ex in exercises:
+        item = dict(ex)
+        cat = item.get("category", "main")
+        sets = item.get("sets")
+
+        if cat != "main" or not sets or sets <= max_consecutive_sets:
+            result.append(item)
+            continue
+
+        # Split main-phase exercise with sets > max_consecutive_sets
+        group_id = item.get("set_group_id") or f"sg_{uuid.uuid4().hex[:8]}"
+
+        chunk_sets = []
+        rem = sets
+        while rem > 0:
+            c = min(rem, max_consecutive_sets)
+            chunk_sets.append(c)
+            rem -= c
+
+        num_chunks = len(chunk_sets)
+        parent_target = item.get("target_quantity")
+        parent_duration = item.get("duration_minutes")
+
+        target_remaining = parent_target
+        duration_remaining = parent_duration
+
+        for i, c_sets in enumerate(chunk_sets):
+            split_item = dict(item)
+            split_item["sets"] = c_sets
+            split_item["set_group_id"] = group_id
+
+            if parent_target is not None:
+                if i == num_chunks - 1:
+                    split_item["target_quantity"] = max(0, target_remaining)
+                else:
+                    portion = int(round(parent_target * (c_sets / sets)))
+                    split_item["target_quantity"] = portion
+                    target_remaining -= portion
+
+            if parent_duration is not None:
+                if i == num_chunks - 1:
+                    split_item["duration_minutes"] = max(1, duration_remaining)
+                else:
+                    portion = int(round(parent_duration * (c_sets / sets)))
+                    split_item["duration_minutes"] = portion
+                    duration_remaining -= portion
+
+            result.append(split_item)
+
+    return result
 
 
 class DayPlanInput(BaseModel):
@@ -231,13 +302,16 @@ class DayPlanInput(BaseModel):
             daily_targets = get_daily_volume_targets_for_date(self.date) or []
             target_map = {dt["exercise"]: dt for dt in daily_targets}
             week_focus = get_week_focus_for_date(self.date)
+            seen_targets = set()
             for ex in self.exercises:
-                if ex.name in target_map:
+                target_key = ex.set_group_id or ex.name
+                if ex.name in target_map and target_key not in seen_targets:
+                    seen_targets.add(target_key)
                     dt = target_map[ex.name]
-                    if dt.get("daily_target") is not None:
+                    if dt.get("daily_target") is not None and ex.set_group_id is None:
                         ex.target_quantity = int(dt["daily_target"])
                         ex.unit = dt["unit"]
-                if ex.target_quantity is not None:
+                if ex.target_quantity is not None and ex.set_group_id is None:
                     theme_sets, reps_per_set = get_theme_dosing_structure(week_focus, ex.target_quantity)
                     ex.sets = theme_sets
                     if ex.unit in ("seconds", "sec"):
@@ -313,13 +387,16 @@ class BackfillDayPlanInput(BaseModel):
             daily_targets = get_daily_volume_targets_for_date(self.date) or []
             target_map = {dt["exercise"]: dt for dt in daily_targets}
             week_focus = get_week_focus_for_date(self.date)
+            seen_targets = set()
             for ex in self.exercises:
-                if ex.name in target_map:
+                target_key = ex.set_group_id or ex.name
+                if ex.name in target_map and target_key not in seen_targets:
+                    seen_targets.add(target_key)
                     dt = target_map[ex.name]
-                    if dt.get("daily_target") is not None:
+                    if dt.get("daily_target") is not None and ex.set_group_id is None:
                         ex.target_quantity = int(dt["daily_target"])
                         ex.unit = dt["unit"]
-                if ex.target_quantity is not None:
+                if ex.target_quantity is not None and ex.set_group_id is None:
                     theme_sets, reps_per_set = get_theme_dosing_structure(week_focus, ex.target_quantity)
                     ex.sets = theme_sets
                     if ex.unit in ("seconds", "sec"):
@@ -393,6 +470,7 @@ def update_daily_plans(days: List[DayPlanInput]) -> str:
     for day in days:
         exercises = [e.model_dump() for e in day.exercises] if day.exercises else []
         if exercises:
+            exercises = split_exercise_sets(exercises)
             exercises = reorder_phase(exercises)
 
         set_fields = {

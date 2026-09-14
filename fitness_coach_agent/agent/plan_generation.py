@@ -40,7 +40,7 @@ def generate_backfill_days(
     Raises:
         StructuredOutputFailed: If structured output generation fails.
     """
-    from tools.plans import BackfillPlanOutput, ExercisePlanItem
+    from tools.plans import BackfillPlanOutput, ExercisePlanItem, split_exercise_sets
 
     dates_to_plan_str = ", ".join(dates_to_plan)
     num_days = len(dates_to_plan)
@@ -68,15 +68,17 @@ def generate_backfill_days(
         )
         raise
 
-    # Reorder exercises within each day's main phase to prevent consecutive
-    # same-group exercises (same primary_target_area or same movement_family).
+    # Split main-phase exercises exceeding max_consecutive_sets and reorder
+    # exercises within each day's main phase to form circuit rotation.
     # Pydantic validation and dose overrides (sets/reps via get_theme_dosing_structure)
     # have already run inside BackfillDayPlanInput._validate_status_and_phases;
     # we reconstruct ExercisePlanItem objects from the already-validated dicts so
     # those validators do not run a second time and the overrides are preserved.
     for day in result.days:
         if day.exercises:
-            reordered_dicts = reorder_phase([e.model_dump() for e in day.exercises])
+            ex_dicts = [e.model_dump() for e in day.exercises]
+            split_dicts = split_exercise_sets(ex_dicts)
+            reordered_dicts = reorder_phase(split_dicts)
             day.exercises = [ExercisePlanItem.model_construct(**ex) for ex in reordered_dicts]
 
     return result
