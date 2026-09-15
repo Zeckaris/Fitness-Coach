@@ -2,6 +2,7 @@
 
 import json
 import os
+import uuid
 from datetime import datetime, timedelta
 from zoneinfo import ZoneInfo
 from typing import List, Optional, Literal
@@ -28,14 +29,16 @@ from utils.calendar_weeks import get_week_for_date, date_range, weeks_in_month, 
 from tools.month_plans import has_theme_path_for_current_month
 from utils.theme_defaults import default_theme_path
 from agent.monthly_review import build_week_plan_data
-from agent.plan_generation import generate_backfill_days
+from agent.plan_generation import generate_backfill_days, pre_schedule_goal_exercises
 from agent.error_handling import StructuredOutputFailed
+from utils.exercise_ordering import reorder_phase
 from tools.plan_history import get_past_plans
 from tools.knowledge_base import search_fitness_knowledge_base
 from tools.workout_library import (
     get_workouts_by_names,
     format_workout_lines,
     search_workout_library,
+    get_per_day_filler_pools,
 )
 from db.mongo_client import get_backlog_collection
 
@@ -130,6 +133,10 @@ class ExercisePlanItem(BaseModel):
         "exercises (e.g. '20 min mobility'). Always False at creation - "
         "filled in later via the Streamlit UI, never set by this tool.",
     )
+    set_group_id: Optional[str] = Field(
+        default=None,
+        description="Group ID linking split set entries of the same exercise within a session.",
+    )
 
     @model_validator(mode="after")
     def _validate_unit_pairing(self):
@@ -149,6 +156,72 @@ class ExercisePlanItem(BaseModel):
                 f"Examples: {valid_list}"
             )
         return self
+
+
+MAX_CONSECUTIVE_SETS = 2
+
+
+def split_exercise_sets(exercises: list[dict], max_consecutive_sets: int = MAX_CONSECUTIVE_SETS) -> list[dict]:
+    """
+    Post-dosing transform that splits any main-phase exercise exceeding max_consecutive_sets
+    into multiple list entries with a shared set_group_id.
+    Total prescribed volume (target_quantity, sets) is computed at the parent level before
+    splitting — split entries divide that total proportionally.
+    """
+    if not exercises:
+        return []
+
+    result = []
+    for ex in exercises:
+        item = dict(ex)
+        cat = item.get("category", "main")
+        sets = item.get("sets")
+
+        if cat != "main" or not sets or sets <= max_consecutive_sets:
+            result.append(item)
+            continue
+
+        # Split main-phase exercise with sets > max_consecutive_sets
+        group_id = item.get("set_group_id") or f"sg_{uuid.uuid4().hex[:8]}"
+
+        chunk_sets = []
+        rem = sets
+        while rem > 0:
+            c = min(rem, max_consecutive_sets)
+            chunk_sets.append(c)
+            rem -= c
+
+        num_chunks = len(chunk_sets)
+        parent_target = item.get("target_quantity")
+        parent_duration = item.get("duration_minutes")
+
+        target_remaining = parent_target
+        duration_remaining = parent_duration
+
+        for i, c_sets in enumerate(chunk_sets):
+            split_item = dict(item)
+            split_item["sets"] = c_sets
+            split_item["set_group_id"] = group_id
+
+            if parent_target is not None:
+                if i == num_chunks - 1:
+                    split_item["target_quantity"] = max(0, target_remaining)
+                else:
+                    portion = int(round(parent_target * (c_sets / sets)))
+                    split_item["target_quantity"] = portion
+                    target_remaining -= portion
+
+            if parent_duration is not None:
+                if i == num_chunks - 1:
+                    split_item["duration_minutes"] = max(1, duration_remaining)
+                else:
+                    portion = int(round(parent_duration * (c_sets / sets)))
+                    split_item["duration_minutes"] = portion
+                    duration_remaining -= portion
+
+            result.append(split_item)
+
+    return result
 
 
 class DayPlanInput(BaseModel):
@@ -229,13 +302,16 @@ class DayPlanInput(BaseModel):
             daily_targets = get_daily_volume_targets_for_date(self.date) or []
             target_map = {dt["exercise"]: dt for dt in daily_targets}
             week_focus = get_week_focus_for_date(self.date)
+            seen_targets = set()
             for ex in self.exercises:
-                if ex.name in target_map:
+                target_key = ex.set_group_id or ex.name
+                if ex.name in target_map and target_key not in seen_targets:
+                    seen_targets.add(target_key)
                     dt = target_map[ex.name]
-                    if dt.get("daily_target") is not None:
+                    if dt.get("daily_target") is not None and ex.set_group_id is None:
                         ex.target_quantity = int(dt["daily_target"])
                         ex.unit = dt["unit"]
-                if ex.target_quantity is not None:
+                if ex.target_quantity is not None and ex.set_group_id is None:
                     theme_sets, reps_per_set = get_theme_dosing_structure(week_focus, ex.target_quantity)
                     ex.sets = theme_sets
                     if ex.unit in ("seconds", "sec"):
@@ -311,13 +387,16 @@ class BackfillDayPlanInput(BaseModel):
             daily_targets = get_daily_volume_targets_for_date(self.date) or []
             target_map = {dt["exercise"]: dt for dt in daily_targets}
             week_focus = get_week_focus_for_date(self.date)
+            seen_targets = set()
             for ex in self.exercises:
-                if ex.name in target_map:
+                target_key = ex.set_group_id or ex.name
+                if ex.name in target_map and target_key not in seen_targets:
+                    seen_targets.add(target_key)
                     dt = target_map[ex.name]
-                    if dt.get("daily_target") is not None:
+                    if dt.get("daily_target") is not None and ex.set_group_id is None:
                         ex.target_quantity = int(dt["daily_target"])
                         ex.unit = dt["unit"]
-                if ex.target_quantity is not None:
+                if ex.target_quantity is not None and ex.set_group_id is None:
                     theme_sets, reps_per_set = get_theme_dosing_structure(week_focus, ex.target_quantity)
                     ex.sets = theme_sets
                     if ex.unit in ("seconds", "sec"):
@@ -389,6 +468,11 @@ def update_daily_plans(days: List[DayPlanInput]) -> str:
     updated_dates = []
 
     for day in days:
+        exercises = [e.model_dump() for e in day.exercises] if day.exercises else []
+        if exercises:
+            exercises = split_exercise_sets(exercises)
+            exercises = reorder_phase(exercises)
+
         set_fields = {
             "user_id": get_current_user_id(),
             "date": day.date,
@@ -396,7 +480,7 @@ def update_daily_plans(days: List[DayPlanInput]) -> str:
             "focus_area": day.focus_area,
             "status": day.status,
             "duration_minutes": day.duration_minutes,
-            "exercises": [e.model_dump() for e in day.exercises] if day.exercises else [],
+            "exercises": exercises,
             "notes": day.notes,
             "avoid_body_parts": day.avoid_body_parts,
             "source_checkin_date": day.source_checkin_date,
@@ -542,7 +626,14 @@ def generate_today_plan() -> str:
     vt_by_name = {vt["exercise"]: vt for vt in goal_volume_targets}
 
     goal_workouts = get_workouts_by_names(goal_exercise_names)
-    goal_pool_str = format_workout_lines(goal_workouts) if goal_workouts else "None for this goal."
+
+    pre_scheduled_map, goal_by_day_str = pre_schedule_goal_exercises(
+        dates_to_plan=dates_to_plan,
+        goal_exercise_names=goal_exercise_names,
+        goal_workouts=goal_workouts,
+        user_id=get_current_user_id(),
+        week_id=week_id,
+    )
 
     def _target_line(vt: dict) -> str:
         vp = next((p for p in volume_progress if p["exercise"] == vt["exercise"]), {})
@@ -581,16 +672,14 @@ def generate_today_plan() -> str:
         eq_desc = ", ".join(resolved_eq) if resolved_eq else "none (bodyweight only)"
         eq_ctx_str = f"ACTIVE EQUIPMENT CONTEXT: Permanent profile — Available equipment: [{eq_desc}]."
 
-    main_pool = search_workout_library.invoke({})
-    short_pool = search_workout_library.invoke({"max_duration_minutes": 6})
+    per_day_pools_str = get_per_day_filler_pools(dates_to_plan)
     available_exercises = (
         f"{eq_ctx_str}\n\n"
-        "GOAL-TRACKED EXERCISES (ordered by priority — earlier entries are more "
-        "behind on monthly progress and/or have gone longer without being planned; "
-        "prioritize these over later ones)\n"
-        f"{goal_pool_str}\n\n"
+        "GOAL-TRACKED EXERCISES BY DAY (Pre-scheduled to ensure 100% weekly volume targets are met):\n"
+        "FOR EACH DAY, YOU MUST INCLUDE EXACTLY THE PRE-ASSIGNED GOAL-TRACKED EXERCISES LISTED BELOW IN THAT DAY'S MAIN PHASE (plus any general fillers):\n"
+        f"{goal_by_day_str}\n\n"
         f"MONTHLY VOLUME TARGETS\n{goal_targets_str}\n\n"
-        f"GENERAL EXERCISE POOL\n{main_pool}\n{short_pool}"
+        f"GENERAL EXERCISE POOLS BY DAY\n{per_day_pools_str}"
     )
 
     # Step 3: today + forward window, one combined structured call
@@ -603,6 +692,8 @@ def generate_today_plan() -> str:
             past_plans_context=past_plans_context,
             knowledge_context=knowledge_context,
             available_exercises=available_exercises,
+            pre_scheduled_map=pre_scheduled_map,
+            goal_workouts=goal_workouts,
         )
     except StructuredOutputFailed:
         return (

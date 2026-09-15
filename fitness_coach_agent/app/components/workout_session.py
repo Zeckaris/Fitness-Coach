@@ -295,7 +295,14 @@ def render_workout_session():
                 st.caption(description)
 
             if ws["status"] == "exercising" or ws["status"] == "idle":
-                st.markdown(f"**Set {ws['current_set']} of {sets}**")
+                sg_id = ex.get("set_group_id")
+                if sg_id:
+                    total_group_sets = sum(e.get("sets", 0) for e in exercises if e.get("set_group_id") == sg_id)
+                    prior_group_sets = sum(e.get("sets", 0) for i, e in enumerate(exercises) if i < current_idx and e.get("set_group_id") == sg_id)
+                    display_set = prior_group_sets + ws["current_set"]
+                    st.markdown(f"**Set {display_set} of {total_group_sets}** *(Circuit Set {ws['current_set']} of {sets})*")
+                else:
+                    st.markdown(f"**Set {ws['current_set']} of {sets}**")
 
         with col_action:
             is_time_based = duration is not None and ("sec" in str(reps).lower() or "min" in str(reps).lower())
