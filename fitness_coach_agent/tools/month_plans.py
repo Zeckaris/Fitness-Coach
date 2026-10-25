@@ -21,7 +21,7 @@ from utils.baseline_targets import (
     baseline_value_from_markers,
 )
 from utils.calendar_weeks import weeks_in_month, current_month_id
-from tools.user_profile import get_user_profile
+from tools.user_profile import get_user_profile, get_progression_multipliers
 from tools.baseline_assessment import get_latest_baseline_assessment
 
 LOCAL_TZ = ZoneInfo("Africa/Addis_Ababa")
@@ -226,6 +226,19 @@ def calculate_volume_target(
     if balance_area == "cardio" and not use_stored_marker:
         default_baseline = BEGINNER_BASELINE_CARDIO_REPS
 
+    # Deterministic progression multiplier: read from the profile we already
+    # fetched, scoped to this balance area. Defaults to 1.0 for new users /
+    # missing field (lazy migration — no backfill required). Applied inside
+    # calculate_month_target as the final multiplicative factor on the computed
+    # month_target. _calculate_week_targets works from the already-stored
+    # month_target value and never calls calculate_month_target, so there is no
+    # double-apply risk.
+    stored_multipliers = (profile or {}).get("progression_multipliers") or {}
+    try:
+        progression_multiplier = float(stored_multipliers.get(balance_area, 1.0))
+    except (TypeError, ValueError):
+        progression_multiplier = 1.0
+
     result = calculate_month_target(
         unit=resolved_unit,
         balance_area=balance_area,
@@ -235,6 +248,7 @@ def calculate_volume_target(
         sets_per_session=sets_per_session,
         weeks_in_month=weeks_in_month(target_month),
         default_baseline=default_baseline,
+        progression_multiplier=progression_multiplier,
     )
 
     # Distinguish the stored-onboarding source from an LLM-provided one so the
@@ -243,13 +257,18 @@ def calculate_volume_target(
     if baseline_source == "provided" and baseline_value is None:
         baseline_source = "stored_baseline"
 
+    multiplier_note = (
+        f", progression_multiplier: {progression_multiplier:.3g}"
+        if progression_multiplier != 1.0
+        else ""
+    )
     return (
         f"month_target for {exercise}: {result['month_target']} {resolved_unit}. "
         f"(baseline used: {result['baseline_used']} [{baseline_source}], "
         f"experience: {stored_exp}, "
         f"intensity: {result['intensity_factor']}, "
         f"{result['sets_per_session']} sets x {result['sessions_per_week']} sessions/week "
-        f"x {result['weeks_in_month']:.2f} weeks)"
+        f"x {result['weeks_in_month']:.2f} weeks{multiplier_note})"
     )
 
 
@@ -292,6 +311,10 @@ def stage_month_goal(
         "unit": unit,
         "baseline_value": baseline_value,
         "volume_targets": [v.model_dump() for v in volume_targets] if volume_targets else None,
+        # Snapshot the multiplier used to compute these month_targets. The
+        # scheduled rollover applies only the delta between this snapshot and
+        # the latest persisted multipliers, never the cumulative factor twice.
+        "progression_multipliers": get_progression_multipliers(),
         "status": "pending",
         "set_at": now,
         "confirmed_at": None,
