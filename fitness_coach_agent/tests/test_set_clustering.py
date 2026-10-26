@@ -9,6 +9,7 @@ os.environ.setdefault("GEMINI_API_KEY", "dummy_key_for_testing")
 
 from tools.plans import split_exercise_sets, MAX_CONSECUTIVE_SETS
 from utils.exercise_ordering import reorder_phase
+from utils.baseline_targets import get_theme_dosing_structure, THEME_SETS_CONFIG
 
 
 def test_split_exercise_sets_sizing():
@@ -149,10 +150,67 @@ def test_progress_accumulation_summation():
     assert completed_so_far == 50
 
 
+def test_reps_per_side_dosing_under_theme():
+    """
+    Regression test for the reps_per_side dosing bug.
+
+    When a week theme overrides the set count, the reps per set must be
+    recalculated from target_quantity / theme_sets so that
+    sets * reps_per_set == target_quantity.
+
+    Bug scenario (from bug report):
+      - Dead Bug, target=450, Deload theme (2 sets).
+      - Before fix: sets overwritten to 2 but reps kept the LLM's value
+        (150 reps, originally sized for 3 sets) → 2 × 150 = 300, not 450.
+      - After fix: reps recalculated → 2 × 225 = 450. ✓
+    """
+    # Verify get_theme_dosing_structure computes correct reps_per_set for
+    # reps_per_side targets under every configured theme.
+    for theme, expected_sets in THEME_SETS_CONFIG.items():
+        target = 450
+        sets, reps_per_set = get_theme_dosing_structure(theme, target)
+        assert sets == expected_sets, (
+            f"{theme}: expected {expected_sets} sets, got {sets}"
+        )
+        # sets * reps_per_set must equal target (within rounding of 1)
+        assert abs(sets * reps_per_set - target) <= 1, (
+            f"{theme}: {sets} sets × {reps_per_set} reps ≠ {target}"
+        )
+
+    # Specifically reproduce the Deload bug: 2 sets, target 450 → 225 reps each.
+    deload_sets, deload_reps = get_theme_dosing_structure("Deload", 450)
+    assert deload_sets == 2
+    assert deload_reps == 225, (
+        f"Deload reps per set should be 225, got {deload_reps}"
+    )
+
+    # Verify split_exercise_sets correctly preserves total target_quantity
+    # across split chunks when unit is reps_per_side.
+    # 4 sets → split into 2 + 2; each chunk gets half the target.
+    exercises = [
+        {
+            "name": "Dead Bug",
+            "category": "main",
+            "sets": 4,
+            "reps": "112 reps per side",
+            "target_quantity": 450,
+            "unit": "reps_per_side",
+        }
+    ]
+    result = split_exercise_sets(exercises, max_consecutive_sets=2)
+    assert len(result) == 2, "4 sets should split into 2 chunks"
+    assert all(item["sets"] == 2 for item in result)
+    assert sum(item["target_quantity"] for item in result) == 450
+    # All chunks must share the same set_group_id
+    group_ids = {item["set_group_id"] for item in result}
+    assert len(group_ids) == 1
+
+
 if __name__ == "__main__":
     test_split_exercise_sets_sizing()
     test_split_exercise_sets_volume_preservation()
     test_reorder_phase_circuit_rotation()
     test_single_exercise_split_edge_cases()
     test_progress_accumulation_summation()
+    test_reps_per_side_dosing_under_theme()
     print("ALL SET CLUSTERING TESTS PASSED!")
