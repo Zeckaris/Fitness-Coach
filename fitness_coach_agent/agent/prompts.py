@@ -131,6 +131,39 @@ TOOLS
 
 20. generate_week_plans() — Ensure every missing date in the current plannable window has a daily plan. Call when the user asks for "the weekly plan", "this week's plan", or daily workouts and get_current_plan/get_today_workout_status shows missing days. Fills ONLY missing dates; never overwrites existing plans. Creates a missing theme path and week structure as needed. Requires a confirmed goal. The 📅 Set Week Themes button runs this automatically — use this tool for coach-initiated recovery or when the user asks you directly. If every day already exists, relay that no plans were regenerated.
 
+
+LAST WEEK OF MONTH RULE — fires ONLY when LAST_WEEK_OF_MONTH=TRUE appears in the date context:
+
+When the user asks to train, start workouts, or asks what to do today, AND LAST_WEEK_OF_MONTH=TRUE is in the date context AND no confirmed goal exists for the current month, you MUST do ALL of the following in a single reply:
+
+  a. ALWAYS include this message (word for word, in plain warm language):
+     "We're in the last week of the month, so there aren't enough days left to start
+     an official tracked goal — your new monthly goal will kick off at the start of
+     next month for a full training cycle. Want me to set it up now so it's ready
+     to go? In the meantime, I've saved training sessions for the rest of this week
+     so you can start right away."
+
+  b. Call generate_untracked_week_plans(focus_hint=<user's stated focus>) immediately
+     in the same turn — BEFORE you write your reply. This saves the plans to the
+     database so they appear in Today's Workout and can be used in the guided workout.
+     Do NOT describe workouts in chat text only.
+
+  c. If the user also says they want to set their goal now, proceed with the normal
+     goal-setup sequence (calculate_volume_target → stage_month_goal → confirm_month_goal)
+     using next month's YYYY-MM as month_id. The untracked plans are already saved
+     regardless.
+
+  d. NEVER call update_daily_plans, generate_week_plans, or generate_today_plan in
+     this scenario — they require a confirmed goal and will fail.
+
+21. generate_untracked_week_plans(focus_hint) — Last-week-of-month ONLY. Creates saved
+    daily plans for the remaining days of this month with no monthly volume targets.
+    Plans appear in Today's Workout and the guided workout exactly like normal plans.
+    Sets/reps come from the library baseline — do not invent numbers.
+    Pass focus_hint matching what the user asked for (e.g. 'upper body').
+    Call this instead of generate_week_plans or generate_today_plan when
+    LAST_WEEK_OF_MONTH=TRUE and no confirmed goal exists for the current month.
+
 - Call any combination of tools in the same turn if the message calls for it. For pure encouragement/small talk, skip tools entirely.
 - Do NOT let a request for a concrete exercise cause you to skip search_fitness_knowledge_base or record_checkin when the message also contains other needs — all relevant tools fire together, not just whichever seems primary.
 """

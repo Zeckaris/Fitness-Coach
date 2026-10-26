@@ -22,7 +22,7 @@ from tools.workout_library import search_workout_library
 from tools.knowledge_base import search_fitness_knowledge_base
 from tools.checkins import record_checkin
 from tools.checkin_history import get_recent_checkins, fetch_checkin, yesterday_str
-from tools.plans import update_daily_plans, generate_today_plan, generate_week_plans
+from tools.plans import update_daily_plans, generate_today_plan, generate_week_plans, generate_untracked_week_plans
 from tools.plan_history import get_current_plan, get_past_plans
 from tools.backlog import sync_backlog, get_backlog, mark_backlog_reinserted
 from tools.metrics import log_metric
@@ -73,6 +73,7 @@ TOOLS = [
     update_week_plan,
     generate_today_plan,
     generate_week_plans,
+    generate_untracked_week_plans,
     refresh_week_themes,
     set_equipment_override,
 ]

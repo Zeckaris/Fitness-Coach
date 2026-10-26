@@ -849,5 +849,215 @@ generate_week_plans = tool("generate_week_plans")(mongo_guarded(
 ))
 
 
+# ---------------------------------------------------------------------------
+# Last-week-of-month: untracked plan generation
+# ---------------------------------------------------------------------------
+
+def _generate_untracked_plans_for_dates(
+    dates_to_plan: list[str],
+    focus_hint: str = "general",
+) -> str:
+    """Generate and persist goal-free daily plans for the supplied dates.
+
+    Used exclusively during the last calendar week of the month when no
+    confirmed monthly goal exists for the current month. Plans are saved
+    to MongoDB exactly like normal plans so they appear in Today's Workout
+    and can be used in the guided workout screen. The difference from the
+    normal path is:
+
+    - No _has_confirmed_goal() guard.
+    - No volume targets assigned to exercises (target_quantity=None, unit=None).
+    - sets/reps come directly from each exercise's baseline in the workout
+      library; the LLM is not asked to invent numbers.
+    - focus_hint (e.g. "upper body") is threaded through so the LLM uses
+      appropriate exercises from the pool.
+    """
+    from utils.calendar_weeks import get_last_week_info
+    from tools.workout_library import get_per_day_filler_pools
+    from tools.plan_history import get_past_plans
+    from tools.knowledge_base import search_fitness_knowledge_base
+    from tools.backlog import get_backlog
+
+    lw = get_last_week_info()
+    if not lw:
+        return (
+            "ERROR: generate_untracked_week_plans is only available during "
+            "the last calendar week of the month."
+        )
+
+    if not dates_to_plan:
+        return "No dates to plan."
+
+    today = today_local()
+    today_str = today.strftime("%Y-%m-%d")
+
+    # Gather context the same way _generate_plans_for_dates does, but with no
+    # goal-related fields.
+    past_plans_context = get_past_plans.invoke({})
+    backlog_items = get_backlog.invoke({})
+    knowledge_context = search_fitness_knowledge_base.invoke(
+        {"query": f"{focus_hint} training guidance for general fitness"}
+    )
+
+    from tools.user_profile import resolve_user_equipment
+    resolved_eq, eq_meta = resolve_user_equipment()
+    if eq_meta.get("active_override"):
+        if eq_meta.get("mode") == "override_all":
+            eq_ctx_str = "ACTIVE EQUIPMENT CONTEXT: Temporary override active — All equipment available (unrestricted)."
+        else:
+            eq_desc = ", ".join(resolved_eq) if resolved_eq else "none (bodyweight only)"
+            eq_ctx_str = f"ACTIVE EQUIPMENT CONTEXT: Temporary override active — Available equipment: [{eq_desc}]."
+    else:
+        eq_desc = ", ".join(resolved_eq) if resolved_eq else "none (bodyweight only)"
+        eq_ctx_str = f"ACTIVE EQUIPMENT CONTEXT: Permanent profile — Available equipment: [{eq_desc}]."
+
+    per_day_pools_str = get_per_day_filler_pools(dates_to_plan)
+    available_exercises = (
+        f"{eq_ctx_str}\n\n"
+        "GOAL-TRACKED EXERCISES BY DAY: None for this goal.\n\n"
+        f"GENERAL EXERCISE POOLS BY DAY\n{per_day_pools_str}"
+    )
+
+    # Build a profile from the user's experience level to pick the right
+    # default sets/reps from the library.
+    from tools.user_profile import get_user_profile
+    profile = get_user_profile() or {}
+    exp_level = profile.get("experience_level", "beginner")
+
+    untracked_note = (
+        f"\nIMPORTANT — UNTRACKED SESSIONS: These plans have NO monthly volume "
+        f"targets. Do NOT set target_quantity or unit on any exercise. "
+        f"Use each exercise's baseline sets/reps from the library exactly "
+        f"(beginner defaults for a {exp_level} user). "
+        f"Focus hint from the user: {focus_hint}. "
+        f"Provide real variety across days; do not repeat the same exercises "
+        f"on consecutive days."
+    )
+
+    from agent.plan_generation import generate_backfill_days
+    from agent.error_handling import StructuredOutputFailed
+
+    try:
+        result = generate_backfill_days(
+            dates_to_plan=dates_to_plan,
+            goal_description=f"General training with {focus_hint} focus (no monthly target)",
+            week_focus=focus_hint,
+            backlog_items=backlog_items,
+            past_plans_context=past_plans_context,
+            knowledge_context=knowledge_context,
+            available_exercises=available_exercises + untracked_note,
+            pre_scheduled_map=None,
+            goal_workouts=None,
+        )
+    except StructuredOutputFailed:
+        return (
+            "I've noted your focus, but couldn't generate the daily plans right now "
+            "— please ask again in a moment."
+        )
+
+    expected_dates = set(dates_to_plan)
+    returned_dates = {d.date for d in result.days}
+    if returned_dates != expected_dates:
+        return (
+            "Plan generation returned unexpected dates — please ask again in a moment."
+        )
+
+    # Strip any target_quantity / unit the LLM may have added (safety net)
+    for day in result.days:
+        for ex in day.exercises:
+            ex.target_quantity = None
+            ex.unit = None
+
+    # Persist
+    plans_col = get_plans_collection()
+    now = datetime.now(ZoneInfo("UTC"))
+    for day in result.days:
+        exercises = [e.model_dump() for e in day.exercises] if day.exercises else []
+        if exercises:
+            exercises = split_exercise_sets(exercises)
+            exercises = reorder_phase(exercises)
+        set_fields = {
+            "user_id": get_current_user_id(),
+            "date": day.date,
+            "updated_at": now,
+            "focus_area": day.focus_area,
+            "status": day.status,
+            "duration_minutes": day.duration_minutes,
+            "exercises": exercises,
+            "notes": day.notes,
+            "avoid_body_parts": day.avoid_body_parts,
+            "source_checkin_date": day.source_checkin_date,
+            "untracked": True,  # sentinel: no monthly goal for these sessions
+        }
+        plans_col.update_one(
+            {"user_id": get_current_user_id(), "date": day.date},
+            {
+                "$set": set_fields,
+                "$setOnInsert": {"created_at": now},
+            },
+            upsert=True,
+        )
+
+    created_str = ", ".join(dates_to_plan)
+    return (
+        f"Untracked plans created for: {created_str}. "
+        f"These sessions have no monthly targets — sessions and completions are "
+        f"still recorded normally."
+    )
+
+
+def _ensure_untracked_week_plans(focus_hint: str = "general") -> str:
+    """Fill only missing dates in the last-week window with untracked plans."""
+    from utils.calendar_weeks import get_last_week_info
+    lw = get_last_week_info()
+    if not lw:
+        return (
+            "ERROR: generate_untracked_week_plans is only available during "
+            "the last calendar week of the month."
+        )
+
+    today = today_local()
+    dates_to_plan = get_plannable_dates(today)
+    existing_dates = _existing_plan_dates(dates_to_plan)
+    missing_dates = [d for d in dates_to_plan if d not in existing_dates]
+
+    if not missing_dates:
+        return (
+            f"All daily plans already exist for {dates_to_plan[0]} "
+            f"through {dates_to_plan[-1]}. Nothing to generate."
+        )
+
+    return _generate_untracked_plans_for_dates(missing_dates, focus_hint=focus_hint)
+
+
+class GenerateUntrackedWeekPlansInput(BaseModel):
+    focus_hint: str = Field(
+        default="general",
+        description=(
+            "The user's requested training focus for this last-week period, "
+            "e.g. 'upper body', 'full body', 'cardio'. Used to select appropriate "
+            "exercises from the library pools."
+        ),
+    )
+
+
+generate_untracked_week_plans = tool(
+    args_schema=GenerateUntrackedWeekPlansInput,
+)(
+    mongo_guarded(
+        _clear_plan_generation_failure(_ensure_untracked_week_plans)
+    )
+)
+generate_untracked_week_plans.name = "generate_untracked_week_plans"
+generate_untracked_week_plans.description = (
+    "Last-week-of-month ONLY. Creates saved daily plans for the remaining days "
+    "of this month when no confirmed monthly goal exists for the current month. "
+    "Plans appear in Today's Workout and the guided workout screen exactly like "
+    "normal plans. Sessions have no monthly volume targets — they use library "
+    "baseline sets/reps. Fills only missing dates; never overwrites existing plans. "
+    "Pass focus_hint matching what the user asked for (e.g. 'upper body')."
+)
+
+
 if __name__ == "__main__":
     print(generate_today_plan.invoke({}))

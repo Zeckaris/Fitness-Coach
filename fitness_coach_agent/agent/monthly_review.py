@@ -573,6 +573,16 @@ def _refresh_week_themes_impl() -> str:
     if not doc or not doc.get("goal") or doc["goal"].get("status") != "confirmed":
         return "No confirmed goal for this month. Set a goal first."
 
+    # If confirm_month_goal already wrote a Foundation-first path (mid-month
+    # start), preserve it. Re-running the LLM here would replace a correctly
+    # sequenced path with one that may ignore the user's actual start point.
+    if doc.get("theme_path_source") == "foundation_first_on_confirm" and doc.get("week_plan_path"):
+        existing_themes = " → ".join(t["theme"] for t in doc["week_plan_path"])
+        n_weeks = len(doc["week_plan_path"])
+        return (
+            f"Week themes already set for {current_month} ({n_weeks} weeks): "
+            f"{existing_themes} [source: foundation_first_on_confirm]"
+        )
     total_weeks = weeks_in_month(current_month)
     week_descriptors = compute_month_weeks(current_month)
     prev_doc = month_plans.find_one({"user_id": get_current_user_id(), "month_id": _previous_month_id()})

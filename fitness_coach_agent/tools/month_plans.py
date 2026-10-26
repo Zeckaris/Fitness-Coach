@@ -20,7 +20,15 @@ from utils.baseline_targets import (
     WeekThemeEnum,
     baseline_value_from_markers,
 )
-from utils.calendar_weeks import weeks_in_month, current_month_id
+from utils.calendar_weeks import (
+    weeks_in_month,
+    current_month_id,
+    compute_goal_scaling,
+    is_last_week_of_month,
+    today_local,
+    days_in_month,
+    compute_month_weeks,
+)
 from tools.user_profile import get_user_profile, get_progression_multipliers
 from tools.baseline_assessment import get_latest_baseline_assessment
 
@@ -71,6 +79,17 @@ def _previous_month_id() -> str:
     first_day = today.replace(day=1)
     prev_month = first_day - timedelta(days=1)
     return prev_month.strftime("%Y-%m")
+
+
+def _next_month_id(from_month_id: Optional[str] = None) -> str:
+    """Return the YYYY-MM month following from_month_id (default: current month)."""
+    mid = from_month_id or _current_month_id()
+    year, month = map(int, mid.split("-"))
+    month += 1
+    if month > 12:
+        month = 1
+        year += 1
+    return f"{year}-{month:02d}"
 
 
 def get_previous_month_review_context() -> Optional[str]:
@@ -129,7 +148,16 @@ class StageMonthGoalInput(BaseModel):
     volume_targets: Optional[List[VolumeTarget]] = Field(
         default=None, description="List of {exercise, unit, month_target, balance_area}"
     )
-    month_id: Optional[str] = Field(default=None, description="Target month in YYYY-MM format. Defaults to current month.")
+    month_id: Optional[str] = Field(
+        default=None,
+        description=(
+            "Target month in YYYY-MM format. Defaults to current month. "
+            "When the system detects the user is in the last calendar week of the "
+            "current month it automatically redirects the goal to the following month "
+            "so they begin with a full periodized cycle — do not set this manually "
+            "in that case."
+        ),
+    )
 
     @model_validator(mode="after")
     def _validate(self):
@@ -285,7 +313,22 @@ def stage_month_goal(
 ) -> str:
     """Stage a monthly goal. Call once you have enough to propose. Ask user to confirm."""
     collection = get_month_plans_collection()
-    target_month = month_id or _current_month_id()
+
+    # --- Last-week cutoff ---
+    # If the user is in the last calendar week of the current month and has not
+    # explicitly chosen a different month_id, redirect to the next month so
+    # they begin with a full periodized cycle.
+    today = today_local()
+    current_mid = _current_month_id()
+    if month_id is None and is_last_week_of_month(today, current_mid):
+        target_month = _next_month_id(current_mid)
+        redirect_note = (
+            f"NOTE: Because you're in the last week of {current_mid}, your goal has been "
+            f"set for {target_month} so you begin with a full training cycle."
+        )
+    else:
+        target_month = month_id or current_mid
+        redirect_note = None
 
     existing = collection.find_one({"user_id": get_current_user_id(), "month_id": target_month})
     if existing and existing.get("goal", {}).get("status") == "confirmed":
@@ -303,6 +346,43 @@ def stage_month_goal(
                 f"Please add exercises covering these missing areas and try again."
             )
 
+    # --- Mid-month scaling ---
+    # Compute how many days remain in target_month from today (or from the
+    # first of the month if we're staging for a future month).
+    target_month_start_str = f"{target_month}-01"
+    today_str = today.strftime("%Y-%m-%d")
+    if today_str[:7] == target_month:
+        goal_start = today  # mid-month or full-month (day 1 -> scale = 1.0)
+    else:
+        # Staging for a future month: always full month
+        from datetime import date as _date
+        year_t, month_t = map(int, target_month.split("-"))
+        import calendar as _cal
+        goal_start = _date(year_t, month_t, 1)
+
+    scaling = compute_goal_scaling(goal_start, target_month)
+    scale = scaling["scale"]
+    goal_start_date = scaling["goal_start_date"]
+    is_mid_month = scale < 1.0
+
+    # Apply scaling to volume targets; preserve full_month_target for rollover.
+    scaled_volume_targets = None
+    if volume_targets:
+        scaled_volume_targets = []
+        for vt in volume_targets:
+            d = vt.model_dump()
+            full_target = float(d["month_target"])
+            if is_mid_month:
+                # Scale proportionally by active days.
+                if vt.unit in ("km", "mi", "m"):
+                    scaled = round(full_target * scale, 1)
+                else:
+                    scaled = int(round(full_target * scale))
+                d["month_target"] = scaled
+            d["full_month_target"] = full_target  # always stored
+            d["goal_start_date"] = goal_start_date  # always stored
+            scaled_volume_targets.append(d)
+
     now = datetime.now(ZoneInfo("UTC"))
     goal = {
         "description": description,
@@ -310,11 +390,12 @@ def stage_month_goal(
         "target_value": target_value,
         "unit": unit,
         "baseline_value": baseline_value,
-        "volume_targets": [v.model_dump() for v in volume_targets] if volume_targets else None,
+        "volume_targets": scaled_volume_targets,
         # Snapshot the multiplier used to compute these month_targets. The
         # scheduled rollover applies only the delta between this snapshot and
         # the latest persisted multipliers, never the cumulative factor twice.
         "progression_multipliers": get_progression_multipliers(),
+        "goal_start_date": goal_start_date,
         "status": "pending",
         "set_at": now,
         "confirmed_at": None,
@@ -328,7 +409,18 @@ def stage_month_goal(
         },
         upsert=True,
     )
-    return f"Staged: {description}. Ask user to confirm."
+
+    parts = [f"Staged: {description}. Ask user to confirm."]
+    if redirect_note:
+        parts.append(redirect_note)
+    if is_mid_month:
+        parts.append(
+            f"(Mid-month start detected: {scaling['days_remaining']} of "
+            f"{scaling['days_in_month']} days remain in {target_month}. "
+            f"Monthly targets have been scaled to {scale:.0%} of the full-month amount. "
+            f"Full targets are preserved for future month rollover.)"
+        )
+    return " ".join(parts)
 
 
 @tool
@@ -343,12 +435,63 @@ def confirm_month_goal(month_id: Optional[str] = None) -> str:
         return f"No staged goal waiting for confirmation for {target_month}."
 
     now = datetime.now(ZoneInfo("UTC"))
+
+    # Build a Foundation-first theme path sized to actual weeks remaining in the
+    # target month from the goal start date.  For full-month goals (start on day 1
+    # of the month, or goals set for a future month) this equals total_weeks and
+    # produces the same path as before.
+    from utils.theme_defaults import default_theme_path
+    goal = existing.get("goal") or {}
+    goal_start_date_str = goal.get("goal_start_date")
+    total_weeks = weeks_in_month(target_month)
+
+    if goal_start_date_str:
+        from datetime import date as _date
+        goal_start = _date.fromisoformat(goal_start_date_str)
+        # Count weeks that overlap with [goal_start, month_end].
+        all_weeks = compute_month_weeks(target_month)
+        active_weeks = [
+            w for w in all_weeks
+            if _date.fromisoformat(w["end_date"]) >= goal_start
+        ]
+        effective_weeks = len(active_weeks)
+    else:
+        effective_weeks = total_weeks
+
+    # Always Foundation-first, truncated to effective_weeks.
+    theme_path = default_theme_path(effective_weeks)
+    # If mid-month (effective_weeks < total_weeks), renumber so week numbers
+    # match the actual calendar weeks the user will train in.
+    if effective_weeks < total_weeks:
+        all_weeks = compute_month_weeks(target_month)
+        active_weeks = [
+            w for w in all_weeks
+            if goal_start_date_str and
+            _date.fromisoformat(w["end_date"]) >= _date.fromisoformat(goal_start_date_str)
+        ]
+        theme_path = [
+            {"week_number": active_weeks[i]["week_number"], "theme": tp["theme"]}
+            for i, tp in enumerate(theme_path)
+            if i < len(active_weeks)
+        ]
+
     collection.update_one(
         {"user_id": get_current_user_id(), "month_id": target_month},
-        {"$set": {"goal.status": "confirmed", "goal.confirmed_at": now, "updated_at": now}},
+        {
+            "$set": {
+                "goal.status": "confirmed",
+                "goal.confirmed_at": now,
+                "week_plan_path": theme_path,
+                "theme_path_source": "foundation_first_on_confirm",
+                "updated_at": now,
+            }
+        },
     )
-    return f"Goal confirmed for {target_month}. Locked for the month."
-
+    theme_str = " → ".join(t["theme"] for t in theme_path)
+    return (
+        f"Goal confirmed for {target_month}. Locked for the month. "
+        f"Week themes: {theme_str}."
+    )
 
 def format_month_plan(doc: Optional[dict]) -> str:
     if not doc:

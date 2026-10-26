@@ -135,8 +135,15 @@ def build_goal_from_multipliers(
             current_multiplier = _area_multiplier(multipliers, area)
             previous_multiplier = _area_multiplier(previous_snapshot, area)
             ratio = (current_multiplier / previous_multiplier) if previous_multiplier else 1.0
-            new_target = _round_target(float(vt["month_target"]) * ratio, vt.get("unit"))
-            new_volume_targets.append({**vt, "month_target": new_target})
+            # Use full_month_target as the rollover base so that a mid-month
+            # scaled goal never permanently shrinks future months. Legacy goals
+            # without full_month_target fall back to month_target (= full target
+            # for goals that were never scaled, so backward-compatible).
+            base_target = float(vt.get("full_month_target") or vt["month_target"])
+            new_target = _round_target(base_target * ratio, vt.get("unit"))
+            # Strip mid-month fields from the new goal — next month is always full.
+            clean_vt = {k: v for k, v in vt.items() if k not in ("full_month_target", "goal_start_date")}
+            new_volume_targets.append({**clean_vt, "month_target": new_target})
 
     new_metric_name = previous_goal.get("metric_name")
     new_baseline_value = previous_goal.get("baseline_value")
