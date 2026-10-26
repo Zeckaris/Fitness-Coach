@@ -319,6 +319,8 @@ class DayPlanInput(BaseModel):
                         ex.reps = f"{reps_per_set} sec"
                     elif ex.unit in ("reps", "rep"):
                         ex.reps = f"{reps_per_set} reps"
+                    elif ex.unit == "reps_per_side":
+                        ex.reps = f"{reps_per_set} reps per side"
                     elif ex.unit in ("km", "m", "mi"):
                         ex.reps = f"{ex.target_quantity} {ex.unit}"
 
@@ -404,6 +406,8 @@ class BackfillDayPlanInput(BaseModel):
                         ex.reps = f"{reps_per_set} sec"
                     elif ex.unit in ("reps", "rep"):
                         ex.reps = f"{reps_per_set} reps"
+                    elif ex.unit == "reps_per_side":
+                        ex.reps = f"{reps_per_set} reps per side"
                     elif ex.unit in ("km", "m", "mi"):
                         ex.reps = f"{ex.target_quantity} {ex.unit}"
 
