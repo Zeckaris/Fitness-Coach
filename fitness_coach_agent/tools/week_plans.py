@@ -14,6 +14,7 @@ from utils.calendar_weeks import (
     month_id_for_date,
     current_month_id,
     date_range,
+    today_local,
 )
 
 from langchain_core.tools import tool
@@ -22,9 +23,6 @@ from pydantic import BaseModel, Field
 from db.mongo_client import get_week_plans_collection, get_month_plans_collection
 from db.guards import mongo_guarded, MONGO_FALLBACK_MESSAGE
 from auth.context import get_current_user_id
-
-LOCAL_TZ = ZoneInfo("Africa/Addis_Ababa")
-
 
 # ---------------------------------------------------------------------------
 # Thin shims for backwards-compatibility with callers inside this module.
@@ -223,7 +221,7 @@ def format_week_plan(doc: Optional[dict]) -> str:
 @mongo_guarded
 def get_current_week_plan() -> str:
     """Current week block structure. Use when user asks for week detail beyond context."""
-    today_str = datetime.now(LOCAL_TZ).date().strftime("%Y-%m-%d")
+    today_str = today_local().strftime("%Y-%m-%d")
     doc = _find_week_doc_for_date(today_str)
     return format_week_plan(doc)
 
@@ -282,7 +280,8 @@ def save_week_plan(
         if not week_plan_path:
             return (
                 "ERROR: Week themes have not been set yet. "
-                'Click the "📅 Set Week Themes" button in the app first, then ask me to generate your weekly plan.'
+                'Click "📅 Set Week Themes" to save themes and build any missing '
+                "daily plans, or call generate_week_plans."
             )
 
     collection = get_week_plans_collection()
@@ -315,7 +314,7 @@ def update_week_plan(
 
     Volume targets and focus are computed deterministically from the confirmed
     month goal and the stored week theme — the LLM must NOT supply these numbers.
-    Only week_id (Sunday YYYY-MM-DD) and an optional rationale are needed.
+    Only week_id (the week's start date, YYYY-MM-DD) and an optional rationale are needed.
     """
     # Derive month from the week's own start date — not from today's clock.
     month_id = month_id_for_date(week_id)
@@ -331,7 +330,8 @@ def update_week_plan(
     if not week_plan_path:
         return (
             "ERROR: Week themes have not been set yet. "
-            'Click the "📅 Set Week Themes" button in the app first.'
+            'Click "📅 Set Week Themes" to save themes and fill missing plans, '
+            "or call generate_week_plans."
         )
 
     month_goal = (

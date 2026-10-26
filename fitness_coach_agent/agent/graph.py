@@ -4,10 +4,10 @@ The agent graph itself.
 
 import os
 import logging
-from datetime import datetime, timedelta
 
 from langgraph.graph import StateGraph, START, END
 from langgraph.prebuilt import ToolNode, tools_condition
+from langgraph.prebuilt.tool_node import ToolInvocationError
 from langchain_core.messages import SystemMessage, AIMessage
 from langfuse.langchain import CallbackHandler
 from pymongo import MongoClient
@@ -17,12 +17,12 @@ from agent.context_trim import trim
 from agent.state import CoachState
 from agent.prompts import SYSTEM_PROMPT
 from agent.llm import build_coach_llm
-from agent.error_handling import call_llm_with_retry, LLMCallFailed
+from agent.error_handling import call_llm_with_retry, LLMCallFailed, ToolExecutionError
 from tools.workout_library import search_workout_library
 from tools.knowledge_base import search_fitness_knowledge_base
 from tools.checkins import record_checkin
 from tools.checkin_history import get_recent_checkins, fetch_checkin, yesterday_str
-from tools.plans import update_daily_plans, generate_today_plan
+from tools.plans import update_daily_plans, generate_today_plan, generate_week_plans, generate_untracked_week_plans
 from tools.plan_history import get_current_plan, get_past_plans
 from tools.backlog import sync_backlog, get_backlog, mark_backlog_reinserted
 from tools.metrics import log_metric
@@ -39,7 +39,8 @@ from tools.month_plans import (
 )
 from tools.user_profile import set_equipment_override
 from agent.monthly_review import refresh_week_themes
-from utils.calendar_weeks import LOCAL_TZ
+from agent.week_setup import format_week_setup_context
+from utils.calendar_weeks import format_coach_date_context, get_plannable_window
 
 logger = logging.getLogger(__name__)
 
@@ -71,6 +72,8 @@ TOOLS = [
     confirm_month_goal,
     update_week_plan,
     generate_today_plan,
+    generate_week_plans,
+    generate_untracked_week_plans,
     refresh_week_themes,
     set_equipment_override,
 ]
@@ -118,10 +121,9 @@ def goal_context_node(state: CoachState) -> dict:
     if state.get("goal_context_checked"):
         return {}
 
-    today_str = datetime.now(LOCAL_TZ).date().strftime("%Y-%m-%d")
-    tomorrow = (datetime.now(LOCAL_TZ) + timedelta(days=1)).strftime("%Y-%m-%d")
+    today_str = get_plannable_window()["today"]
     goal_summary = get_current_goal_summary()
-    week_focus = get_week_focus_for_date(today_str) or get_week_focus_for_date(tomorrow)
+    week_focus = get_week_focus_for_date(today_str)
     prev_review = get_previous_month_review_context()
 
     parts = []
@@ -149,6 +151,9 @@ def coach_node(state: CoachState) -> dict:
     if goal_context:
         system_content += f"\n\n{goal_context}"
 
+    system_content += f"\n\n{format_coach_date_context()}"
+    system_content += f"\n\n{format_week_setup_context()}"
+
     messages = [SystemMessage(content=system_content)] + trim(state["messages"])
 
     try:
@@ -160,6 +165,14 @@ def coach_node(state: CoachState) -> dict:
 
     return {"messages": [response]}
 
+
+
+def _handle_tool_errors(exc: Exception) -> str:
+    if isinstance(exc, ToolExecutionError):
+        return exc.user_message
+    if isinstance(exc, ToolInvocationError):
+        return exc.message
+    raise exc
 
 
 def build_graph():
@@ -177,7 +190,7 @@ def build_graph():
     workflow.add_node("backlog_sync_node", backlog_sync_node)
     workflow.add_node("goal_context_node", goal_context_node)
     workflow.add_node("coach_node", coach_node)
-    workflow.add_node("tools", ToolNode(TOOLS))
+    workflow.add_node("tools", ToolNode(TOOLS, handle_tool_errors=_handle_tool_errors))
     #add edges
     workflow.add_edge(START, "history_check_node")
     workflow.add_edge("history_check_node", "backlog_sync_node")

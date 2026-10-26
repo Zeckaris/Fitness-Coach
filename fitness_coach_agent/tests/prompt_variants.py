@@ -9,7 +9,7 @@ findings.md). This script decomposes that number into:
   1. GENERAL   — philosophy, disruption handling, plans-vs-today boundary,
                  exercise presentation rules, version notes (everything in
                  SYSTEM_PROMPT that is NOT tool descriptions).
-  2. TOOLS_TEXT — the "Tools: 1. search_workout_library … 7. update_three_day_plan"
+  2. TOOLS_TEXT — the "Tools: 1. search_workout_library … 7. update_daily_plans"
                  block inside SYSTEM_PROMPT (human-readable docs the prompt gives
                  the model about each tool).
   3. TOOL_SCHEMAS — the JSON schemas LangChain generates from each tool's Pydantic

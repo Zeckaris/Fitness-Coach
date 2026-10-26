@@ -153,6 +153,7 @@ def calculate_month_target(
     sets_per_session: Optional[int] = None,
     weeks_in_month: float = 4.35,
     default_baseline: Optional[float] = None,
+    progression_multiplier: float = 1.0,
 ) -> dict:
     """
     Pure function. Returns:
@@ -164,10 +165,16 @@ def calculate_month_target(
             "sets_per_session": int,
             "sessions_per_week": int,
             "weeks_in_month": float,
+            "progression_multiplier": float,
         }
 
     Formula: month_target = baseline * intensity_factor * sets_per_session
                              * sessions_per_week * weeks_in_month
+                             * progression_multiplier
+
+    progression_multiplier is the deterministic overload factor stored in
+    user_profile.progression_multipliers[balance_area]. Defaults to 1.0
+    (identity) so all existing callers that omit it are unaffected.
 
     When baseline_value is None and a non-None default_baseline is supplied, it
     is used in place of BEGINNER_BASELINE_BY_AREA[balance_area]. This lets
@@ -194,8 +201,13 @@ def calculate_month_target(
 
     intensity = INTENSITY_FACTOR[experience_level]
 
+    # Apply progression_multiplier as the final factor before rounding so it
+    # scales the fully-computed target rather than the raw baseline. This keeps
+    # the semantics clear: the multiplier adjusts the resulting monthly volume
+    # commitment, not the user's physical capacity estimate.
     month_target = (
         baseline_used * intensity * sets_per_session * sessions_per_week * weeks_in_month
+        * progression_multiplier
     )
 
     if unit in _CONTINUOUS_UNITS:
@@ -211,4 +223,5 @@ def calculate_month_target(
         "sets_per_session": sets_per_session,
         "sessions_per_week": sessions_per_week,
         "weeks_in_month": weeks_in_month,
+        "progression_multiplier": progression_multiplier,
     }

@@ -1,5 +1,5 @@
 """
-Calendar-aligned week boundary utilities — v1.7.
+Calendar-aligned week boundary utilities — v1.8.
 
 Single source of truth for all week/month date arithmetic in the system.
 Every other module that previously computed week boundaries independently
@@ -140,9 +140,114 @@ def month_id_for_date(date_str: str) -> str:
     return date_str[:7]  # "YYYY-MM-DD"[:7] == "YYYY-MM"
 
 
+def today_local() -> date:
+    """Return today's date in the local timezone."""
+    return datetime.now(LOCAL_TZ).date()
+
+
+def _coerce_date(reference=None) -> date:
+    """Convert None/date/datetime/YYYY-MM-DD into a local date."""
+    if reference is None:
+        return today_local()
+    if isinstance(reference, datetime):
+        return reference.date()
+    if isinstance(reference, date):
+        return reference
+    return datetime.strptime(reference, "%Y-%m-%d").date()
+
+
+def get_plannable_window(reference=None) -> dict:
+    """
+    Return the plannable window for a reference date (default: today).
+
+    The window is always the reference date through the end of its
+    calendar-aligned month week. This is the single source of truth for
+    every read/write path that decides which forward dates are visible.
+    """
+    ref = _coerce_date(reference)
+    ref_str = ref.strftime("%Y-%m-%d")
+    week = get_week_for_date(ref_str)
+    dates = [d for d in date_range(week["start_date"], week["end_date"]) if d >= ref_str]
+    return {
+        "today": ref_str,
+        "weekday": ref.strftime("%A"),
+        "start_date": dates[0],
+        "end_date": dates[-1],
+        "dates": dates,
+    }
+
+
+def get_plannable_dates(reference=None) -> list[str]:
+    """Return every plannable YYYY-MM-DD date for a reference date (default: today)."""
+    return get_plannable_window(reference)["dates"]
+
+
+def get_last_week_info(reference=None) -> Optional[dict]:
+    """
+    If the reference date (default: today) falls in the last calendar-aligned
+    week of its month, return a dict with:
+        {
+            "month_id": str,          # YYYY-MM of the current month
+            "next_month_id": str,     # YYYY-MM of the following month
+            "remaining_dates": list,  # YYYY-MM-DD strings from today through month end
+            "last_week_start": str,   # start date of the last week
+            "last_week_end": str,     # end date of the last week (= month end)
+        }
+    Returns None if the date is NOT in the last week.
+    """
+    ref = _coerce_date(reference)
+    month_id = ref.strftime("%Y-%m")
+    weeks = compute_month_weeks(month_id)
+    if not weeks:
+        return None
+    last_week = weeks[-1]
+    last_start = datetime.strptime(last_week["start_date"], "%Y-%m-%d").date()
+    last_end = datetime.strptime(last_week["end_date"], "%Y-%m-%d").date()
+    if not (last_start <= ref <= last_end):
+        return None
+    # Next month
+    year, month = map(int, month_id.split("-"))
+    month += 1
+    if month > 12:
+        month = 1
+        year += 1
+    next_month_id = f"{year}-{month:02d}"
+    remaining_dates = date_range(
+        ref.strftime("%Y-%m-%d"),
+        last_week["end_date"],
+    )
+    return {
+        "month_id": month_id,
+        "next_month_id": next_month_id,
+        "remaining_dates": remaining_dates,
+        "last_week_start": last_week["start_date"],
+        "last_week_end": last_week["end_date"],
+    }
+
+
+def format_coach_date_context(window: Optional[dict] = None) -> str:
+    """Render the date/window context injected into every coach turn."""
+    w = window or get_plannable_window()
+    base = (
+        f"CURRENT DATE: Today is {w['weekday']}, {w['today']} "
+        f"(Africa/Addis_Ababa). Plannable window: {w['start_date']} "
+        f"through {w['end_date']}."
+    )
+    lw = get_last_week_info()
+    if lw:
+        remaining_str = ", ".join(lw["remaining_dates"])
+        base += (
+            f"\nLAST_WEEK_OF_MONTH=TRUE: Today is in the last calendar week of "
+            f"{lw['month_id']} (week runs {lw['last_week_start']} to "
+            f"{lw['last_week_end']}). Remaining dates this month: {remaining_str}. "
+            f"Next month: {lw['next_month_id']}."
+        )
+    return base
+
+
 def current_month_id() -> str:
     """Return today's YYYY-MM in the local timezone."""
-    return datetime.now(LOCAL_TZ).date().strftime("%Y-%m")
+    return today_local().strftime("%Y-%m")
 
 
 def date_range(start_date_str: str, end_date_str: str) -> list[str]:
@@ -158,6 +263,63 @@ def date_range(start_date_str: str, end_date_str: str) -> list[str]:
         out.append(cur.strftime("%Y-%m-%d"))
         cur += timedelta(days=1)
     return out
+
+
+# ---------------------------------------------------------------------------
+# Mid-month goal scaling helpers
+# ---------------------------------------------------------------------------
+
+def days_in_month(month_id: str) -> int:
+    """Return the total number of calendar days in the given YYYY-MM month."""
+    year, month = map(int, month_id.split("-"))
+    return calendar.monthrange(year, month)[1]
+
+
+def compute_goal_scaling(start_date: date, month_id: str) -> dict:
+    """
+    Compute the scaling ratio for a mid-month goal start.
+
+    Returns:
+        {
+            "scale": float,           # days_remaining / days_in_month  (1.0 for day 1)
+            "days_remaining": int,    # start_date through last day of month, inclusive
+            "days_in_month": int,     # total days in the month
+            "goal_start_date": str,   # YYYY-MM-DD of the start_date
+        }
+
+    ``start_date`` must be a date object.  ``month_id`` must match the
+    month containing ``start_date`` — the caller is responsible for this;
+    no guard is applied here to keep the function pure.
+    """
+    total_days = days_in_month(month_id)
+    year, month = map(int, month_id.split("-"))
+    last_day = date(year, month, total_days)
+    remaining = (last_day - start_date).days + 1  # inclusive
+    remaining = max(1, min(remaining, total_days))  # clamp
+    scale = remaining / total_days
+    return {
+        "scale": scale,
+        "days_remaining": remaining,
+        "days_in_month": total_days,
+        "goal_start_date": start_date.strftime("%Y-%m-%d"),
+    }
+
+
+def is_last_week_of_month(ref_date: date, month_id: str) -> bool:
+    """
+    Return True if ref_date falls within the LAST calendar-aligned week of
+    month_id (as computed by compute_month_weeks).
+
+    This is the cutoff condition: goals set in the last week are redirected
+    to the following month so the user begins with a full periodized cycle.
+    """
+    weeks = compute_month_weeks(month_id)
+    if not weeks:
+        return False
+    last_week = weeks[-1]
+    last_start = datetime.strptime(last_week["start_date"], "%Y-%m-%d").date()
+    last_end = datetime.strptime(last_week["end_date"], "%Y-%m-%d").date()
+    return last_start <= ref_date <= last_end
 
 
 # ---------------------------------------------------------------------------

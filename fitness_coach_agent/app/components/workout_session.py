@@ -11,7 +11,7 @@ import streamlit as st
 from streamlit.components.v1 import html
 
 from db.mongo_client import get_plans_collection
-from tools.plans import LOCAL_TZ
+from utils.calendar_weeks import today_local
 from auth.context import get_current_user_id
 from tools.workout_library import _WORKOUTS
 
@@ -72,7 +72,7 @@ def render_exercise_media(name: str, *, width: int | None = None) -> bool:
 
 
 def get_today_str() -> str:
-    return datetime.now(LOCAL_TZ).date().strftime("%Y-%m-%d")
+    return today_local().strftime("%Y-%m-%d")
 
 
 def get_today_plan() -> dict | None:

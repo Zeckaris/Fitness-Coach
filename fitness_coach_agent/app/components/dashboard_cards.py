@@ -3,24 +3,24 @@ Read-only dashboard display components: progress, monthly goal, week plan,
 and upcoming (forward) plans. Pulls directly from Mongo, no write paths.
 """
 
-from datetime import datetime, timedelta
-
 import streamlit as st
 import streamlit_antd_components as sac
 
 from db.mongo_client import get_plans_collection, get_month_plans_collection
-from utils.calendar_weeks import LOCAL_TZ, current_month_id
+from utils.calendar_weeks import current_month_id, get_plannable_dates, today_local
 from tools.progress import calculate_progress
 from tools.week_plans import _find_week_doc_for_date
 from auth.context import get_current_user_id
 
 
-def get_forward_plan_docs() -> list:
+def get_upcoming_plan_docs() -> list:
+    """Return up to 3 upcoming days from the shared plannable window.
+
+    Today is excluded because it has its own tab.
+    """
     collection = get_plans_collection()
-    today = datetime.now(LOCAL_TZ).date()
     docs = []
-    for offset in (1, 2, 3):
-        date = (today + timedelta(days=offset)).strftime("%Y-%m-%d")
+    for date in get_plannable_dates()[1:4]:
         doc = collection.find_one({"user_id": get_current_user_id(), "date": date})
         docs.append((date, doc))
     return docs
@@ -113,18 +113,25 @@ def render_month_goal():
 
             source = doc.get("theme_path_source")
             if source and source != "llm":
-                st.warning("⚠️ Week themes were set by default (LLM failed). Click **Set Week Themes** to regenerate.")
+                st.warning(
+                    "⚠️ Week themes were set by default (LLM failed). Click "
+                    "**Set Week Themes** to regenerate them and fill any missing "
+                    "daily plans; existing plans are kept."
+                )
 
 
 def render_week_plan():
-    today_str = datetime.now(LOCAL_TZ).date().strftime("%Y-%m-%d")
+    today_str = today_local().strftime("%Y-%m-%d")
     doc = _find_week_doc_for_date(today_str)
 
     with st.container(border=True):
         st.markdown("### 📆 Week Plan")
 
         if not doc:
-            st.caption("No week plan yet. Ask the coach to generate one.")
+            st.caption(
+                "No week plan yet. Click **Set Week Themes** to save themes and "
+                "build any missing daily plans for this week."
+            )
             return
 
         focus = doc.get("focus", "Unspecified").replace("_", " ").title()
@@ -154,8 +161,12 @@ def render_week_plan():
 
 
 def render_upcoming_plans():
-    docs = get_forward_plan_docs()
+    docs = get_upcoming_plan_docs()
     st.subheader("📅 Upcoming Plans")
+
+    if not docs:
+        st.caption("No more plannable days left in this week window.")
+        return
 
     step_items = []
     for date, doc in docs:
@@ -169,7 +180,7 @@ def render_upcoming_plans():
 
     sac.steps(items=step_items, format_func="title", size="sm", return_index=False)
 
-    cols = st.columns(3)
+    cols = st.columns(len(docs))
     for col, (date, doc) in zip(cols, docs):
         with col:
             with st.container(border=True):

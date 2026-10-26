@@ -24,8 +24,10 @@ from tools.month_plans import (
     get_most_recent_confirmed_goal,
     _current_month_id,
 )
-from utils.goal_performance import evaluate_goal_performance
-from utils.goal_progression import progress_goal
+from tools.metrics import get_latest_metric
+from tools.user_profile import get_progression_multipliers
+from agent.monthly_review import close_out_month
+from utils.goal_progression import build_goal_from_multipliers
 from tools.plans import generate_today_plan
 
 logging.basicConfig(level=logging.INFO)
@@ -77,14 +79,29 @@ def run_for_user(user_id: str) -> str:
             month_id, prev_goal = recent
             logger.info("%s: most recent confirmed goal from %s: %s", user_id, month_id, prev_goal.get("description"))
 
-            perf = evaluate_goal_performance(prev_goal, month_id)
-            logger.info(
-                "%s: performance eval -> tier=%s avg_pct=%s open_backlog=%s",
-                user_id, perf["tier"], perf["avg_pct"], perf["open_backlog_count"],
-            )
+            # Close-out is the single source of truth for month-to-month
+            # progression. It is idempotent: a month that already has a
+            # close_out_summary returns immediately without re-applying.
+            close_out_result = close_out_month(month_id)
+            if isinstance(close_out_result, str):
+                logger.error(
+                    "%s: previous-month close-out failed for %s: %s",
+                    user_id, month_id, close_out_result,
+                )
+                return f"{user_id}: previous-month close-out failed, skipped."
+            logger.info("%s: previous month %s close-out ok", user_id, month_id)
 
-            new_goal = progress_goal(prev_goal, perf["tier"], perf["latest_metric_value"])
-            logger.info("%s: new goal built: %s", user_id, new_goal)
+            latest_metric_value = None
+            if prev_goal.get("metric_name"):
+                latest = get_latest_metric(prev_goal["metric_name"])
+                if latest and isinstance(latest.get("value"), (int, float)):
+                    latest_metric_value = float(latest["value"])
+
+            multipliers = get_progression_multipliers()
+            new_goal = build_goal_from_multipliers(
+                prev_goal, multipliers, latest_metric_value,
+            )
+            logger.info("%s: new goal built from multipliers: %s", user_id, new_goal)
 
             _write_confirmed_goal_for_current_month(new_goal)
             logger.info("%s: new goal written and confirmed for current month", user_id)

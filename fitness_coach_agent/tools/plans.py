@@ -1,9 +1,11 @@
-"""Persist forward plans (tomorrow, day+2, day+3). Never today. Validates dates + exercises."""
+"""Persist daily plans in the plannable window (today through week end). Validates dates + exercises."""
 
+import functools
 import json
+import logging
 import os
 import uuid
-from datetime import datetime, timedelta
+from datetime import datetime
 from zoneinfo import ZoneInfo
 from typing import List, Optional, Literal
 
@@ -25,12 +27,20 @@ from tools.week_plans import (
     _get_week_number_from_date, _weeks_in_month, _find_week_doc_for_date,
     get_week_focus_for_date, get_daily_volume_targets_for_date, DailyVolumeTargetsInput, WeekVolumeTargetInput,
 )
-from utils.calendar_weeks import get_week_for_date, date_range, weeks_in_month, month_id_for_date
+from utils.calendar_weeks import (
+    current_month_id,
+    date_range,
+    get_plannable_dates,
+    get_week_for_date,
+    month_id_for_date,
+    today_local,
+    weeks_in_month,
+)
 from tools.month_plans import has_theme_path_for_current_month
 from utils.theme_defaults import default_theme_path
 from agent.monthly_review import build_week_plan_data
 from agent.plan_generation import generate_backfill_days, pre_schedule_goal_exercises
-from agent.error_handling import StructuredOutputFailed
+from agent.error_handling import StructuredOutputFailed, ToolExecutionError
 from utils.exercise_ordering import reorder_phase
 from tools.plan_history import get_past_plans
 from tools.knowledge_base import search_fitness_knowledge_base
@@ -42,7 +52,7 @@ from tools.workout_library import (
 )
 from db.mongo_client import get_backlog_collection
 
-LOCAL_TZ = ZoneInfo("Africa/Addis_Ababa")
+logger = logging.getLogger(__name__)
 
 # Load valid exercise names from workouts.json for validation
 _WORKOUTS_PATH = os.path.join(
@@ -63,26 +73,17 @@ _VALID_EXERCISE_NAMES = {w["name"] for w in _WORKOUTS}
 
 
 def _get_remaining_week_dates(from_date=None) -> List[str]:
-    """
-    Returns YYYY-MM-DD date strings from from_date (default: today) through
-    the last day of the current calendar-aligned month week.
-    """
-    if from_date is None:
-        from_date = datetime.now(LOCAL_TZ).date()
-    from_date_str = from_date.strftime("%Y-%m-%d")
-    week = get_week_for_date(from_date_str)
-    all_dates = date_range(week["start_date"], week["end_date"])
-    # Only return dates from from_date onwards (don't include past days of the week).
-    return [d for d in all_dates if d >= from_date_str]
+    """Return plannable dates from from_date (default: today) through week end."""
+    return get_plannable_dates(from_date)
 
 
 def _valid_plan_dates() -> set:
-    """Valid plan dates are today through Saturday of the current week."""
-    return set(_get_remaining_week_dates())
+    """Valid plan dates are today through the end of the current week window."""
+    return set(get_plannable_dates())
 
 
 def _current_month_id() -> str:
-    return datetime.now(LOCAL_TZ).date().strftime("%Y-%m")
+    return current_month_id()
 
 
 def _has_confirmed_goal() -> bool:
@@ -225,7 +226,7 @@ def split_exercise_sets(exercises: list[dict], max_consecutive_sets: int = MAX_C
 
 
 class DayPlanInput(BaseModel):
-    """A single forward plan day."""
+    """A single day in the plannable window."""
 
     date: str = Field(description="Plan date in YYYY-MM-DD format.")
     focus_area: str = Field(description="Training focus.")
@@ -293,7 +294,7 @@ class DayPlanInput(BaseModel):
         if self.date not in _valid_plan_dates():
             raise ValueError(
                 f"'{self.date}' is not a valid plan date. Plans may only target dates from "
-                "today through Saturday of the current week."
+                "today through the end of the current week window."
             )
 
         # Target dosing enforcement against daily_volume_targets & dynamic theme-aware reps calculation
@@ -318,6 +319,8 @@ class DayPlanInput(BaseModel):
                         ex.reps = f"{reps_per_set} sec"
                     elif ex.unit in ("reps", "rep"):
                         ex.reps = f"{reps_per_set} reps"
+                    elif ex.unit == "reps_per_side":
+                        ex.reps = f"{reps_per_set} reps per side"
                     elif ex.unit in ("km", "m", "mi"):
                         ex.reps = f"{ex.target_quantity} {ex.unit}"
 
@@ -403,6 +406,8 @@ class BackfillDayPlanInput(BaseModel):
                         ex.reps = f"{reps_per_set} sec"
                     elif ex.unit in ("reps", "rep"):
                         ex.reps = f"{reps_per_set} reps"
+                    elif ex.unit == "reps_per_side":
+                        ex.reps = f"{reps_per_set} reps per side"
                     elif ex.unit in ("km", "m", "mi"):
                         ex.reps = f"{ex.target_quantity} {ex.unit}"
 
@@ -418,7 +423,7 @@ class BackfillPlanOutput(BaseModel):
     """
 
     days: List[BackfillDayPlanInput] = Field(
-        description="Day plans for the generation window (today through Saturday)."
+        description="Day plans for the generation window (today through the end of the current week)."
     )
 
     @model_validator(mode="after")
@@ -434,26 +439,25 @@ class BackfillPlanOutput(BaseModel):
 
 
 
-class UpdateForwardPlanInput(BaseModel):
+class UpdateDailyPlansInput(BaseModel):
     days: List[DayPlanInput] = Field(
         description="Plan days to create or update."
     )
 
 
-@tool(args_schema=UpdateForwardPlanInput)
+@tool(args_schema=UpdateDailyPlansInput)
 @mongo_guarded
 def update_daily_plans(days: List[DayPlanInput]) -> str:
     """
-    Create or patch daily plan entries in the current week window (today through Saturday).
+    Create or patch daily plan entries in the current week window (today through the end of the current week).
     """
     # Guard 1: require confirmed goal
     if not _has_confirmed_goal():
         return (
             "ERROR: No confirmed month goal exists. "
             "Please set a goal first via stage_month_goal / confirm_month_goal, "
-            'then click "📅 Set Week Themes" in the app to set week themes, '
-            "then ask me to generate your weekly plan, "
-            "and only after both goal and week plan exist can I generate daily plans."
+            'then click "📅 Set Week Themes" in the app to save week themes and '
+            "build any missing daily plans."
         )
 
     # Guard 2: week plan must exist for every day
@@ -461,7 +465,8 @@ def update_daily_plans(days: List[DayPlanInput]) -> str:
         if not ensure_week_plan_exists(day.date):
             return (
                 f"ERROR: No week plan exists for {day.date} yet. "
-                "Ask me to generate your weekly plan first, then I can create daily plans."
+                "Use generate_week_plans to create this week's structure and "
+                "missing daily plans, then I can update them."
             )
 
     collection = get_plans_collection()
@@ -503,34 +508,58 @@ def _get_month_doc() -> Optional[dict]:
     return collection.find_one({"user_id": get_current_user_id(), "month_id": _current_month_id()})
 
 
+def _clear_plan_generation_failure(func):
+    """Turn unexpected plan-generation exceptions into a clear tool message."""
+    @functools.wraps(func)
+    def wrapper(*args, **kwargs):
+        try:
+            return func(*args, **kwargs)
+        except ToolExecutionError:
+            raise
+        except Exception as exc:
+            logger.exception("%s failed unexpectedly", func.__name__)
+            raise ToolExecutionError(
+                "I couldn't finish preparing the plan because of an internal error. "
+                "Please try again; if it keeps happening, check the logs."
+            ) from exc
+    return wrapper
 
 
-@tool
-@mongo_guarded
-def generate_today_plan() -> str:
+def _existing_plan_dates(dates: List[str]) -> set:
+    """Return the subset of dates that already have a plan document."""
+    if not dates:
+        return set()
+    collection = get_plans_collection()
+    docs = collection.find(
+        {"user_id": get_current_user_id(), "date": {"$in": list(dates)}},
+        {"date": 1},
+    )
+    return {doc["date"] for doc in docs if doc.get("date")}
+
+
+def _generate_plans_for_dates(
+    today,
+    dates_to_plan: List[str],
+    success_message: Optional[str] = None,
+    create_only: bool = False,
+) -> str:
+    """Generate and write plans for the supplied dates only.
+
+    The caller decides which dates are safe to write. This function never
+    writes dates outside ``dates_to_plan``. With ``create_only=True``, a
+    concurrent writer that creates a date first cannot be overwritten.
     """
-    Create-only backfill: builds today's plan plus the remaining days
-    of the current calendar week (today through Saturday) when NO plan
-    document exists for today at all. Refuses immediately if any document
-    already exists for today, for any reason. Reconstructs missing month
-    theme path (non-LLM default) and week block structure (reused
-    generation logic) as needed first.
-    """
-    today = datetime.now(LOCAL_TZ).date()
     today_str = today.strftime("%Y-%m-%d")
-    dates_to_plan = _get_remaining_week_dates(today)
 
-    # Guard 1: confirmed goal must exist
+    # Guard: confirmed goal must exist
     if not _has_confirmed_goal():
         return (
             "ERROR: No confirmed month goal exists. Please set a goal first "
-            "via stage_month_goal / confirm_month_goal before I can build today's plan."
+            "via stage_month_goal / confirm_month_goal before I can build plans."
         )
 
-    # Guard 2 (create-only guarantee): refuse if ANY document exists for today, period.
-    plans = get_plans_collection()
-    if plans.find_one({"user_id": get_current_user_id(), "date": today_str}):
-        return f"A plan document already exists for {today_str}. Nothing to backfill."
+    if not dates_to_plan:
+        return "No missing plan dates to generate."
 
     month_id = _current_month_id()
     month_doc = _get_month_doc()
@@ -558,7 +587,9 @@ def generate_today_plan() -> str:
         month_doc = _get_month_doc()  # re-fetch: now has week_plan_path
 
     week_plan_path = (month_doc or {}).get("week_plan_path") or []
-    week_number = get_week_for_date(today_str)["week_number"]
+    week_descriptor = get_week_for_date(today_str)
+    week_id = week_descriptor["start_date"]
+    week_number = week_descriptor["week_number"]
     week_theme = next(
         (t["theme"] for t in week_plan_path if t["week_number"] == week_number),
         "Volume",
@@ -566,10 +597,7 @@ def generate_today_plan() -> str:
 
     # Step 2: week block structure — reuse build_week_plan_data, single write here
     if not ensure_week_plan_exists(today_str):
-        week_descriptor = get_week_for_date(today_str)
-        week_id = week_descriptor["start_date"]
         week_dates = date_range(week_descriptor["start_date"], week_descriptor["end_date"])
-        week_number = week_descriptor["week_number"]
         total_weeks = weeks_in_month(month_id_for_date(week_id))
 
         week_result = build_week_plan_data(
@@ -682,7 +710,7 @@ def generate_today_plan() -> str:
         f"GENERAL EXERCISE POOLS BY DAY\n{per_day_pools_str}"
     )
 
-    # Step 3: today + forward window, one combined structured call
+    # Step 3: missing dates only, one combined structured call
     try:
         result = generate_backfill_days(
             dates_to_plan=dates_to_plan,
@@ -697,20 +725,21 @@ def generate_today_plan() -> str:
         )
     except StructuredOutputFailed:
         return (
-            "I've set up this week's structure, but couldn't generate today's "
-            "actual workout plan just now — please ask again in a moment."
+            "I've set up this week's structure, but couldn't generate the "
+            "requested daily plans just now — please ask again in a moment."
         )
 
     expected_dates = set(dates_to_plan)
     returned_dates = {d.date for d in result.days}
     if returned_dates != expected_dates:
         return (
-            "I've set up this week's structure, but today's plan generation "
+            "I've set up this week's structure, but plan generation "
             "returned unexpected dates — please ask again in a moment."
         )
 
-    # Write all 4 days directly to plans_collection (bypassing
-    # update_three_day_plan entirely
+    # Write only the requested missing days directly to plans_collection
+    # (bypassing update_three_day_plan entirely
+    plans = get_plans_collection()
     now = datetime.now(ZoneInfo("UTC"))
     for day in result.days:
         set_fields = {
@@ -725,9 +754,13 @@ def generate_today_plan() -> str:
             "avoid_body_parts": day.avoid_body_parts,
             "source_checkin_date": day.source_checkin_date,
         }
+        if create_only:
+            update = {"$setOnInsert": {**set_fields, "created_at": now}}
+        else:
+            update = {"$set": set_fields, "$setOnInsert": {"created_at": now}}
         plans.update_one(
             {"user_id": get_current_user_id(), "date": day.date},
-            {"$set": set_fields, "$setOnInsert": {"created_at": now}},
+            update,
             upsert=True,
         )
 
@@ -746,11 +779,285 @@ def generate_today_plan() -> str:
                     }},
                 )
 
+    if success_message is not None:
+        return success_message
+    return f"Plans created for: {', '.join(dates_to_plan)}."
+
+
+def generate_today_plan() -> str:
+    """
+    Create-only backfill preserved for the scheduled job: builds today's
+    plan plus the remaining days of the current calendar week (today
+    through week end) when NO plan document exists for today at all.
+    Refuses immediately if any document already exists for today.
+    """
+    today = today_local()
+    today_str = today.strftime("%Y-%m-%d")
+    dates_to_plan = get_plannable_dates(today)
+
+    # Guard 1: confirmed goal must exist
+    if not _has_confirmed_goal():
+        return (
+            "ERROR: No confirmed month goal exists. Please set a goal first "
+            "via stage_month_goal / confirm_month_goal before I can build today's plan."
+        )
+
+    # Guard 2 (create-only guarantee): refuse if ANY document exists for today.
+    plans = get_plans_collection()
+    if plans.find_one({"user_id": get_current_user_id(), "date": today_str}):
+        return f"A plan document already exists for {today_str}. Nothing to backfill."
+
     end_date_str = dates_to_plan[-1]
-    return (
-        f"Backfilled plan for {today_str} through {end_date_str}. "
-        f"You're caught back up to your normal weekly rhythm."
+    return _generate_plans_for_dates(
+        today,
+        dates_to_plan,
+        success_message=(
+            f"Backfilled plan for {today_str} through {end_date_str}. "
+            f"You're caught back up to your normal weekly rhythm."
+        ),
     )
+
+
+generate_today_plan = tool(mongo_guarded(
+    _clear_plan_generation_failure(generate_today_plan)
+))
+
+
+def ensure_week_plans() -> str:
+    """Ensure every missing date in the current plannable window has a daily plan.
+
+    Fills only missing dates; never overwrites existing plans. Creates a
+    missing theme path and week structure as needed. Requires a confirmed
+    month goal.
+    """
+    today = today_local()
+    dates_to_plan = get_plannable_dates(today)
+    existing_dates = _existing_plan_dates(dates_to_plan)
+    missing_dates = [d for d in dates_to_plan if d not in existing_dates]
+
+    if not missing_dates:
+        return (
+            f"All daily plans already exist for {dates_to_plan[0]} "
+            f"through {dates_to_plan[-1]}. Nothing to generate."
+        )
+
+    return _generate_plans_for_dates(today, missing_dates, create_only=True)
+
+
+generate_week_plans = tool("generate_week_plans")(mongo_guarded(
+    _clear_plan_generation_failure(ensure_week_plans)
+))
+
+
+# ---------------------------------------------------------------------------
+# Last-week-of-month: untracked plan generation
+# ---------------------------------------------------------------------------
+
+def _generate_untracked_plans_for_dates(
+    dates_to_plan: list[str],
+    focus_hint: str = "general",
+) -> str:
+    """Generate and persist goal-free daily plans for the supplied dates.
+
+    Used exclusively during the last calendar week of the month when no
+    confirmed monthly goal exists for the current month. Plans are saved
+    to MongoDB exactly like normal plans so they appear in Today's Workout
+    and can be used in the guided workout screen. The difference from the
+    normal path is:
+
+    - No _has_confirmed_goal() guard.
+    - No volume targets assigned to exercises (target_quantity=None, unit=None).
+    - sets/reps come directly from each exercise's baseline in the workout
+      library; the LLM is not asked to invent numbers.
+    - focus_hint (e.g. "upper body") is threaded through so the LLM uses
+      appropriate exercises from the pool.
+    """
+    from utils.calendar_weeks import get_last_week_info
+    from tools.workout_library import get_per_day_filler_pools
+    from tools.plan_history import get_past_plans
+    from tools.knowledge_base import search_fitness_knowledge_base
+    from tools.backlog import get_backlog
+
+    lw = get_last_week_info()
+    if not lw:
+        return (
+            "ERROR: generate_untracked_week_plans is only available during "
+            "the last calendar week of the month."
+        )
+
+    if not dates_to_plan:
+        return "No dates to plan."
+
+    today = today_local()
+    today_str = today.strftime("%Y-%m-%d")
+
+    # Gather context the same way _generate_plans_for_dates does, but with no
+    # goal-related fields.
+    past_plans_context = get_past_plans.invoke({})
+    backlog_items = get_backlog.invoke({})
+    knowledge_context = search_fitness_knowledge_base.invoke(
+        {"query": f"{focus_hint} training guidance for general fitness"}
+    )
+
+    from tools.user_profile import resolve_user_equipment
+    resolved_eq, eq_meta = resolve_user_equipment()
+    if eq_meta.get("active_override"):
+        if eq_meta.get("mode") == "override_all":
+            eq_ctx_str = "ACTIVE EQUIPMENT CONTEXT: Temporary override active — All equipment available (unrestricted)."
+        else:
+            eq_desc = ", ".join(resolved_eq) if resolved_eq else "none (bodyweight only)"
+            eq_ctx_str = f"ACTIVE EQUIPMENT CONTEXT: Temporary override active — Available equipment: [{eq_desc}]."
+    else:
+        eq_desc = ", ".join(resolved_eq) if resolved_eq else "none (bodyweight only)"
+        eq_ctx_str = f"ACTIVE EQUIPMENT CONTEXT: Permanent profile — Available equipment: [{eq_desc}]."
+
+    per_day_pools_str = get_per_day_filler_pools(dates_to_plan)
+    available_exercises = (
+        f"{eq_ctx_str}\n\n"
+        "GOAL-TRACKED EXERCISES BY DAY: None for this goal.\n\n"
+        f"GENERAL EXERCISE POOLS BY DAY\n{per_day_pools_str}"
+    )
+
+    # Build a profile from the user's experience level to pick the right
+    # default sets/reps from the library.
+    from tools.user_profile import get_user_profile
+    profile = get_user_profile() or {}
+    exp_level = profile.get("experience_level", "beginner")
+
+    untracked_note = (
+        f"\nIMPORTANT — UNTRACKED SESSIONS: These plans have NO monthly volume "
+        f"targets. Do NOT set target_quantity or unit on any exercise. "
+        f"Use each exercise's baseline sets/reps from the library exactly "
+        f"(beginner defaults for a {exp_level} user). "
+        f"Focus hint from the user: {focus_hint}. "
+        f"Provide real variety across days; do not repeat the same exercises "
+        f"on consecutive days."
+    )
+
+    from agent.plan_generation import generate_backfill_days
+    from agent.error_handling import StructuredOutputFailed
+
+    try:
+        result = generate_backfill_days(
+            dates_to_plan=dates_to_plan,
+            goal_description=f"General training with {focus_hint} focus (no monthly target)",
+            week_focus=focus_hint,
+            backlog_items=backlog_items,
+            past_plans_context=past_plans_context,
+            knowledge_context=knowledge_context,
+            available_exercises=available_exercises + untracked_note,
+            pre_scheduled_map=None,
+            goal_workouts=None,
+        )
+    except StructuredOutputFailed:
+        return (
+            "I've noted your focus, but couldn't generate the daily plans right now "
+            "— please ask again in a moment."
+        )
+
+    expected_dates = set(dates_to_plan)
+    returned_dates = {d.date for d in result.days}
+    if returned_dates != expected_dates:
+        return (
+            "Plan generation returned unexpected dates — please ask again in a moment."
+        )
+
+    # Strip any target_quantity / unit the LLM may have added (safety net)
+    for day in result.days:
+        for ex in day.exercises:
+            ex.target_quantity = None
+            ex.unit = None
+
+    # Persist
+    plans_col = get_plans_collection()
+    now = datetime.now(ZoneInfo("UTC"))
+    for day in result.days:
+        exercises = [e.model_dump() for e in day.exercises] if day.exercises else []
+        if exercises:
+            exercises = split_exercise_sets(exercises)
+            exercises = reorder_phase(exercises)
+        set_fields = {
+            "user_id": get_current_user_id(),
+            "date": day.date,
+            "updated_at": now,
+            "focus_area": day.focus_area,
+            "status": day.status,
+            "duration_minutes": day.duration_minutes,
+            "exercises": exercises,
+            "notes": day.notes,
+            "avoid_body_parts": day.avoid_body_parts,
+            "source_checkin_date": day.source_checkin_date,
+            "untracked": True,  # sentinel: no monthly goal for these sessions
+        }
+        plans_col.update_one(
+            {"user_id": get_current_user_id(), "date": day.date},
+            {
+                "$set": set_fields,
+                "$setOnInsert": {"created_at": now},
+            },
+            upsert=True,
+        )
+
+    created_str = ", ".join(dates_to_plan)
+    return (
+        f"Untracked plans created for: {created_str}. "
+        f"These sessions have no monthly targets — sessions and completions are "
+        f"still recorded normally."
+    )
+
+
+def _ensure_untracked_week_plans(focus_hint: str = "general") -> str:
+    """Fill only missing dates in the last-week window with untracked plans."""
+    from utils.calendar_weeks import get_last_week_info
+    lw = get_last_week_info()
+    if not lw:
+        return (
+            "ERROR: generate_untracked_week_plans is only available during "
+            "the last calendar week of the month."
+        )
+
+    today = today_local()
+    dates_to_plan = get_plannable_dates(today)
+    existing_dates = _existing_plan_dates(dates_to_plan)
+    missing_dates = [d for d in dates_to_plan if d not in existing_dates]
+
+    if not missing_dates:
+        return (
+            f"All daily plans already exist for {dates_to_plan[0]} "
+            f"through {dates_to_plan[-1]}. Nothing to generate."
+        )
+
+    return _generate_untracked_plans_for_dates(missing_dates, focus_hint=focus_hint)
+
+
+class GenerateUntrackedWeekPlansInput(BaseModel):
+    focus_hint: str = Field(
+        default="general",
+        description=(
+            "The user's requested training focus for this last-week period, "
+            "e.g. 'upper body', 'full body', 'cardio'. Used to select appropriate "
+            "exercises from the library pools."
+        ),
+    )
+
+
+generate_untracked_week_plans = tool(
+    args_schema=GenerateUntrackedWeekPlansInput,
+)(
+    mongo_guarded(
+        _clear_plan_generation_failure(_ensure_untracked_week_plans)
+    )
+)
+generate_untracked_week_plans.name = "generate_untracked_week_plans"
+generate_untracked_week_plans.description = (
+    "Last-week-of-month ONLY. Creates saved daily plans for the remaining days "
+    "of this month when no confirmed monthly goal exists for the current month. "
+    "Plans appear in Today's Workout and the guided workout screen exactly like "
+    "normal plans. Sessions have no monthly volume targets — they use library "
+    "baseline sets/reps. Fills only missing dates; never overwrites existing plans. "
+    "Pass focus_hint matching what the user asked for (e.g. 'upper body')."
+)
+
 
 if __name__ == "__main__":
     print(generate_today_plan.invoke({}))

@@ -18,6 +18,12 @@ from auth.context import get_current_user_id
 
 _NO_EQUIPMENT_TOKENS = {"body weight", "none", "bodyweight"}
 
+# Canonical balance-area keys for progression_multipliers — kept here so both
+# get_progression_multipliers and set_progression_multipliers agree on the
+# authoritative set without importing from baseline_targets (avoids a
+# cross-package import cycle).
+_PROGRESSION_AREA_KEYS: tuple = ("upper_body", "lower_body", "core", "cardio")
+
 
 def has_user_profile(user_id: Optional[str] = None) -> bool:
     """Returns True if the user has a profile document in user_profile collection."""
@@ -380,6 +386,46 @@ def _sync_experience_level(experience_level: str, user_id: Optional[str] = None)
         {"user_id": user_id},
         {
             "$set": {"experience_level": experience_level, "updated_at": now},
+            "$setOnInsert": {"created_at": now},
+        },
+        upsert=True,
+    )
+
+
+def get_progression_multipliers(user_id: Optional[str] = None) -> dict:
+    """
+    Return the progression_multipliers dict for the user, keyed by the four
+    canonical balance areas: upper_body, lower_body, core, cardio.
+
+    Lazy migration: if the field is absent (profiles created before this
+    feature) or if individual area keys are missing, they are filled with
+    1.0 (the identity multiplier). These defaults are NOT written back here;
+    they are persisted only when _adjust_user_baselines calls
+    set_progression_multipliers after computing updated values.
+    """
+    if user_id is None:
+        user_id = get_current_user_id()
+    profile = get_user_profile(user_id) or {}
+    stored = profile.get("progression_multipliers") or {}
+    return {area: float(stored.get(area, 1.0)) for area in _PROGRESSION_AREA_KEYS}
+
+
+def set_progression_multipliers(multipliers: dict, user_id: Optional[str] = None) -> None:
+    """
+    Persist the full progression_multipliers dict to the user's profile.
+    Only the four canonical area keys (_PROGRESSION_AREA_KEYS) are written;
+    any extra keys in multipliers are silently ignored. Missing keys default
+    to 1.0 so the write is always a complete, valid document.
+    """
+    if user_id is None:
+        user_id = get_current_user_id()
+    collection = get_user_profile_collection()
+    now = datetime.now(ZoneInfo("UTC"))
+    clean = {area: float(multipliers.get(area, 1.0)) for area in _PROGRESSION_AREA_KEYS}
+    collection.update_one(
+        {"user_id": user_id},
+        {
+            "$set": {"progression_multipliers": clean, "updated_at": now},
             "$setOnInsert": {"created_at": now},
         },
         upsert=True,

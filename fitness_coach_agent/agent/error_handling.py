@@ -48,6 +48,18 @@ class StructuredOutputFailed(Exception):
     or a full key-rotation cycle failing."""
 
 
+class ToolExecutionError(Exception):
+    """Raised by a tool for a known failure that is safe to show the user.
+
+    The graph's tool node returns user_message directly instead of letting
+    the exception fall through to the generic UI fallback.
+    """
+
+    def __init__(self, user_message: str):
+        self.user_message = user_message
+        super().__init__(user_message)
+
+
 def _should_rotate_key(exc: Exception) -> bool:
     """
     True if this failure means the CURRENT key cannot serve this
