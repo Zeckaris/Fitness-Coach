@@ -214,7 +214,7 @@ def generate_backfill_days(
     goal_workouts: list = None,
 ):
     """
-    Generates workout plans for the specified dates (today through Saturday)
+    Generates workout plans for the specified dates (today through week end)
     using a structured LLM call.
 
     Assembles the prompt from the provided context and returns a validated

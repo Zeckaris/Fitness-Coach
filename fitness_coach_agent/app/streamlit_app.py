@@ -13,7 +13,7 @@ import streamlit as st
 
 from agent.graph import build_graph
 from db.mongo_client import get_plans_collection
-from agent.monthly_review import run_monthly_review
+from agent.week_setup import run_week_setup
 from app.components.auth_ui import ensure_logged_in, render_logout_button
 from app.components.onboarding_ui import ensure_onboarded
 from app.components.dashboard_cards import (
@@ -46,6 +46,8 @@ if "history" not in st.session_state:
     st.session_state.history = []
 if "active_tab" not in st.session_state:
     st.session_state.active_tab = "Chat"
+if "week_setup_running" not in st.session_state:
+    st.session_state.week_setup_running = False
 
 
 with st.sidebar:
@@ -55,16 +57,47 @@ with st.sidebar:
     st.divider()
     st.markdown("**Review Pipelines**")
 
-    if st.button("📅 Set Week Themes", help="Run the monthly review pipeline to set week themes for the current month"):
-            try:
-                result = run_monthly_review()
-                st.success(result)
-            except Exception:
-                st.error(
-                    "Monthly review couldn't be completed right now — please try again in a moment."
+    setup_result = st.session_state.pop("week_setup_result", None)
+    if setup_result:
+        if setup_result["ok"]:
+            st.success(setup_result["message"])
+        elif setup_result["themes_saved"]:
+            st.warning(setup_result["message"])
+        else:
+            st.error(setup_result["message"])
+
+    if st.button(
+        "📅 Set Week Themes",
+        help="Save this month's week themes and prepare any missing daily plans for this week",
+        disabled=st.session_state.week_setup_running,
+    ):
+        st.session_state.week_setup_running = True
+        try:
+            with st.status("Setting week themes...", expanded=True) as status:
+                def _on_progress(label: str):
+                    status.update(label=label)
+                    status.write(label)
+
+                setup_result = run_week_setup(on_progress=_on_progress)
+                status.update(
+                    label=setup_result["message"],
+                    state="complete" if setup_result["plans_complete"] else "error",
                 )
-            st.rerun()
-            
+            st.session_state.week_setup_result = setup_result
+        except Exception:
+            st.session_state.week_setup_result = {
+                "ok": False,
+                "themes_saved": False,
+                "plans_complete": False,
+                "message": (
+                    "Weekly setup couldn't be completed right now — please try again "
+                    "in a moment."
+                ),
+            }
+        finally:
+            st.session_state.week_setup_running = False
+        st.rerun()
+
     st.divider()
     st.markdown("**Quick Actions**")
     if st.button("🗑️ Clear Today's Plan", use_container_width=True):

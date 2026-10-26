@@ -2,20 +2,16 @@
 Use when the user asks about today's workout status or whether they completed it.
 """
 
-from datetime import datetime
-from zoneinfo import ZoneInfo
-
 from langchain_core.tools import tool
 
 from db.mongo_client import get_plans_collection
 from db.guards import mongo_guarded
 from auth.context import get_current_user_id
-
-LOCAL_TZ = ZoneInfo("Africa/Addis_Ababa")
+from utils.calendar_weeks import today_local
 
 
 def _today_str() -> str:
-    return datetime.now(LOCAL_TZ).strftime("%Y-%m-%d")
+    return today_local().strftime("%Y-%m-%d")
 
 
 @tool

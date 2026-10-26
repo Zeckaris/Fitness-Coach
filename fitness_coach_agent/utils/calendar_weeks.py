@@ -140,9 +140,61 @@ def month_id_for_date(date_str: str) -> str:
     return date_str[:7]  # "YYYY-MM-DD"[:7] == "YYYY-MM"
 
 
+def today_local() -> date:
+    """Return today's date in the local timezone."""
+    return datetime.now(LOCAL_TZ).date()
+
+
+def _coerce_date(reference=None) -> date:
+    """Convert None/date/datetime/YYYY-MM-DD into a local date."""
+    if reference is None:
+        return today_local()
+    if isinstance(reference, datetime):
+        return reference.date()
+    if isinstance(reference, date):
+        return reference
+    return datetime.strptime(reference, "%Y-%m-%d").date()
+
+
+def get_plannable_window(reference=None) -> dict:
+    """
+    Return the plannable window for a reference date (default: today).
+
+    The window is always the reference date through the end of its
+    calendar-aligned month week. This is the single source of truth for
+    every read/write path that decides which forward dates are visible.
+    """
+    ref = _coerce_date(reference)
+    ref_str = ref.strftime("%Y-%m-%d")
+    week = get_week_for_date(ref_str)
+    dates = [d for d in date_range(week["start_date"], week["end_date"]) if d >= ref_str]
+    return {
+        "today": ref_str,
+        "weekday": ref.strftime("%A"),
+        "start_date": dates[0],
+        "end_date": dates[-1],
+        "dates": dates,
+    }
+
+
+def get_plannable_dates(reference=None) -> list[str]:
+    """Return every plannable YYYY-MM-DD date for a reference date (default: today)."""
+    return get_plannable_window(reference)["dates"]
+
+
+def format_coach_date_context(window: Optional[dict] = None) -> str:
+    """Render the date/window context injected into every coach turn."""
+    w = window or get_plannable_window()
+    return (
+        f"CURRENT DATE: Today is {w['weekday']}, {w['today']} "
+        f"(Africa/Addis_Ababa). Plannable window: {w['start_date']} "
+        f"through {w['end_date']}."
+    )
+
+
 def current_month_id() -> str:
     """Return today's YYYY-MM in the local timezone."""
-    return datetime.now(LOCAL_TZ).date().strftime("%Y-%m")
+    return today_local().strftime("%Y-%m")
 
 
 def date_range(start_date_str: str, end_date_str: str) -> list[str]:

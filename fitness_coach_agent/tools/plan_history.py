@@ -3,7 +3,7 @@ get_current_plan / get_past_plans — V6 plan read tools.
 
 Read-only tools for the plans collection.
 
-- get_current_plan(): returns tomorrow, day+2, and day+3 entries.
+- get_current_plan(): returns every date in the current plannable window.
 - get_past_plans(): returns the previous 3 days of plans.
 
 Used for plan generation and updates. Missing entries are returned as
@@ -11,34 +11,24 @@ empty rather than treated as errors.
 """
 
 from datetime import datetime, timedelta
-from zoneinfo import ZoneInfo
 
 from langchain_core.tools import tool
 
 from db.mongo_client import get_plans_collection
 from db.guards import mongo_guarded
 from auth.context import get_current_user_id
-
-
-
-LOCAL_TZ = ZoneInfo("Africa/Addis_Ababa")
-
-
-def _forward_dates() -> list:
-    """Return tomorrow, day+2, and day+3."""
-    today = datetime.now(LOCAL_TZ).date()
-    return [(today + timedelta(days=offset)).strftime("%Y-%m-%d") for offset in (1, 2, 3)]
+from utils.calendar_weeks import get_plannable_dates, today_local
 
 
 def _backward_dates() -> list:
     """Return the previous 3 days."""
-    today = datetime.now(LOCAL_TZ).date()
+    today = today_local()
     return [(today - timedelta(days=offset)).strftime("%Y-%m-%d") for offset in (1, 2, 3)]
 
 
 def _window_dates(days: int) -> list:
     """Return the previous `days` calendar days, most recent first."""
-    today = datetime.now(LOCAL_TZ).date()
+    today = today_local()
     return [(today - timedelta(days=offset)).strftime("%Y-%m-%d") for offset in range(1, days + 1)]
 
 
@@ -51,7 +41,7 @@ def get_exercise_recency(names: list, lookback_days: int = 7) -> dict:
     collection = get_plans_collection()
     name_set = {name for name in names}
     recency = {name: None for name in names}
-    today = datetime.now(LOCAL_TZ).date()
+    today = today_local()
 
     # _window_dates lists most-recent first, so the first doc we see a name
     # in is its most recent occurrence — keep it, ignore later (older) hits.
@@ -112,12 +102,13 @@ def _fetch_window(dates: list) -> str:
 @mongo_guarded
 def get_current_plan() -> str:
     """
-    Fetch saved plans for tomorrow, day+2, and day+3.
+    Fetch saved plans for every date in the current plannable window
+    (today through the end of the current week).
 
     Returns:
         One line per day or no-entry status.
     """
-    return _fetch_window(_forward_dates())
+    return _fetch_window(get_plannable_dates())
 
 
 @tool
@@ -134,7 +125,7 @@ def get_past_plans() -> str:
 
 # Quick manual test: python -m tools.plan_history
 if __name__ == "__main__":
-    print("Current plan (forward):")
+    print("Current plan (plannable window):")
     print(get_current_plan.invoke({}))
     print("\nPast plans (backward):")
     print(get_past_plans.invoke({}))
