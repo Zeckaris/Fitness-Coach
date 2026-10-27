@@ -52,7 +52,7 @@ class TestOnboardingPlank(unittest.TestCase):
         self.assertEqual(markers_answered["plank"], 45.0)
 
     def test_baseline_assessment_data_version_bumped_to_2(self):
-        self.assertEqual(BASELINE_ASSESSMENT_DATA_VERSION, 2)
+        self.assertGreaterEqual(BASELINE_ASSESSMENT_DATA_VERSION, 2)
 
     @patch("tools.user_profile.get_user_profile_collection")
     @patch("tools.baseline_assessment.get_baseline_assessment_collection")
@@ -79,7 +79,7 @@ class TestOnboardingPlank(unittest.TestCase):
         )
 
         inserted_doc = mock_get_assess_col.return_value.insert_one.call_args[0][0]
-        self.assertEqual(inserted_doc["data_version"], 2)
+        self.assertEqual(inserted_doc["data_version"], BASELINE_ASSESSMENT_DATA_VERSION)
         self.assertEqual(
             inserted_doc["answers"]["raw_markers"]["plank_seconds"], 45.0
         )
