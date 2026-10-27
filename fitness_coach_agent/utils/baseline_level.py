@@ -21,6 +21,7 @@ REFERENCE_WEIGHT_KG: dict[Gender, float] = {
 # For push_ups and squats: rep counts at reference bodyweight and age <= 40.
 # For run: continuous minutes (unisex, unscaled).
 # For frequency: weekly workouts (unisex, unscaled).
+# For plank: front plank hold in seconds (unisex, scaled by age and BMI).
 BASE_THRESHOLDS: dict[str, dict[str, tuple[float, float]]] = {
     "push_ups": {
         "male": (10.0, 25.0),
@@ -35,6 +36,9 @@ BASE_THRESHOLDS: dict[str, dict[str, tuple[float, float]]] = {
     },
     "frequency": {
         "unisex": (2.0, 4.0),
+    },
+    "plank": {
+        "unisex": (30.0, 60.0),
     },
 }
 
@@ -61,6 +65,10 @@ MARKER_ALIASES: dict[str, str] = {
     "frequency": "frequency",
     "workout_frequency": "frequency",
     "weekly_frequency": "frequency",
+    "plank": "plank",
+    "plank_hold": "plank",
+    "plank_seconds": "plank",
+    "front_plank": "plank",
 }
 
 SCORE_TO_LEVEL: dict[int, ExperienceLevel] = {
@@ -74,6 +82,75 @@ LEVEL_TO_SCORE: dict[ExperienceLevel, int] = {
     "intermediate": 2,
     "advanced": 3,
 }
+
+# Reference BMI (kg/m^2) for neutral isometric plank threshold calibration.
+# Midpoint of normal healthy adult BMI (18.5 - 24.9).
+REFERENCE_BMI: float = 22.0
+
+
+def compute_bmi(
+    weight: float,
+    height: float,
+    weight_unit: str = "kg",
+    height_unit: str = "cm",
+) -> float:
+    """
+    Computes Body Mass Index (BMI in kg/m^2) with unit normalization.
+    Supports weight in 'kg' or 'lb', height in 'cm', 'in', or 'm'.
+
+    Used strictly for mechanical leverage adjustment on isometric holds (plank).
+    Never displayed as a health label or used to restrict exercises.
+    """
+    try:
+        w = float(weight)
+        h = float(height)
+    except (TypeError, ValueError):
+        raise ValueError("Weight and height must be numeric.")
+
+    if w <= 0 or h <= 0:
+        raise ValueError("Weight and height must be positive numbers.")
+
+    w_u = weight_unit.strip().lower()
+    if w_u in ("lb", "lbs"):
+        w_kg = w * 0.45359237
+    elif w_u == "kg":
+        w_kg = w
+    else:
+        raise ValueError(f"Unsupported weight unit: {weight_unit!r}. Must be 'kg' or 'lb'.")
+
+    h_u = height_unit.strip().lower()
+    if h_u == "cm":
+        h_m = h / 100.0
+    elif h_u in ("in", "inch", "inches"):
+        h_m = h * 0.0254
+    elif h_u in ("m", "meter", "meters"):
+        h_m = h
+    else:
+        raise ValueError(f"Unsupported height unit: {height_unit!r}. Must be 'cm', 'in', or 'm'.")
+
+    if h_m <= 0:
+        raise ValueError("Height in meters must be positive.")
+
+    return w_kg / (h_m ** 2)
+
+
+def compute_bmi_factor(
+    bmi: Optional[float],
+    reference_bmi: float = REFERENCE_BMI,
+) -> float:
+    """
+    Mild BMI adjustment factor for isometric plank hold:
+    Torque across the lumbar spine and trunk increases with body mass and leverage.
+    Higher BMI loosens thresholds mildly: (reference_bmi / actual_bmi) ** 0.3,
+    floored at 0.75 so a minimum standard is always maintained.
+    For BMI <= reference_bmi (lean or normal weight), returns 1.0 (no penalty/tightening).
+    """
+    if bmi is None or bmi <= 0:
+        return 1.0
+    if bmi <= reference_bmi:
+        return 1.0
+    factor = (reference_bmi / bmi) ** 0.3
+    return max(0.75, factor)
 
 
 def normalize_gender(gender: str) -> Gender:
@@ -115,13 +192,17 @@ def compute_marker_thresholds(
     marker_name: str,
     gender: str,
     age: float,
-    actual_weight_kg: float,
+    actual_weight_kg: float = 70.0,
+    height_cm: Optional[float] = None,
+    bmi: Optional[float] = None,
 ) -> tuple[float, float]:
     """
     Compute adjusted (intermediate_threshold, advanced_threshold) for a marker.
 
     - Push-ups & squats: scaled by bodyweight factor and age factor.
     - Weighted lift: base threshold is ratio * actual_weight_kg, scaled by age factor.
+    - Plank: unisex, starting at (30s, 60s), scaled by age factor and BMI factor.
+             Bodyweight is not double-counted since push-ups/squats already use it.
     - Run & frequency: unisex and unscaled (no bodyweight or age scaling).
     """
     canonical_marker = MARKER_ALIASES.get(marker_name.strip().lower())
@@ -146,6 +227,17 @@ def compute_marker_thresholds(
             ratio_adv * actual_weight_kg * age_f,
         )
 
+    if canonical_marker == "plank":
+        base_inter, base_adv = BASE_THRESHOLDS["plank"]["unisex"]
+        if bmi is not None:
+            bmi_f = compute_bmi_factor(bmi)
+        elif height_cm is not None and height_cm > 0 and actual_weight_kg > 0:
+            calc_bmi = compute_bmi(actual_weight_kg, height_cm, "kg", "cm")
+            bmi_f = compute_bmi_factor(calc_bmi)
+        else:
+            bmi_f = 1.0
+        return (base_inter * age_f * bmi_f, base_adv * age_f * bmi_f)
+
     if canonical_marker in ("run", "frequency"):
         # Unisex, unscaled
         return BASE_THRESHOLDS[canonical_marker]["unisex"]
@@ -159,6 +251,8 @@ def score_marker(
     gender: str,
     age: float,
     actual_weight_kg: float = 70.0,
+    height_cm: Optional[float] = None,
+    bmi: Optional[float] = None,
 ) -> int:
     """
     Scores a single marker against its beginner (1), intermediate (2), or advanced (3) band.
@@ -173,6 +267,8 @@ def score_marker(
         gender=gender,
         age=age,
         actual_weight_kg=actual_weight_kg,
+        height_cm=height_cm,
+        bmi=bmi,
     )
 
     if value >= advanced_th:
@@ -188,21 +284,33 @@ def get_marker_level(
     gender: str,
     age: float,
     actual_weight_kg: float = 70.0,
+    height_cm: Optional[float] = None,
+    bmi: Optional[float] = None,
 ) -> ExperienceLevel:
     """Convenience helper returning the level string for a single marker."""
-    score = score_marker(marker_name, value, gender, age, actual_weight_kg)
+    score = score_marker(
+        marker_name,
+        value,
+        gender,
+        age,
+        actual_weight_kg,
+        height_cm=height_cm,
+        bmi=bmi,
+    )
     return SCORE_TO_LEVEL[score]
 
 
 def calculate_overall_level(
-    markers: dict[str, float] | list[int | float],
+    markers: dict[str, Optional[float]] | list[int | float],
     gender: Optional[str] = None,
     age: Optional[float] = None,
     actual_weight_kg: Optional[float] = None,
+    height_cm: Optional[float] = None,
+    bmi: Optional[float] = None,
 ) -> ExperienceLevel:
     """
     Calculates the overall experience level using equal-weight averaging across all present markers.
-    Accepts 4 or 5 markers (5 when weighted lift is present).
+    Accepts 4 to 6 markers (optional weighted lift and plank hold).
 
     Thresholds for overall level:
         average < 1.5     -> beginner
@@ -215,6 +323,8 @@ def calculate_overall_level(
         gender: 'male' or 'female' (required if markers is a dict of raw values).
         age: User age in years (required if markers is a dict of raw values).
         actual_weight_kg: User bodyweight in kg (required if markers is a dict of raw values).
+        height_cm: User height in cm (optional, for plank BMI calculation).
+        bmi: Precomputed BMI (optional, for plank BMI calculation).
 
     Returns:
         'beginner' | 'intermediate' | 'advanced'
@@ -225,8 +335,20 @@ def calculate_overall_level(
     if isinstance(markers, (list, tuple)):
         scores = [float(s) for s in markers]
     elif isinstance(markers, dict):
-        # Filter out None values (e.g. if weighted_lift is None when user has no weights)
-        present_markers = {k: v for k, v in markers.items() if v is not None}
+        # Filter out None values and non-positive optional markers (plank, weighted_lift)
+        present_markers = {}
+        for k, v in markers.items():
+            if v is None:
+                continue
+            canonical = MARKER_ALIASES.get(str(k).strip().lower())
+            if canonical in ("weighted_lift", "plank"):
+                try:
+                    if float(v) <= 0:
+                        continue
+                except (TypeError, ValueError):
+                    continue
+            present_markers[k] = v
+
         if not present_markers:
             raise ValueError("No valid marker values provided.")
 
@@ -243,7 +365,7 @@ def calculate_overall_level(
                 )
             weight = actual_weight_kg if actual_weight_kg is not None else REFERENCE_WEIGHT_KG[normalize_gender(gender)]
             scores = [
-                float(score_marker(m_name, m_val, gender, age, weight))
+                float(score_marker(m_name, m_val, gender, age, weight, height_cm=height_cm, bmi=bmi))
                 for m_name, m_val in present_markers.items()
             ]
     else:
@@ -263,13 +385,27 @@ def evaluate_overall_assessment(
     gender: str,
     age: float,
     actual_weight_kg: float,
+    height_cm: Optional[float] = None,
+    bmi: Optional[float] = None,
 ) -> dict:
     """
     Full diagnostic evaluation of the baseline questionnaire.
     Returns individual marker scores, thresholds used, and the overall experience level.
     """
     g = normalize_gender(gender)
-    present_markers = {k: v for k, v in markers.items() if v is not None}
+    present_markers = {}
+    for k, v in markers.items():
+        if v is None:
+            continue
+        canonical = MARKER_ALIASES.get(str(k).strip().lower())
+        if canonical in ("weighted_lift", "plank"):
+            try:
+                if float(v) <= 0:
+                    continue
+            except (TypeError, ValueError):
+                continue
+        present_markers[k] = v
+
     if not present_markers:
         raise ValueError("At least one marker must be provided.")
 
@@ -277,9 +413,11 @@ def evaluate_overall_assessment(
     scores = []
 
     for name, val in present_markers.items():
-        score = score_marker(name, val, g, age, actual_weight_kg)
+        score = score_marker(name, val, g, age, actual_weight_kg, height_cm=height_cm, bmi=bmi)
         scores.append(score)
-        inter_th, adv_th = compute_marker_thresholds(name, g, age, actual_weight_kg)
+        inter_th, adv_th = compute_marker_thresholds(
+            name, g, age, actual_weight_kg, height_cm=height_cm, bmi=bmi
+        )
         marker_details[name] = {
             "value": val,
             "score": score,
@@ -296,6 +434,14 @@ def evaluate_overall_assessment(
     else:
         overall_level = "advanced"
 
+    if bmi is not None:
+        bmi_f = compute_bmi_factor(bmi)
+    elif height_cm is not None and height_cm > 0 and actual_weight_kg > 0:
+        calc_bmi = compute_bmi(actual_weight_kg, height_cm, "kg", "cm")
+        bmi_f = compute_bmi_factor(calc_bmi)
+    else:
+        bmi_f = 1.0
+
     return {
         "experience_level": overall_level,
         "average_score": round(avg_score, 3),
@@ -304,5 +450,6 @@ def evaluate_overall_assessment(
         "adjustment_factors": {
             "bodyweight_factor": round(compute_bodyweight_factor(actual_weight_kg, g), 4),
             "age_factor": round(compute_age_factor(age), 4),
+            "bmi_factor": round(bmi_f, 4),
         },
     }

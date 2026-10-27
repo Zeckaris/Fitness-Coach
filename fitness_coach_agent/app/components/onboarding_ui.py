@@ -16,6 +16,7 @@ from tools.metrics import log_metric
 from utils.baseline_level import (
     calculate_overall_level,
     evaluate_overall_assessment,
+    compute_bmi,
 )
 from app.components.auth_ui import render_logout_button
 
@@ -65,14 +66,26 @@ def resolve_weighted_lift_kg(
     return value
 
 
+def resolve_plank_seconds(plank_seconds_val: float | int | None) -> float | None:
+    """Return a scorable plank hold in seconds, or None if skipped (0, blank, non-positive)."""
+    try:
+        value = float(plank_seconds_val or 0.0)
+    except (TypeError, ValueError):
+        return None
+    if value <= 0:
+        return None
+    return value
+
+
 def build_baseline_markers(
     push_ups: float,
     squats: float,
     run_minutes: float,
     frequency: float,
     weighted_lift_kg: float | None = None,
+    plank_seconds: float | None = None,
 ) -> dict:
-    """Build the marker payload, excluding any non-scorable weighted lift."""
+    """Build the marker payload, excluding any non-scorable weighted lift or plank."""
     markers = {
         "push_ups": float(push_ups),
         "squats": float(squats),
@@ -81,6 +94,8 @@ def build_baseline_markers(
     }
     if weighted_lift_kg is not None and weighted_lift_kg > 0:
         markers["weighted_lift"] = float(weighted_lift_kg)
+    if plank_seconds is not None and plank_seconds > 0:
+        markers["plank"] = float(plank_seconds)
     return markers
 
 
@@ -218,6 +233,18 @@ def render_onboarding_screen(is_reassessment: bool = False):
                 help="Unit for the run distance above.",
             )
 
+        plank_seconds = st.number_input(
+            "Optional: Longest Front Plank Hold with good form (seconds)",
+            min_value=0,
+            max_value=600,
+            value=0,
+            step=5,
+            help=(
+                "The longest continuous front plank you can hold with good form, in seconds. "
+                "Enter 0 or leave blank to skip."
+            ),
+        )
+
         st.divider()
         st.subheader("3. Equipment Access")
         from tools.workout_library import EQUIPMENT_VOCABULARY
@@ -277,6 +304,7 @@ def render_onboarding_screen(is_reassessment: bool = False):
                 weight_unit,
                 has_free_weights,
             )
+            plank_seconds_val = resolve_plank_seconds(plank_seconds)
 
             # Normalize run distance to km (stored alongside the raw value/unit)
             if run_distance_val and run_distance_unit == "mi":
@@ -286,12 +314,21 @@ def render_onboarding_screen(is_reassessment: bool = False):
             else:
                 run_distance_km = None
 
+            # Compute BMI for mechanical leverage adjustment on isometric holds
+            bmi = compute_bmi(
+                weight=body_weight_kg,
+                height=float(height_val),
+                weight_unit="kg",
+                height_unit=height_unit,
+            )
+
             markers = build_baseline_markers(
                 push_ups=push_ups,
                 squats=squats,
                 run_minutes=run_minutes,
                 frequency=frequency,
                 weighted_lift_kg=weighted_lift_kg,
+                plank_seconds=plank_seconds_val,
             )
 
             # Score using Phase 2 calculator
@@ -300,6 +337,7 @@ def render_onboarding_screen(is_reassessment: bool = False):
                 gender=gender_clean,
                 age=age,
                 actual_weight_kg=body_weight_kg,
+                bmi=bmi,
             )
 
             # Full diagnostic evaluation to store in assessment doc
@@ -308,6 +346,7 @@ def render_onboarding_screen(is_reassessment: bool = False):
                 gender=gender_clean,
                 age=age,
                 actual_weight_kg=body_weight_kg,
+                bmi=bmi,
             )
 
             # 1. Create/update profile document
@@ -344,6 +383,7 @@ def render_onboarding_screen(is_reassessment: bool = False):
                     "weighted_lift_val": weighted_lift_val if weighted_lift_kg is not None else None,
                     "weighted_lift_unit": weight_unit if weighted_lift_kg is not None else None,
                     "weighted_lift_kg": round(weighted_lift_kg, 2) if weighted_lift_kg is not None else None,
+                    "plank_seconds": round(plank_seconds_val, 1) if plank_seconds_val is not None else None,
                 },
                 "evaluation": evaluation,
             }

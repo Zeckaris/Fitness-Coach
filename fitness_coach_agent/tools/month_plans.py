@@ -17,6 +17,9 @@ from utils.baseline_targets import (
     calculate_month_target,
     BEGINNER_BASELINE_BY_AREA,
     BEGINNER_BASELINE_CARDIO_REPS,
+    BEGINNER_BASELINE_CORE_SECONDS,
+    BEGINNER_BASELINE_CORE_REPS,
+    _is_timed_unit,
     WeekThemeEnum,
     baseline_value_from_markers,
 )
@@ -239,20 +242,32 @@ def calculate_volume_target(
     # running *distance*, so the marker path only applies to distance-based
     # cardio exercises (unit km/mi/m). All other areas, incl. rep/time-based
     # cardio, skip this marker path and use a beginner default instead.
-    use_stored_marker = balance_area != "cardio" or _is_distance_unit(
-        resolved_unit
-    )
+    # Similarly, core onboarding marker (plank_seconds) is a timed hold in
+    # seconds, so it only applies to timed core exercises (unit seconds).
+    # Rep-based core moves must never use seconds as reps.
+    use_stored_marker = True
+    if balance_area == "cardio":
+        use_stored_marker = _is_distance_unit(resolved_unit)
+    elif balance_area == "core":
+        use_stored_marker = _is_timed_unit(resolved_unit)
+
     if resolved_baseline is None and use_stored_marker:
         assessment = get_latest_baseline_assessment()
         raw_markers = (assessment or {}).get("answers", {}).get("raw_markers")
-        resolved_baseline = baseline_value_from_markers(raw_markers, balance_area)
+        resolved_baseline = baseline_value_from_markers(
+            raw_markers, balance_area, unit=resolved_unit
+        )
 
-    # Rep/time-based cardio (e.g. Mountain Climber) must not be seeded from the
-    # distance marker nor from the distance beginner default (1.5 km). It gets
-    # the dedicated rep-based cardio default instead.
+    # Dedicated beginner defaults when no baseline is available:
     default_baseline = None
     if balance_area == "cardio" and not use_stored_marker:
         default_baseline = BEGINNER_BASELINE_CARDIO_REPS
+    elif balance_area == "core":
+        default_baseline = (
+            BEGINNER_BASELINE_CORE_SECONDS
+            if _is_timed_unit(resolved_unit)
+            else BEGINNER_BASELINE_CORE_REPS
+        )
 
     # Deterministic progression multiplier: read from the profile we already
     # fetched, scoped to this balance area. Defaults to 1.0 for new users /
