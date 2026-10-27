@@ -49,12 +49,14 @@ def create_user_profile(
     weight_unit_preference: Literal["kg", "lb"] = "kg",
     equipment: Optional[list[str]] = None,
     user_id: Optional[str] = None,
+    body_weight_kg: Optional[float] = None,
     **kwargs,
 ) -> dict:
     """
     Create or overwrite the user's base profile document.
     Does NOT write experience_level directly — that is strictly mirrored
     from record_baseline_assessment().
+    Bodyweight is stored canonically in kilograms when provided.
     """
     if user_id is None:
         user_id = get_current_user_id()
@@ -74,6 +76,8 @@ def create_user_profile(
         "equipment": [e.strip().lower() for e in (equipment or []) if e.strip().lower() not in _NO_EQUIPMENT_TOKENS],
         "updated_at": now,
     }
+    if body_weight_kg is not None:
+        doc["body_weight_kg"] = round(float(body_weight_kg), 2)
 
     collection.update_one(
         {"user_id": user_id},

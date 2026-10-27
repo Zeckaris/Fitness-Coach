@@ -20,10 +20,68 @@ from utils.baseline_level import (
 from app.components.auth_ui import render_logout_button
 
 
+FREE_WEIGHT_EQUIPMENT = {"dumbbells", "kettlebell"}
+WEIGHTED_LIFT_DEFAULT = 0.0
+
+
 def calculate_age_from_dob(dob: date) -> int:
     """Calculate age in whole years from date of birth."""
     today = date.today()
     return today.year - dob.year - ((today.month, today.day) < (dob.month, dob.day))
+
+
+def normalize_bodyweight_kg(weight_value: float, weight_unit: str) -> float:
+    """Convert the entered bodyweight to kilograms."""
+    value = float(weight_value)
+    if weight_unit == "lb":
+        value *= 0.45359237
+    return value
+
+
+def has_free_weight_equipment(equipment: list[str] | None) -> bool:
+    """True only when the user has dumbbells or a kettlebell."""
+    return any(
+        str(item).strip().lower() in FREE_WEIGHT_EQUIPMENT
+        for item in (equipment or [])
+    )
+
+
+def resolve_weighted_lift_kg(
+    weighted_lift_value: float | None,
+    weight_unit: str,
+    has_free_weights: bool,
+) -> float | None:
+    """Return a scorable lift in kg, or None if it must not be scored."""
+    if not has_free_weights:
+        return None
+    try:
+        value = float(weighted_lift_value or 0.0)
+    except (TypeError, ValueError):
+        return None
+    if value <= 0:
+        return None
+    if weight_unit == "lb":
+        value *= 0.45359237
+    return value
+
+
+def build_baseline_markers(
+    push_ups: float,
+    squats: float,
+    run_minutes: float,
+    frequency: float,
+    weighted_lift_kg: float | None = None,
+) -> dict:
+    """Build the marker payload, excluding any non-scorable weighted lift."""
+    markers = {
+        "push_ups": float(push_ups),
+        "squats": float(squats),
+        "run": float(run_minutes),
+        "frequency": float(frequency),
+    }
+    if weighted_lift_kg is not None and weighted_lift_kg > 0:
+        markers["weighted_lift"] = float(weighted_lift_kg)
+    return markers
 
 
 def render_onboarding_screen(is_reassessment: bool = False):
@@ -182,17 +240,23 @@ def render_onboarding_screen(is_reassessment: bool = False):
             help="Your workout plans will only include exercises matching your available equipment.",
         )
 
-        has_weighted_gear = any(e in selected_equipment for e in ["dumbbells", "kettlebell", "bench"])
-        weighted_lift_val = 0.0
-        if has_weighted_gear:
-            weighted_lift_val = st.number_input(
-                f"Heaviest 8-rep lift ({weight_unit}) — goblet squat or DB press",
-                min_value=0.0,
-                max_value=200.0,
-                value=10.0 if weight_unit == "kg" else 25.0,
-                step=0.5,
-                help="Weight of the dumbbell or kettlebell you can comfortably move for 8 reps.",
-            )
+        has_free_weights = has_free_weight_equipment(selected_equipment)
+        weighted_lift_val = st.number_input(
+            f"Optional: 8-rep weight ({weight_unit}) — goblet squat or dumbbell press (DB = per hand)",
+            min_value=0.0,
+            max_value=200.0,
+            value=WEIGHTED_LIFT_DEFAULT,
+            step=0.5,
+            help=(
+                "Use a weight you can lift for 8 clean reps with 1–2 reps left in reserve. "
+                "For dumbbell press, enter the weight of one dumbbell (per hand); for goblet "
+                "squat, enter the single dumbbell/kettlebell weight. Enter 0 to skip if you "
+                "don't have dumbbells or a kettlebell."
+            ),
+        )
+        st.caption(
+            "Only used if you selected dumbbells or a kettlebell. A bench alone does not count."
+        )
 
         submitted = st.form_submit_button(
             "Complete Onboarding & Calibrate Baseline",
@@ -207,13 +271,12 @@ def render_onboarding_screen(is_reassessment: bool = False):
 
             gender_clean = gender_option.lower()
 
-            # Normalize weight and lift to kg for the calculator
-            if weight_unit == "lb":
-                weight_kg = weight_val * 0.45359237
-                lift_kg = weighted_lift_val * 0.45359237 if has_weighted_gear else None
-            else:
-                weight_kg = weight_val
-                lift_kg = weighted_lift_val if has_weighted_gear else None
+            body_weight_kg = normalize_bodyweight_kg(weight_val, weight_unit)
+            weighted_lift_kg = resolve_weighted_lift_kg(
+                weighted_lift_val,
+                weight_unit,
+                has_free_weights,
+            )
 
             # Normalize run distance to km (stored alongside the raw value/unit)
             if run_distance_val and run_distance_unit == "mi":
@@ -223,21 +286,20 @@ def render_onboarding_screen(is_reassessment: bool = False):
             else:
                 run_distance_km = None
 
-            markers = {
-                "push_ups": float(push_ups),
-                "squats": float(squats),
-                "run": float(run_minutes),
-                "frequency": float(frequency),
-            }
-            if has_weighted_gear and lift_kg is not None and lift_kg > 0:
-                markers["weighted_lift"] = float(lift_kg)
+            markers = build_baseline_markers(
+                push_ups=push_ups,
+                squats=squats,
+                run_minutes=run_minutes,
+                frequency=frequency,
+                weighted_lift_kg=weighted_lift_kg,
+            )
 
             # Score using Phase 2 calculator
             level = calculate_overall_level(
                 markers=markers,
                 gender=gender_clean,
                 age=age,
-                actual_weight_kg=weight_kg,
+                actual_weight_kg=body_weight_kg,
             )
 
             # Full diagnostic evaluation to store in assessment doc
@@ -245,7 +307,7 @@ def render_onboarding_screen(is_reassessment: bool = False):
                 markers=markers,
                 gender=gender_clean,
                 age=age,
-                actual_weight_kg=weight_kg,
+                actual_weight_kg=body_weight_kg,
             )
 
             # 1. Create/update profile document
@@ -256,6 +318,7 @@ def render_onboarding_screen(is_reassessment: bool = False):
                 height_unit=height_unit,
                 weight_unit_preference=weight_unit,
                 equipment=selected_equipment,
+                body_weight_kg=body_weight_kg,
             )
 
             # 2. Record append-only baseline assessment (mirrors experience_level)
@@ -267,7 +330,7 @@ def render_onboarding_screen(is_reassessment: bool = False):
                 "weight": {
                     "value": float(weight_val),
                     "unit": weight_unit,
-                    "weight_kg": round(weight_kg, 2),
+                    "weight_kg": round(body_weight_kg, 2),
                 },
                 "equipment": selected_equipment,
                 "raw_markers": {
@@ -278,9 +341,9 @@ def render_onboarding_screen(is_reassessment: bool = False):
                     "run_distance_unit": run_distance_unit if run_distance_val else None,
                     "run_distance_km": round(run_distance_km, 2) if run_distance_km else None,
                     "frequency": frequency,
-                    "weighted_lift_val": weighted_lift_val if has_weighted_gear else None,
-                    "weighted_lift_unit": weight_unit if has_weighted_gear else None,
-                    "weighted_lift_kg": round(lift_kg, 2) if (has_weighted_gear and lift_kg) else None,
+                    "weighted_lift_val": weighted_lift_val if weighted_lift_kg is not None else None,
+                    "weighted_lift_unit": weight_unit if weighted_lift_kg is not None else None,
+                    "weighted_lift_kg": round(weighted_lift_kg, 2) if weighted_lift_kg is not None else None,
                 },
                 "evaluation": evaluation,
             }
