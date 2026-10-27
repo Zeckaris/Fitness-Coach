@@ -12,7 +12,7 @@ from db.mongo_client import get_baseline_assessment_collection
 from auth.context import get_current_user_id
 from tools.user_profile import _sync_experience_level
 
-BASELINE_ASSESSMENT_DATA_VERSION = 2
+BASELINE_ASSESSMENT_DATA_VERSION = 3
 
 
 def record_baseline_assessment(

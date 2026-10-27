@@ -40,6 +40,10 @@ BASE_THRESHOLDS: dict[str, dict[str, tuple[float, float]]] = {
     "plank": {
         "unisex": (30.0, 60.0),
     },
+    "pull_ups": {
+        "male": (4.0, 10.0),
+        "female": (1.0, 5.0),
+    },
 }
 
 # Base ratio of bodyweight for weighted lift: 8-rep goblet squat or DB press (kg)
@@ -59,6 +63,14 @@ MARKER_ALIASES: dict[str, str] = {
     "weighted": "weighted_lift",
     "goblet_squat": "weighted_lift",
     "db_press": "weighted_lift",
+    "push_lift": "push_lift",
+    "pull_lift": "pull_lift",
+    "lower_lift": "lower_lift",
+    "pull_ups": "pull_ups",
+    "pullups": "pull_ups",
+    "pull-ups": "pull_ups",
+    "strict_pull_ups": "pull_ups",
+    "strength_marker": "strength_marker",
     "run": "run",
     "continuous_run": "run",
     "longest_run": "run",
@@ -216,11 +228,11 @@ def compute_marker_thresholds(
     age_f = compute_age_factor(age)
     bw_f = compute_bodyweight_factor(actual_weight_kg, g)
 
-    if canonical_marker in ("push_ups", "squats"):
+    if canonical_marker in ("push_ups", "squats", "pull_ups"):
         base_inter, base_adv = BASE_THRESHOLDS[canonical_marker][g]
         return (base_inter * bw_f * age_f, base_adv * bw_f * age_f)
 
-    if canonical_marker == "weighted_lift":
+    if canonical_marker in ("weighted_lift", "push_lift", "pull_lift", "lower_lift"):
         ratio_inter, ratio_adv = WEIGHTED_LIFT_BW_RATIOS[g]
         return (
             ratio_inter * actual_weight_kg * age_f,
@@ -329,19 +341,104 @@ def calculate_overall_level(
     Returns:
         'beginner' | 'intermediate' | 'advanced'
     """
+STRENGTH_LIFT_CANONICALS = {"push_lift", "pull_lift", "lower_lift", "pull_ups"}
+
+
+def compute_combined_strength_score(
+    lifts: dict[str, dict] | list[dict],
+    gender: str,
+    age: float,
+    actual_weight_kg: float = 70.0,
+) -> float | None:
+    """
+    Computes the averaged strength score (1.0 to 3.0) across all scorable lifts
+    answered by the user. If no lifts are scorable, returns None.
+
+    Each lift dict has:
+      - 'exercise': str
+      - 'value' or 'weight_kg': float
+      - 'scored': bool (equipment gating)
+      - 'is_reps' or 'exercise' == 'Pull-Up': bool
+    """
+    g = normalize_gender(gender)
+    scores = []
+    lift_items = lifts.values() if isinstance(lifts, dict) else lifts
+    for lift in lift_items:
+        if not lift:
+            continue
+        if not lift.get("scored", True):
+            continue
+        val = lift.get("value")
+        if val is None:
+            val = lift.get("weight_kg")
+        if val is None:
+            val = lift.get("reps")
+        try:
+            val_f = float(val)
+        except (TypeError, ValueError):
+            continue
+        if val_f <= 0:
+            continue
+
+        ex = str(lift.get("exercise", "")).lower()
+        if "pull-up" in ex or "pull up" in ex or lift.get("is_reps"):
+            marker = "pull_ups"
+        else:
+            marker = "weighted_lift"
+
+        score = score_marker(
+            marker_name=marker,
+            value=val_f,
+            gender=g,
+            age=age,
+            actual_weight_kg=actual_weight_kg,
+        )
+        scores.append(score)
+
+    if not scores:
+        return None
+    return sum(scores) / len(scores)
+
+
+def calculate_overall_level(
+    markers: dict[str, Optional[float]] | list[int | float],
+    gender: Optional[str] = None,
+    age: Optional[float] = None,
+    actual_weight_kg: Optional[float] = None,
+    height_cm: Optional[float] = None,
+    bmi: Optional[float] = None,
+) -> ExperienceLevel:
+    """
+    Calculates the overall experience level using equal-weight averaging across all present markers.
+    Accepts 4 to 6 markers (push-ups, squats, run, frequency, optional plank hold,
+    and optional combined strength marker).
+
+    Thresholds for overall level:
+        average < 1.5     -> beginner
+        1.5 <= average < 2.5 -> intermediate
+        average >= 2.5    -> advanced
+    """
     if not markers:
         raise ValueError("At least one marker must be provided to calculate overall level.")
 
     if isinstance(markers, (list, tuple)):
         scores = [float(s) for s in markers]
     elif isinstance(markers, dict):
-        # Filter out None values and non-positive optional markers (plank, weighted_lift)
+        # Filter out None values and non-positive optional markers
         present_markers = {}
         for k, v in markers.items():
             if v is None:
                 continue
             canonical = MARKER_ALIASES.get(str(k).strip().lower())
-            if canonical in ("weighted_lift", "plank"):
+            if canonical in (
+                "weighted_lift",
+                "plank",
+                "push_lift",
+                "pull_lift",
+                "lower_lift",
+                "pull_ups",
+                "strength_marker",
+            ):
                 try:
                     if float(v) <= 0:
                         continue
@@ -363,11 +460,53 @@ def calculate_overall_level(
                 raise ValueError(
                     "gender and age must be provided when scoring raw marker values."
                 )
-            weight = actual_weight_kg if actual_weight_kg is not None else REFERENCE_WEIGHT_KG[normalize_gender(gender)]
-            scores = [
-                float(score_marker(m_name, m_val, gender, age, weight, height_cm=height_cm, bmi=bmi))
-                for m_name, m_val in present_markers.items()
-            ]
+            weight = (
+                actual_weight_kg
+                if actual_weight_kg is not None
+                else REFERENCE_WEIGHT_KG[normalize_gender(gender)]
+            )
+
+            # Separate strength lifts to combine into a single equal-weighted strength marker
+            lift_scores = []
+            regular_markers = {}
+            for m_name, m_val in present_markers.items():
+                canonical = MARKER_ALIASES.get(str(m_name).strip().lower())
+                if canonical in STRENGTH_LIFT_CANONICALS:
+                    s = score_marker(
+                        canonical,
+                        float(m_val),
+                        gender,
+                        age,
+                        weight,
+                        height_cm=height_cm,
+                        bmi=bmi,
+                    )
+                    lift_scores.append(float(s))
+                else:
+                    regular_markers[m_name] = m_val
+
+            scores = []
+            # Add regular markers (push_ups, squats, run, frequency, plank, weighted_lift, strength_marker)
+            for m_name, m_val in regular_markers.items():
+                canonical = MARKER_ALIASES.get(str(m_name).strip().lower())
+                if canonical == "strength_marker":
+                    scores.append(float(m_val))
+                else:
+                    s = score_marker(
+                        m_name,
+                        float(m_val),
+                        gender,
+                        age,
+                        weight,
+                        height_cm=height_cm,
+                        bmi=bmi,
+                    )
+                    scores.append(float(s))
+
+            # Combine lifts if present (they count as ONE single equal-weight marker)
+            if lift_scores:
+                combined_score = sum(lift_scores) / len(lift_scores)
+                scores.append(combined_score)
     else:
         raise TypeError(f"markers must be a dict or list, got {type(markers)}")
 
@@ -398,7 +537,15 @@ def evaluate_overall_assessment(
         if v is None:
             continue
         canonical = MARKER_ALIASES.get(str(k).strip().lower())
-        if canonical in ("weighted_lift", "plank"):
+        if canonical in (
+            "weighted_lift",
+            "plank",
+            "push_lift",
+            "pull_lift",
+            "lower_lift",
+            "pull_ups",
+            "strength_marker",
+        ):
             try:
                 if float(v) <= 0:
                     continue
@@ -410,11 +557,22 @@ def evaluate_overall_assessment(
         raise ValueError("At least one marker must be provided.")
 
     marker_details = {}
-    scores = []
+    lift_scores = []
+    regular_scores = []
 
     for name, val in present_markers.items():
-        score = score_marker(name, val, g, age, actual_weight_kg, height_cm=height_cm, bmi=bmi)
-        scores.append(score)
+        canonical = MARKER_ALIASES.get(str(name).strip().lower())
+        if canonical == "strength_marker":
+            s = float(val)
+            marker_details[name] = {
+                "value": val,
+                "score": round(s, 2),
+                "level": SCORE_TO_LEVEL[max(1, min(3, round(s)))],
+            }
+            regular_scores.append(s)
+            continue
+
+        score = score_marker(name, float(val), g, age, actual_weight_kg, height_cm=height_cm, bmi=bmi)
         inter_th, adv_th = compute_marker_thresholds(
             name, g, age, actual_weight_kg, height_cm=height_cm, bmi=bmi
         )
@@ -424,6 +582,23 @@ def evaluate_overall_assessment(
             "level": SCORE_TO_LEVEL[score],
             "intermediate_threshold": round(inter_th, 2),
             "advanced_threshold": round(adv_th, 2),
+        }
+
+        if canonical in STRENGTH_LIFT_CANONICALS:
+            lift_scores.append(score)
+        else:
+            regular_scores.append(score)
+
+    # Combine lifts into single equal-weight score
+    scores = list(regular_scores)
+    if lift_scores:
+        combined_strength_score = sum(lift_scores) / len(lift_scores)
+        scores.append(combined_strength_score)
+        marker_details["combined_strength_marker"] = {
+            "value": round(combined_strength_score, 2),
+            "score": round(combined_strength_score, 2),
+            "level": SCORE_TO_LEVEL[max(1, min(3, round(combined_strength_score)))],
+            "lifts_scored_count": len(lift_scores),
         }
 
     avg_score = sum(scores) / len(scores)

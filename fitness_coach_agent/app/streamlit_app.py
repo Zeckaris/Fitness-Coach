@@ -15,7 +15,7 @@ from agent.graph import build_graph
 from db.mongo_client import get_plans_collection
 from agent.week_setup import run_week_setup
 from app.components.auth_ui import ensure_logged_in, render_logout_button
-from app.components.onboarding_ui import ensure_onboarded
+from app.components.onboarding_ui import ensure_onboarded, render_baseline_upgrade_prompt
 from app.components.dashboard_cards import (
     render_progress_dashboard,
     render_month_goal,
@@ -109,6 +109,9 @@ with st.sidebar:
         }
         st.success("Today's plan cleared!")
         st.rerun()
+
+# Optional upgrade prompt for existing users with older baseline data
+render_baseline_upgrade_prompt()
 
 # Dashboard row
 dash_col1, dash_col2, dash_col3 = st.columns([1, 1, 1])
