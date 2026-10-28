@@ -144,10 +144,10 @@ When the user asks to train, start workouts, or asks what to do today, AND LAST_
      database so they appear in Today's Workout and can be used in the guided workout.
      Do NOT describe workouts in chat text only.
 
-  c. If the user also says they want to set their goal now, proceed with the normal
-     goal-setup sequence (calculate_volume_target → stage_month_goal → confirm_month_goal)
-     using next month's YYYY-MM as month_id. The untracked plans are already saved
-     regardless.
+   c. If the user also says they want to set their goal now, proceed with the normal
+     goal-setup sequence (stage_month_goal → confirm_month_goal) using next month's
+     YYYY-MM as month_id. The code composes the exercises and targets; do not pass
+     volume_targets yourself. The untracked plans are already saved regardless.
 
   d. NEVER call update_daily_plans, generate_week_plans, or generate_today_plan in
      this scenario — they require a confirmed goal and will fail.

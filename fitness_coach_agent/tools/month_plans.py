@@ -14,14 +14,11 @@ from db.guards import mongo_guarded
 from auth.context import get_current_user_id
 from typing import List, Optional, Literal, Tuple
 from utils.baseline_targets import (
-    calculate_month_target,
-    BEGINNER_BASELINE_BY_AREA,
-    BEGINNER_BASELINE_CARDIO_REPS,
-    BEGINNER_BASELINE_CORE_SECONDS,
-    BEGINNER_BASELINE_CORE_REPS,
+    calculate_exercise_month_target,
+    FOCUS_VOLUME_MULTIPLIER,
+    MAINTENANCE_VOLUME_MULTIPLIER,
     _is_timed_unit,
     WeekThemeEnum,
-    baseline_value_from_markers,
 )
 from utils.calendar_weeks import (
     weeks_in_month,
@@ -218,6 +215,7 @@ def _compute_volume_target_for_exercise(
     user_id: Optional[str] = None,
     sessions_per_week: int = 4,
     sets_per_session: Optional[int] = None,
+    volume_multiplier: float = 1.0,
 ) -> dict:
     target_month = month_id or _current_month_id()
 
@@ -226,7 +224,6 @@ def _compute_volume_target_for_exercise(
     resolved_unit = _exercise_unit(exercise, unit or canonical_unit)
 
     try:
-        from auth.context import get_current_user_id
         resolved_uid = user_id or get_current_user_id()
     except Exception:
         resolved_uid = user_id
@@ -236,32 +233,13 @@ def _compute_volume_target_for_exercise(
     if not stored_exp:
         stored_exp = "beginner"
 
-    use_stored_marker = True
-    if balance_area == "cardio":
-        use_stored_marker = _is_distance_unit(resolved_unit)
-    elif balance_area == "core":
-        use_stored_marker = _is_timed_unit(resolved_unit)
-
-    resolved_baseline = baseline_value
-    if resolved_baseline is None and use_stored_marker and resolved_uid:
+    raw_markers = None
+    if resolved_uid:
         try:
             assessment = get_latest_baseline_assessment(resolved_uid)
             raw_markers = (assessment or {}).get("answers", {}).get("raw_markers")
-            resolved_baseline = baseline_value_from_markers(
-                raw_markers, balance_area, unit=resolved_unit
-            )
         except Exception:
-            resolved_baseline = None
-
-    default_baseline = None
-    if balance_area == "cardio" and not use_stored_marker:
-        default_baseline = BEGINNER_BASELINE_CARDIO_REPS
-    elif balance_area == "core":
-        default_baseline = (
-            BEGINNER_BASELINE_CORE_SECONDS
-            if _is_timed_unit(resolved_unit)
-            else BEGINNER_BASELINE_CORE_REPS
-        )
+            raw_markers = None
 
     stored_multipliers = (profile or {}).get("progression_multipliers") or {}
     try:
@@ -269,21 +247,20 @@ def _compute_volume_target_for_exercise(
     except (TypeError, ValueError):
         progression_multiplier = 1.0
 
-    result = calculate_month_target(
+    result = calculate_exercise_month_target(
+        exercise=exercise,
         unit=resolved_unit,
         balance_area=balance_area,
         experience_level=stored_exp,
-        baseline_value=resolved_baseline,
+        workout=workout,
+        baseline_value=baseline_value,
+        raw_markers=raw_markers,
         sessions_per_week=sessions_per_week,
         sets_per_session=sets_per_session,
         weeks_in_month=weeks_in_month(target_month),
-        default_baseline=default_baseline,
         progression_multiplier=progression_multiplier,
+        volume_multiplier=volume_multiplier,
     )
-
-    baseline_source = result["baseline_source"]
-    if baseline_source == "provided" and baseline_value is None:
-        baseline_source = "stored_baseline"
 
     return {
         "exercise": exercise,
@@ -291,10 +268,58 @@ def _compute_volume_target_for_exercise(
         "month_target": result["month_target"],
         "balance_area": balance_area,
         "stored_exp": stored_exp,
-        "baseline_source": baseline_source,
+        "baseline_source": result["baseline_source"],
         "progression_multiplier": progression_multiplier,
+        "difficulty_factor": result["difficulty_factor"],
+        "category": result["category"],
         "calculation_result": result,
     }
+
+
+def _role_for_area(focus: Optional[str], balance_area: Optional[str]) -> str:
+    clean_focus = (focus or "balanced").strip().lower()
+    if clean_focus == "balanced":
+        return "balanced"
+    return "focus" if balance_area == clean_focus else "maintenance"
+
+
+def _volume_multiplier_for_role(role: str) -> float:
+    if role == "maintenance":
+        return MAINTENANCE_VOLUME_MULTIPLIER
+    if role == "focus":
+        return FOCUS_VOLUME_MULTIPLIER
+    return 1.0
+
+
+def _unit_family(unit: Optional[str]) -> str:
+    if unit in ("km", "mi", "m"):
+        return "distance"
+    if _is_timed_unit(unit or ""):
+        return "time"
+    return "reps"
+
+
+def _round_target_for_unit(value: float, unit: Optional[str]) -> float:
+    return round(value, 1) if _unit_family(unit) == "distance" else int(round(value))
+
+
+def _cap_maintenance_target(comp: dict, focus_targets: List[dict]) -> dict:
+    """Keep a maintenance exercise below the focus exercises of the same unit
+    family. Without this, a naturally high baseline (e.g. squats) could make a
+    half-volume maintenance movement exceed a focus movement of similar
+    difficulty."""
+    family = _unit_family(comp.get("unit"))
+    refs = [
+        float(f["month_target"]) for f in focus_targets
+        if _unit_family(f.get("unit")) == family
+    ]
+    if not refs:
+        return comp
+    cap = max(refs) * MAINTENANCE_VOLUME_MULTIPLIER
+    if float(comp["month_target"]) > cap:
+        comp["month_target"] = _round_target_for_unit(cap, comp.get("unit"))
+        comp["calculation_result"]["month_target"] = comp["month_target"]
+    return comp
 
 
 @tool(args_schema=CalculateVolumeTargetInput)
@@ -309,12 +334,11 @@ def calculate_volume_target(
     month_id: Optional[str] = None,
 ) -> str:
     """
-    FIRST-TIME GOAL SETUP ONLY. Call this once per exercise BEFORE calling
-    stage_month_goal — never invent a month_target yourself. Pass the
-    user's stated baseline for this movement if they gave one; omit
-    baseline_value if they didn't (a beginner default will be used).
-    Returns the computed month_target to use in stage_month_goal's
-    volume_targets.
+    Optional helper for an ad-hoc single-exercise estimate. Do NOT use this
+    during monthly goal setup: call stage_month_goal with the user's focus and
+    omit volume_targets, and the code composes every exercise and computes its
+    own target. Pass the user's stated baseline for this movement if they gave
+    one; omit baseline_value if they didn't (a beginner default will be used).
     """
     profile = get_user_profile()
     stored_exp = profile.get("experience_level") if profile else None
@@ -416,17 +440,12 @@ def stage_month_goal(
             and prev_mid != target_month
         )
 
-        raw_volume_targets = []
+        raw_items = []
         if carry_over_exercises:
             for p_vt in prev_goal["volume_targets"]:
-                ex_name = p_vt["exercise"]
-                b_area = p_vt.get("balance_area")
-                comp = _compute_volume_target_for_exercise(ex_name, b_area, month_id=target_month)
-                raw_volume_targets.append({
-                    "exercise": ex_name,
-                    "unit": comp["unit"],
-                    "month_target": comp["month_target"],
-                    "balance_area": b_area,
+                raw_items.append({
+                    "exercise": p_vt["exercise"],
+                    "balance_area": p_vt.get("balance_area"),
                 })
         else:
             resolved_eq, _ = resolve_user_equipment()
@@ -437,23 +456,48 @@ def stage_month_goal(
                 available_equipment=resolved_eq,
                 experience_level=stored_exp,
             )
-            for item in composed["exercises"]:
-                comp = _compute_volume_target_for_exercise(
-                    exercise=item["name"],
-                    balance_area=item["balance_area"],
-                    month_id=target_month,
-                )
-                raw_volume_targets.append({
-                    "exercise": item["name"],
-                    "unit": comp["unit"],
-                    "month_target": comp["month_target"],
-                    "balance_area": item["balance_area"],
-                })
+            raw_items = [
+                {"exercise": item["name"], "balance_area": item["balance_area"]}
+                for item in composed["exercises"]
+            ]
 
             if composed.get("short_groups"):
                 short_groups_note = (
                     f"Short groups omitted due to equipment profile: {', '.join(composed['short_groups'])}."
                 )
+
+        computed_items = []
+        for item in raw_items:
+            role = _role_for_area(resolved_focus, item["balance_area"])
+            comp = _compute_volume_target_for_exercise(
+                exercise=item["exercise"],
+                balance_area=item["balance_area"],
+                month_id=target_month,
+                volume_multiplier=_volume_multiplier_for_role(role),
+            )
+            computed_items.append({
+                "comp": comp,
+                "role": role,
+                "balance_area": item["balance_area"],
+            })
+
+        focus_targets = [
+            c["comp"] for c in computed_items if c["role"] == "focus"
+        ]
+        if focus_targets:
+            for c in computed_items:
+                if c["role"] == "maintenance":
+                    _cap_maintenance_target(c["comp"], focus_targets)
+
+        raw_volume_targets = [
+            {
+                "exercise": c["comp"]["exercise"],
+                "unit": c["comp"]["unit"],
+                "month_target": c["comp"]["month_target"],
+                "balance_area": c["balance_area"],
+            }
+            for c in computed_items
+        ]
 
     # --- Mid-month scaling ---
     today_str = today.strftime("%Y-%m-%d")
@@ -647,13 +691,36 @@ def swap_goal_exercise(
                 f"is not in the same muscle group as '{old_ex_name}' ({old_primary})."
             )
 
-    # Compute target from existing calculator
+    # Compute this replacement exercise's own target by the same rules.
+    role = _role_for_area(goal.get("focus"), balance_area)
     computed = _compute_volume_target_for_exercise(
         exercise=matched_new_name,
         balance_area=balance_area,
         month_id=target_month,
+        volume_multiplier=_volume_multiplier_for_role(role),
     )
     full_target = float(computed["month_target"])
+
+    if role == "maintenance":
+        focus_refs = [
+            {
+                "unit": vt.get("unit"),
+                "month_target": float(vt.get("full_month_target") or vt["month_target"]),
+            }
+            for vt in volume_targets
+            if _role_for_area(goal.get("focus"), vt.get("balance_area")) == "focus"
+        ]
+        if focus_refs:
+            capped = _cap_maintenance_target(
+                {
+                    "unit": computed["unit"],
+                    "month_target": full_target,
+                    "calculation_result": computed,
+                },
+                focus_refs,
+            )
+            full_target = float(capped["month_target"])
+
     scaled_target = full_target
 
     # Scale if mid-month
