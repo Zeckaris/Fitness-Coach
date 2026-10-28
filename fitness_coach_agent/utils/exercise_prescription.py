@@ -271,6 +271,16 @@ def finalize_exercise(
 ) -> dict:
     """Return a copy of an exercise with non-empty sets and reps/duration."""
     result = dict(exercise or {})
+    if _clean_text(result.get("pair_id")):
+        # Evaluation pairs are deliberately two single-set options. Never
+        # let theme dosing turn either one into a multi-set exercise.
+        result["sets"] = 1
+        target = _positive_number(result.get("target_quantity"))
+        unit = _normalise_unit(result.get("unit"))
+        if target is not None and unit:
+            result["reps"] = _dose_reps(target, unit, int(target))
+        return result
+
     resolved = resolve_exercise_prescription(
         result,
         week_focus=week_focus,
@@ -338,5 +348,15 @@ def format_exercise_prescription(exercise: Mapping) -> str:
         reps = f"{reps} {suffix}"
 
     if unit in _DISTANCE_UNITS and sets == 1:
-        return reps
-    return f"{sets}x{reps}"
+        text = reps
+    else:
+        text = f"{sets}x{reps}"
+
+    if _clean_text(exercise.get("pair_id")):
+        role = _clean_text(exercise.get("pair_role")).lower()
+        if role == "claim":
+            return f"{text} (evaluation pair: claimed amount - do one of the two)"
+        if role == "easier":
+            return f"{text} (evaluation pair: easier option - do one of the two)"
+        return f"{text} (evaluation pair - do one of the two)"
+    return text

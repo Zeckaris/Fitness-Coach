@@ -292,6 +292,33 @@ def _interleave(
     return result
 
 
+def _keep_pairs_contiguous(exercises: list[dict]) -> list[dict]:
+    """Keep each evaluation pair together, in its original claim-then-easier order."""
+    pair_items: dict[str, list[dict]] = {}
+    for ex in exercises:
+        pair_id = ex.get("pair_id")
+        if pair_id:
+            pair_items.setdefault(pair_id, []).append(ex)
+
+    if not pair_items:
+        return exercises
+
+    result: list[dict] = []
+    emitted: set[str] = set()
+    for ex in exercises:
+        pair_id = ex.get("pair_id")
+        if not pair_id:
+            result.append(ex)
+        elif pair_id not in emitted:
+            items = sorted(
+                pair_items[pair_id],
+                key=lambda x: 0 if x.get("pair_role") == "claim" else 1,
+            )
+            result.extend(items)
+            emitted.add(pair_id)
+    return result
+
+
 def reorder_phase(
     exercises: list[dict],
     *,
@@ -342,7 +369,9 @@ def reorder_phase(
             )
 
     # Only reorder the main phase; warmup and cooldown stay as-is.
-    main_reordered = _interleave(phases["main"], metadata_lookup)
+    main_reordered = _keep_pairs_contiguous(
+        _interleave(phases["main"], metadata_lookup)
+    )
 
     consecutive_conflicts = sum(
         1

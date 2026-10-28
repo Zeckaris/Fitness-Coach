@@ -304,33 +304,21 @@ def _resolve_baseline_with_source(
     return default_baseline, "beginner_default"
 
 
-def calculate_exercise_month_target(
+def _resolve_exercise_dose(
     exercise: str,
     unit: str,
     balance_area: BalanceArea,
     experience_level: ExperienceLevel,
-    workout: Optional[dict] = None,
-    baseline_value: Optional[float] = None,
-    raw_markers: Optional[dict] = None,
-    sessions_per_week: int = DEFAULT_SESSIONS_PER_WEEK,
-    sets_per_session: Optional[int] = None,
-    weeks_in_month: float = 4.35,
-    progression_multiplier: float = 1.0,
-    volume_multiplier: float = 1.0,
+    workout: Optional[dict],
+    baseline_value: Optional[float],
+    raw_markers: Optional[dict],
+    sets_per_session: Optional[int],
 ) -> dict:
-    """Per-exercise monthly target.
+    """Shared category/baseline/experience resolution for monthly and per-session dosing.
 
-    Categories:
-      * Bodyweight compound movements: movement-type baseline * per-exercise
-        difficulty factor (e.g. incline push-up 1.35, decline push-up 0.85).
-      * Weighted / pull / isolation / rep-based core / rep-based cardio:
-        the library's own default reps for that exercise, with a small
-        experience adjustment.
-      * Timed and per-side exercises keep their distinct units.
-
-    volume_multiplier is the focus/maintenance/balanced adjustment supplied by
-    the caller. It is applied once, to the fully-formed target, just like the
-    per-area progression multiplier.
+    This is the Foundation dosing logic: one working amount for the movement,
+    adjusted for category and experience. Monthly totals and focus/progression
+    multipliers are layered on by the caller, never here.
     """
     name = _normalize_exercise_name(exercise)
     is_timed = _is_timed_unit(unit)
@@ -404,28 +392,126 @@ def calculate_exercise_month_target(
             experience_factor = LIBRARY_REP_EXPERIENCE_FACTOR[experience_level]
             starting_reps = baseline_used
 
+    return {
+        "name": name,
+        "is_timed": is_timed,
+        "is_distance": is_distance,
+        "category": category,
+        "difficulty_factor": difficulty_factor,
+        "experience_factor": experience_factor,
+        "baseline_used": baseline_used,
+        "baseline_source": baseline_source,
+        "starting_reps": starting_reps,
+        "sets_per_session": sets_per_session,
+    }
+
+
+def calculate_exercise_month_target(
+    exercise: str,
+    unit: str,
+    balance_area: BalanceArea,
+    experience_level: ExperienceLevel,
+    workout: Optional[dict] = None,
+    baseline_value: Optional[float] = None,
+    raw_markers: Optional[dict] = None,
+    sessions_per_week: int = DEFAULT_SESSIONS_PER_WEEK,
+    sets_per_session: Optional[int] = None,
+    weeks_in_month: float = 4.35,
+    progression_multiplier: float = 1.0,
+    volume_multiplier: float = 1.0,
+) -> dict:
+    """Per-exercise monthly target.
+
+    Categories:
+      * Bodyweight compound movements: movement-type baseline * per-exercise
+        difficulty factor (e.g. incline push-up 1.35, decline push-up 0.85).
+      * Weighted / pull / isolation / rep-based core / rep-based cardio:
+        the library's own default reps for that exercise, with a small
+        experience adjustment.
+      * Timed and per-side exercises keep their distinct units.
+
+    volume_multiplier is the focus/maintenance/balanced adjustment supplied by
+    the caller. It is applied once, to the fully-formed target, just like the
+    per-area progression multiplier.
+    """
+    resolved = _resolve_exercise_dose(
+        exercise, unit, balance_area, experience_level,
+        workout, baseline_value, raw_markers, sets_per_session,
+    )
+    starting_reps = resolved["starting_reps"]
+    experience_factor = resolved["experience_factor"]
+    sets_per_session = resolved["sets_per_session"]
+
     month_target = (
         starting_reps * experience_factor * sets_per_session * sessions_per_week
         * weeks_in_month * progression_multiplier * volume_multiplier
     )
-    if is_distance:
+    if resolved["is_distance"]:
         month_target = round(month_target, 1)
     else:
         month_target = int(round(month_target))
 
     return {
         "month_target": month_target,
-        "baseline_used": baseline_used,
-        "baseline_source": baseline_source,
+        "baseline_used": resolved["baseline_used"],
+        "baseline_source": resolved["baseline_source"],
         "intensity_factor": experience_factor,
         "experience_factor": experience_factor,
-        "difficulty_factor": difficulty_factor,
+        "difficulty_factor": resolved["difficulty_factor"],
         "sets_per_session": sets_per_session,
         "sessions_per_week": sessions_per_week,
         "weeks_in_month": weeks_in_month,
         "progression_multiplier": progression_multiplier,
         "volume_multiplier": volume_multiplier,
-        "category": category,
+        "category": resolved["category"],
+    }
+
+
+def calculate_exercise_session_target(
+    exercise: str,
+    unit: str,
+    balance_area: BalanceArea,
+    experience_level: ExperienceLevel,
+    workout: Optional[dict] = None,
+    baseline_value: Optional[float] = None,
+    raw_markers: Optional[dict] = None,
+    sets_per_session: Optional[int] = None,
+) -> dict:
+    """One session's working amount for an exercise (no monthly/progression maths).
+
+    Uses exactly the same category logic and experience adjustments as
+    ``calculate_exercise_month_target``, but stops after the per-session
+    Foundation dose. Distance targets keep one continuous set; timed and
+    per-side movements keep their own units.
+    """
+    resolved = _resolve_exercise_dose(
+        exercise, unit, balance_area, experience_level,
+        workout, baseline_value, raw_markers, sets_per_session,
+    )
+    set_count = resolved["sets_per_session"]
+    session_target = resolved["starting_reps"] * resolved["experience_factor"] * set_count
+
+    if resolved["is_distance"]:
+        session_target = round(session_target, 1)
+        sets = 1
+        reps_per_set = session_target
+    else:
+        session_target = int(round(session_target))
+        sets, reps_per_set = get_theme_dosing_structure("Foundation", session_target)
+
+    return {
+        "session_target": session_target,
+        "target_quantity": session_target,
+        "unit": unit,
+        "sets": sets,
+        "reps_per_set": reps_per_set,
+        "sets_per_session": set_count,
+        "baseline_used": resolved["baseline_used"],
+        "baseline_source": resolved["baseline_source"],
+        "intensity_factor": resolved["experience_factor"],
+        "experience_factor": resolved["experience_factor"],
+        "difficulty_factor": resolved["difficulty_factor"],
+        "category": resolved["category"],
     }
 
 

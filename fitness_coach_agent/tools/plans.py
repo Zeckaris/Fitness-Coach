@@ -139,6 +139,14 @@ class ExercisePlanItem(BaseModel):
         default=None,
         description="Group ID linking split set entries of the same exercise within a session.",
     )
+    pair_id: Optional[str] = Field(
+        default=None,
+        description="Shared marker linking the two alternative entries of an evaluation pair.",
+    )
+    pair_role: Optional[str] = Field(
+        default=None,
+        description="Role within an evaluation pair: 'claim' or 'easier'.",
+    )
 
     @model_validator(mode="after")
     def _validate_unit_pairing(self):
@@ -179,7 +187,7 @@ def split_exercise_sets(exercises: list[dict], max_consecutive_sets: int = MAX_C
         cat = item.get("category", "main")
         sets = item.get("sets")
 
-        if cat != "main" or not sets or sets <= max_consecutive_sets:
+        if item.get("pair_id") or cat != "main" or not sets or sets <= max_consecutive_sets:
             result.append(item)
             continue
 
@@ -977,21 +985,58 @@ def _generate_untracked_plans_for_dates(
             "Plan generation returned unexpected dates — please ask again in a moment."
         )
 
-    # Strip any target_quantity / unit the LLM may have added (safety net).
-    # The unit is restored from the library during finalisation so plans keep
-    # a display unit even though they are not goal-tracked.
-    for day in result.days:
-        for ex in day.exercises:
-            ex.target_quantity = None
-            ex.unit = None
+    from tools.baseline_assessment import get_latest_baseline_assessment
+    from utils.evaluation_plan import build_evaluation_main_exercises
+
+    uid = get_current_user_id()
+    raw_markers = None
+    if uid:
+        try:
+            assessment = get_latest_baseline_assessment(uid)
+            raw_markers = (assessment or {}).get("answers", {}).get("raw_markers")
+        except Exception:
+            raw_markers = None
+
+    avoid_by_date = {
+        d.date: (d.avoid_body_parts or []) for d in result.days
+    }
+    eval_mains_by_date = build_evaluation_main_exercises(
+        dates=dates_to_plan,
+        experience_level=exp_level,
+        raw_markers=raw_markers,
+        resolved_equipment=resolved_eq,
+        avoid_body_parts_by_date=avoid_by_date,
+    )
 
     # Persist
     plans_col = get_plans_collection()
     now = datetime.now(ZoneInfo("UTC"))
     for day in result.days:
-        exercises = [e.model_dump() for e in day.exercises] if day.exercises else []
+        raw_exercises = (
+            [e.model_dump() if hasattr(e, "model_dump") else dict(e) for e in day.exercises]
+            if day.exercises
+            else []
+        )
+        warmups = [e for e in raw_exercises if e.get("category") == "warmup"]
+        cooldowns = [e for e in raw_exercises if e.get("category") == "cooldown"]
+
+        if len(warmups) < 2:
+            default_warmups = [
+                {"name": "Bear Crawl", "focus": "full_body", "category": "warmup"},
+                {"name": "Star Jump (Male)", "focus": "full_body", "category": "warmup"},
+            ]
+            for w in default_warmups:
+                if len(warmups) < 2 and not any(x.get("name") == w["name"] for x in warmups):
+                    warmups.append(w)
+        if len(cooldowns) < 1:
+            cooldowns.append({"name": "Dead Bug", "focus": "core", "category": "cooldown"})
+
+        warmups = finalize_exercises(warmups, week_focus=focus_hint)
+        cooldowns = finalize_exercises(cooldowns, week_focus=focus_hint)
+        eval_mains = eval_mains_by_date.get(day.date) or []
+
+        exercises = warmups + eval_mains + cooldowns
         if exercises:
-            exercises = finalize_exercises(exercises, week_focus=focus_hint)
             exercises = split_exercise_sets(exercises)
             exercises = reorder_phase(exercises)
         set_fields = {
