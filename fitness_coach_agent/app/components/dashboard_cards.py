@@ -86,6 +86,10 @@ def render_month_goal():
         else:
             st.info(description)
 
+        focus = goal.get("focus")
+        if focus:
+            st.caption(f"🎯 Focus: {focus.replace('_', ' ').title()}")
+
         metric_name = goal.get("metric_name")
         if metric_name and goal.get("target_value") is not None:
             baseline = goal.get("baseline_value")

@@ -89,6 +89,7 @@ def progress_goal(previous_goal: dict, tier: str, latest_metric_value: Optional[
 
     return {
         "description": previous_goal.get("description"),
+        "focus": previous_goal.get("focus", "balanced"),
         "metric_name": new_metric_name,
         "target_value": new_target_value,
         "unit": new_unit,
@@ -160,6 +161,7 @@ def build_goal_from_multipliers(
 
     return {
         "description": previous_goal.get("description"),
+        "focus": previous_goal.get("focus", "balanced"),
         "metric_name": new_metric_name,
         "target_value": new_target_value,
         "unit": new_unit,

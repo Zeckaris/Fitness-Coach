@@ -33,6 +33,7 @@ from tools.month_plans import (
     get_current_month_plan,
     get_current_goal_summary,
     stage_month_goal,
+    swap_goal_exercise,
     confirm_month_goal,
     calculate_volume_target,
     get_previous_month_review_context
@@ -68,6 +69,7 @@ TOOLS = [
     get_current_month_plan,
     get_previous_month_review_context,
     stage_month_goal,
+    swap_goal_exercise,
     calculate_volume_target, 
     confirm_month_goal,
     update_week_plan,

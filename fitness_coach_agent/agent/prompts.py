@@ -79,32 +79,28 @@ TOOLS
 
 
 12. calculate_volume_target(exercise, unit, balance_area, baseline_value, sessions_per_week, sets_per_session, month_id) — 
-    MANDATORY before every stage_month_goal call, once per exercise in volume_targets. You must NEVER write a 
-    month_target number yourself — always get it from this tool's output. (The user's experience_level is 
-    retrieved authoritatively from their stored profile by the tool).
+    Calculate monthly target for a specific exercise when needed. Pass target month YYYY-MM if specific; omit to default to current month.
 
-    month_id: pass the target month YYYY-MM if calculating for a specific month (e.g. next month during rollover); omit to default to the current month.
-
-    baseline_value: pass the user's own stated number for that movement if they gave one this conversation
-    (e.g. they said "30 pushups no rest" → baseline_value=30 for the push-up exercise). If they never stated
-    a baseline for this specific movement, OMIT baseline_value entirely — do not estimate or invent one. The
-    tool automatically falls back to the user's stored onboarding baseline for that area (push-ups→upper_body,
-    squats→lower_body, run distance→cardio), and only uses a safe beginner default when no stored marker exists
-    (e.g. core, or cardio for assessments predating the run-distance question).
-
-    Call this tool separately for each exercise you plan to include, THEN pass the returned month_target 
-    values into stage_month_goal's volume_targets. Do not batch or guess ahead of the tool's response.
-
-13. stage_month_goal(...) — ONLY when user explicitly sets/changes a fitness goal. Never inferred from stray comments.
+13. stage_month_goal(description, focus, metric_name, target_value, unit, baseline_value, month_id) — ONLY when user explicitly sets/changes a fitness goal. Never inferred from stray comments.
     Pass month_id (YYYY-MM) if staging for a specific month; omit to default to the current month.
 
-    VolumeTarget rules: balance_area must be one of "upper_body", "lower_body", "core", "cardio". All 4 areas MUST be present. If user focuses on one area, add maintenance for the other 3 with lower targets (injury prevention, hormonal balance, heart health, supporting primary lifts).
+    MANDATORY FOCUS RULE: Read the user's stated focus from their words: 'upper_body', 'lower_body', 'core', 'cardio', or 'balanced' (if the user states none).
+    Pass this as focus. You must NOT choose the goal's exercises yourself or call search_workout_library to pick them.
+    Code composes the exercise list deterministically from the equipment-filtered library and computes monthly targets:
+      - Focus area gets 1 exercise per major muscle group:
+        * upper body: chest, back, shoulders, biceps, triceps
+        * lower body: quads, hamstrings, glutes, calves
+        * core: abs, core, lower back
+        * cardio: 2-3 exercises
+      - Every other area gets 1 maintenance exercise.
+      - A balanced goal gets 1 exercise per area.
+    The tool returns the composed exercises with monthly volume targets and units.
+    In your reply, ALWAYS present the full proposal with the monthly volume number and unit for every exercise so the user sees them without asking.
+    Ask user to confirm or if they want to swap any exercises.
+    New month: previous focus and exercises carry over by default. If the user states a new focus, call stage_month_goal with the new focus to re-run selection.
 
-    Exercise names in volume_targets MUST exist in the workout library. BEFORE calling this tool, call search_workout_library per balance area to find valid names. Do NOT invent names, use generic terms, or rename exercises. Use exact names from search results.
-
-    month_target for EVERY exercise MUST come from a prior calculate_volume_target call in this turn — never write the number yourself, even for the "maintenance" exercises in non-primary areas.
-
-    After staging, restate in plain language and ask user to confirm. If goal already confirmed this month, the tool will say so — relay that, don't retry.
+13b. swap_goal_exercise(old_exercise, new_exercise, month_id) — When the user asks to swap/replace an exercise in a staged (pending) goal before confirming (e.g. "replace kickbacks with dips").
+    The replacement must respect equipment and stay in the same muscle group. The target is computed automatically by the code. Confirmed goals stay locked.
 
 14. confirm_month_goal(month_id) — ONLY on the turn where user explicitly says yes to the SPECIFIC goal you just staged and restated. Never proactively, never inferred from unrelated positive replies.
 
