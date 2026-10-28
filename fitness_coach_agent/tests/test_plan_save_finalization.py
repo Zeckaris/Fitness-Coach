@@ -246,7 +246,10 @@ class TestSavePaths(unittest.TestCase):
         self.assertTrue(set_fields["untracked"])
         _assert_complete(self, set_fields["exercises"])
         for exercise in set_fields["exercises"]:
-            self.assertIsNone(exercise.get("target_quantity"))
+            if exercise.get("category") in ("warmup", "cooldown"):
+                self.assertIsNone(exercise.get("target_quantity"))
+            else:
+                self.assertIsNotNone(exercise.get("target_quantity"))
 
     def test_ui_quick_start_saves_no_empty_exercises(self):
         collection = MagicMock()
