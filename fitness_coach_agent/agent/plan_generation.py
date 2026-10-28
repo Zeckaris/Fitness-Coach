@@ -170,16 +170,17 @@ def validate_and_enforce_pre_assigned_goals(
             for m_name in missing:
                 meta = workout_map.get(m_name, {})
                 focus = meta.get("primary_target_area") or day.focus_area or "full_body"
+                baseline = meta.get("baseline") or {}
                 new_item = ExercisePlanItem.model_construct(
                     name=m_name,
                     focus=focus,
                     category="main",
-                    sets=None,
-                    reps=None,
+                    sets=baseline.get("sets"),
+                    reps=baseline.get("reps"),
                     equipment=meta.get("equipment") or ["none"],
                     duration_minutes=meta.get("duration_minutes") or 5,
                     target_quantity=None,
-                    unit=None,
+                    unit=baseline.get("unit"),
                     completed_quantity=0,
                     completed=False,
                     set_group_id=None,

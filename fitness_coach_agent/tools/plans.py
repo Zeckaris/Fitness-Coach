@@ -42,6 +42,7 @@ from agent.monthly_review import build_week_plan_data
 from agent.plan_generation import generate_backfill_days, pre_schedule_goal_exercises
 from agent.error_handling import StructuredOutputFailed, ToolExecutionError
 from utils.exercise_ordering import reorder_phase
+from utils.exercise_prescription import finalize_exercises
 from tools.plan_history import get_past_plans
 from tools.knowledge_base import search_fitness_knowledge_base
 from tools.workout_library import (
@@ -475,6 +476,11 @@ def update_daily_plans(days: List[DayPlanInput]) -> str:
     for day in days:
         exercises = [e.model_dump() for e in day.exercises] if day.exercises else []
         if exercises:
+            exercises = finalize_exercises(
+                exercises,
+                week_focus=get_week_focus_for_date(day.date),
+                daily_targets=get_daily_volume_targets_for_date(day.date) or [],
+            )
             exercises = split_exercise_sets(exercises)
             exercises = reorder_phase(exercises)
 
@@ -742,6 +748,15 @@ def _generate_plans_for_dates(
     plans = get_plans_collection()
     now = datetime.now(ZoneInfo("UTC"))
     for day in result.days:
+        exercises = [e.model_dump() for e in day.exercises] if day.exercises else []
+        if exercises:
+            exercises = finalize_exercises(
+                exercises,
+                week_focus=get_week_focus_for_date(day.date) or week_focus,
+                daily_targets=get_daily_volume_targets_for_date(day.date) or [],
+            )
+            exercises = split_exercise_sets(exercises)
+
         set_fields = {
             "user_id": get_current_user_id(),
             "date": day.date,
@@ -749,7 +764,7 @@ def _generate_plans_for_dates(
             "focus_area": day.focus_area,
             "status": day.status,
             "duration_minutes": day.duration_minutes,
-            "exercises": [e.model_dump() for e in day.exercises] if day.exercises else [],
+            "exercises": exercises,
             "notes": day.notes,
             "avoid_body_parts": day.avoid_body_parts,
             "source_checkin_date": day.source_checkin_date,
@@ -962,7 +977,9 @@ def _generate_untracked_plans_for_dates(
             "Plan generation returned unexpected dates — please ask again in a moment."
         )
 
-    # Strip any target_quantity / unit the LLM may have added (safety net)
+    # Strip any target_quantity / unit the LLM may have added (safety net).
+    # The unit is restored from the library during finalisation so plans keep
+    # a display unit even though they are not goal-tracked.
     for day in result.days:
         for ex in day.exercises:
             ex.target_quantity = None
@@ -974,6 +991,7 @@ def _generate_untracked_plans_for_dates(
     for day in result.days:
         exercises = [e.model_dump() for e in day.exercises] if day.exercises else []
         if exercises:
+            exercises = finalize_exercises(exercises, week_focus=focus_hint)
             exercises = split_exercise_sets(exercises)
             exercises = reorder_phase(exercises)
         set_fields = {

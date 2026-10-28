@@ -12,6 +12,11 @@ from streamlit.components.v1 import html
 
 from db.mongo_client import get_plans_collection
 from utils.calendar_weeks import today_local
+from utils.exercise_prescription import (
+    finalize_exercises,
+    format_exercise_prescription,
+    resolve_exercise_prescription,
+)
 from auth.context import get_current_user_id
 from tools.workout_library import _WORKOUTS
 
@@ -91,7 +96,7 @@ def create_today_plan(exercises: list, focus_area: str = "full_body", duration_m
         "focus_area": focus_area,
         "status": "planned",
         "duration_minutes": duration_minutes,
-        "exercises": exercises,
+        "exercises": finalize_exercises(exercises),
         "notes": "Generated from workout session UI",
         "created_at": datetime.now(ZoneInfo("UTC")),
         "updated_at": datetime.now(ZoneInfo("UTC")),
@@ -265,8 +270,10 @@ def render_workout_session():
 
     ex = exercises[current_idx]
     name = ex.get("name", "Exercise")
-    sets = ex.get("sets", 1)
-    reps = ex.get("reps", "?")
+    resolved = resolve_exercise_prescription(ex)
+    sets = resolved["sets"]
+    reps = resolved["reps"]
+    amount = format_exercise_prescription(ex)
     duration = ex.get("duration_minutes")
     category = ex.get("category", "main")
     description = ex.get("description", "")
@@ -290,15 +297,23 @@ def render_workout_session():
         col_info, col_action = st.columns([2, 1])
 
         with col_info:
-            st.markdown(f"**Sets:** {sets}  " + chr(10) + f"**Reps/Duration:** {reps}")
+            st.markdown(f"**Prescription:** {amount}")
             if description:
                 st.caption(description)
 
             if ws["status"] == "exercising" or ws["status"] == "idle":
                 sg_id = ex.get("set_group_id")
                 if sg_id:
-                    total_group_sets = sum(e.get("sets", 0) for e in exercises if e.get("set_group_id") == sg_id)
-                    prior_group_sets = sum(e.get("sets", 0) for i, e in enumerate(exercises) if i < current_idx and e.get("set_group_id") == sg_id)
+                    total_group_sets = sum(
+                        resolve_exercise_prescription(e)["sets"]
+                        for e in exercises
+                        if e.get("set_group_id") == sg_id
+                    )
+                    prior_group_sets = sum(
+                        resolve_exercise_prescription(e)["sets"]
+                        for i, e in enumerate(exercises)
+                        if i < current_idx and e.get("set_group_id") == sg_id
+                    )
                     display_set = prior_group_sets + ws["current_set"]
                     st.markdown(f"**Set {display_set} of {total_group_sets}** *(Circuit Set {ws['current_set']} of {sets})*")
                 else:
@@ -389,4 +404,6 @@ def render_workout_session():
                     if media and (media["image"] or media["gif"]):
                         st.image(media["image"] or media["gif"], width=64)
                 with text_col:
-                    st.markdown(f"{emoji} **{next_name}** — {next_ex.get('sets')}x{next_ex.get('reps')}")
+                    st.markdown(
+                        f"{emoji} **{next_name}** — {format_exercise_prescription(next_ex)}"
+                    )
