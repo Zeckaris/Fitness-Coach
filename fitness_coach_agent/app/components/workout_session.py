@@ -116,6 +116,12 @@ def update_today_exercise_completion(exercise_idx: int, field: str, value):
         {"user_id": get_current_user_id(), "date": today},
         {"$set": {f"exercises.{exercise_idx}.{field}": value}},
     )
+    if field == "completed" and value:
+        try:
+            from tools.evaluation import capture_evaluation_ticks_for_date
+            capture_evaluation_ticks_for_date(today)
+        except Exception:
+            pass
 
 
 def finish_today_plan():

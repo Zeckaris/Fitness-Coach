@@ -22,6 +22,14 @@ from utils.baseline_targets import (
     baseline_value_from_markers,
     calculate_exercise_session_target,
 )
+from utils.evaluation_round import (
+    MOVEMENT_PLANK,
+    MOVEMENT_PULL_UP,
+    MOVEMENT_PUSH,
+    MOVEMENT_SQUAT,
+    movement_for_exercise,
+    preferred_exercise_for_movement,
+)
 
 _PUSH_POOL = [
     "Push-Up",
@@ -76,17 +84,19 @@ _FAMILY_PRIORITY = ("push", "lower_body", "core", "cardio", "pull_up", "jump_rop
 _REQUIRED_FAMILIES = ("push", "lower_body", "core", "cardio")
 
 # Only these movements use the registration claim for their first appearance.
-_CLAIM_SPECS = {
-    "Push-Up": ("upper_body", "push_ups", "reps"),
-    "Incline Push-Up": ("upper_body", "push_ups", "reps"),
-    "Kneeling Push-Up": ("upper_body", "push_ups", "reps"),
-    "Close-Grip Push-Up": ("upper_body", "push_ups", "reps"),
-    "Decline Push-Up": ("upper_body", "push_ups", "reps"),
-    "Side Push-Up": ("upper_body", "push_ups", "reps"),
-    "Squat to Overhead Reach": ("lower_body", "squats", "reps"),
-    "Bodyweight Incline Side Plank": ("core", "plank_seconds", "seconds"),
-    "Pull-Up": (None, "pull_ups", "reps"),
+# The exercise-to-movement aliases (including real Squat / Plank when present)
+# live in utils.evaluation_round so they are easy to change in one place.
+_CLAIM_MARKER_SPECS = {
+    MOVEMENT_PUSH: ("upper_body", "push_ups", "reps"),
+    MOVEMENT_SQUAT: ("lower_body", "squats", "reps"),
+    MOVEMENT_PLANK: ("core", "plank_seconds", "seconds"),
+    MOVEMENT_PULL_UP: (None, "pull_ups", "reps"),
 }
+
+
+def _claim_spec(name: str) -> Optional[tuple[Optional[str], str, str]]:
+    movement = movement_for_exercise(name)
+    return _CLAIM_MARKER_SPECS.get(movement)
 
 _PATTERN_FAMILIES = {
     "push": {"push", "horizontal_push", "vertical_push", "push_up", "dip"},
@@ -168,13 +178,30 @@ def _all_library_names() -> list[str]:
 
 
 def _candidate_names(family: str) -> list[str]:
-    """Preferred names first, then a deterministic fallback from the library."""
-    explicit = list(_FAMILY_POOLS.get(family) or [])
+    """Preferred names first, then a deterministic fallback from the library.
+
+    A real Squat / Plank is preferred over its substitute whenever the library
+    contains one; otherwise the substitute pool below is used unchanged.
+    """
+    preferred_movement = {
+        "lower_body": MOVEMENT_SQUAT,
+        "core": MOVEMENT_PLANK,
+    }.get(family)
+    preferred: list[str] = []
+    if preferred_movement:
+        real_name = preferred_exercise_for_movement(preferred_movement)
+        if real_name:
+            preferred.append(real_name)
+
+    explicit = [
+        name for name in (_FAMILY_POOLS.get(family) or [])
+        if name not in preferred
+    ]
     fallback = sorted(
         name for name in _all_library_names()
-        if name not in explicit and movement_family(name) == family
+        if name not in explicit and name not in preferred and movement_family(name) == family
     )
-    return explicit + fallback
+    return preferred + explicit + fallback
 
 
 def _is_eligible(
@@ -234,7 +261,10 @@ def _representative_reps(workout: dict) -> int:
 
 
 def _claim_amount(name: str, raw_markers: Optional[dict]) -> int:
-    area, marker, unit = _CLAIM_SPECS[name]
+    spec = _claim_spec(name)
+    if spec is None:
+        return 1
+    area, marker, unit = spec
     value = None
     if area is not None:
         value = baseline_value_from_markers(raw_markers, area, unit=unit)
@@ -303,7 +333,10 @@ def _pair_id(name: str, date: str) -> str:
 
 
 def _make_pair(name: str, date: str, raw_markers: Optional[dict], experience_level: str) -> list[dict]:
-    area, _marker, unit = _CLAIM_SPECS[name]
+    spec = _claim_spec(name)
+    if spec is None:
+        return []
+    _area, _marker, unit = spec
     claim = _claim_amount(name, raw_markers)
     easier = _easier_amount(claim, experience_level)
     pair_id = _pair_id(name, date)
@@ -391,20 +424,22 @@ def build_evaluation_main_exercises(
 ) -> dict[str, list[dict]]:
     """Build deterministic main-phase exercises for each date.
 
-    Each day gets one movement per required family, rotated by day index so
-    the same movement never lands on consecutive days. Pull-up and jump rope
-    are added once in the window (first day where usable) only when the
-    resolved equipment grants them. Pair entries are always adjacent and in
-    claim-then-easier order.
+    Claim-bearing evaluation movements use the same movement every day, so the
+    claimed/easier pair repeats across the whole remaining window (3 days left
+    means the user sees the choices 3 times). Cardio and the optional jump rope
+    keep their existing day-to-day behaviour; pull-up, when available, is an
+    evaluation movement and repeats its pair too. Pair entries are always
+    adjacent and in claim-then-easier order.
     """
     avoid_map = avoid_body_parts_by_date or {}
     has_pull_bar = has_user_equipment(resolved_equipment, "pull_up_bar")
     has_rope = has_user_equipment(resolved_equipment, "rope")
     optional_done: set[str] = set()
-    claims_evaluated: set[str] = set()
-    first_seen: set[str] = set()
     previous_day_names: set[str] = set()
     result: dict[str, list[dict]] = {}
+
+    # These families are the stable evaluation movements whose pair must repeat.
+    stable_families = {"push", "lower_body", "core", "pull_up"}
 
     for day_index, date in enumerate(dates):
         avoid = avoid_map.get(date) or []
@@ -414,23 +449,28 @@ def build_evaluation_main_exercises(
             if family in _REQUIRED_FAMILIES:
                 pass
             elif family == "pull_up":
-                if not include_optional or not has_pull_bar or family in optional_done:
+                if not include_optional or not has_pull_bar:
                     continue
             elif family == "jump_rope":
                 if not include_optional or not has_rope or family in optional_done:
                     continue
 
+            is_stable = family in stable_families
             name = _pick_movement(
                 family,
-                day_index,
+                0 if is_stable else day_index,
                 resolved_equipment=resolved_equipment,
                 avoid_body_parts=avoid,
-                excluded_names=previous_day_names | {n for n, _ in chosen},
+                excluded_names=(
+                    {n for n, _ in chosen}
+                    if is_stable
+                    else previous_day_names | {n for n, _ in chosen}
+                ),
             )
             if name is None:
                 continue
             chosen.append((name, family))
-            if family in ("pull_up", "jump_rope"):
+            if family == "jump_rope":
                 optional_done.add(family)
 
         # Defensive fallback: a filtered pool must still yield a usable main
@@ -439,9 +479,10 @@ def build_evaluation_main_exercises(
             for family in _REQUIRED_FAMILIES:
                 if any(f == family for _, f in chosen):
                     continue
+                is_stable = family in stable_families
                 name = _pick_movement(
                     family,
-                    day_index,
+                    0 if is_stable else day_index,
                     resolved_equipment=resolved_equipment,
                     avoid_body_parts=[],
                     excluded_names={n for n, _ in chosen},
@@ -454,16 +495,10 @@ def build_evaluation_main_exercises(
         for name, family in chosen:
             if family == "jump_rope":
                 day_entries.append(_make_jump_rope_entry(name))
-            elif name in _CLAIM_SPECS:
-                _, marker, _ = _CLAIM_SPECS[name]
-                if marker not in claims_evaluated:
-                    day_entries.extend(_make_pair(name, date, raw_markers, experience_level))
-                    claims_evaluated.add(marker)
-                else:
-                    day_entries.append(_make_session_entry(name, family, experience_level, raw_markers))
+            elif _claim_spec(name) is not None:
+                day_entries.extend(_make_pair(name, date, raw_markers, experience_level))
             else:
                 day_entries.append(_make_session_entry(name, family, experience_level, raw_markers))
-            first_seen.add(name)
 
         result[date] = day_entries
         previous_day_names = {name for name, _ in chosen}
