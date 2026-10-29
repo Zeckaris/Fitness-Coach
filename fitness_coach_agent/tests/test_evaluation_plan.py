@@ -132,8 +132,8 @@ class TestEvaluationPlan(unittest.TestCase):
         self.assertGreaterEqual(len(plan_2["2026-10-28"]), 4)
         self.assertGreaterEqual(len(plan_2["2026-10-29"]), 4)
 
-    # 5. Rotation without back-to-back repeats
-    def test_rotation_without_back_to_back_repeats(self):
+    # 5. Evaluation pairs repeat on every remaining day
+    def test_evaluation_pairs_repeat_every_day(self):
         dates = [f"2026-10-{d:02d}" for d in range(25, 31)]  # 6 days
         plan = build_evaluation_main_exercises(
             dates=dates,
@@ -141,16 +141,25 @@ class TestEvaluationPlan(unittest.TestCase):
             raw_markers=self.intermediate_markers,
             resolved_equipment=[],
         )
-        prev_names = set()
+        movement_names = {
+            "push": "Push-Up",
+            "lower_body": "Squat to Overhead Reach",
+            "core": "Bodyweight Incline Side Plank",
+        }
+        claim_amounts = {}
         for d in dates:
-            curr_names = {ex["name"] for ex in plan[d]}
-            overlap = prev_names.intersection(curr_names)
-            self.assertEqual(
-                overlap,
-                set(),
-                f"Consecutive day repeat on date {d}: {overlap}",
-            )
-            prev_names = curr_names
+            day = plan[d]
+            for family, name in movement_names.items():
+                entries = [ex for ex in day if ex["name"] == name]
+                self.assertEqual(len(entries), 2, f"{name} pair missing on {d}")
+                claim = next(e for e in entries if e["pair_role"] == "claim")
+                easier = next(e for e in entries if e["pair_role"] == "easier")
+                self.assertIsNotNone(claim["pair_id"])
+                self.assertEqual(claim["pair_id"], easier["pair_id"])
+                claim_amounts.setdefault(family, set()).add(claim["target_quantity"])
+        # The same claimed/lower amounts repeat across the whole window.
+        for amounts in claim_amounts.values():
+            self.assertEqual(len(amounts), 1)
 
     # 6. Determinism
     def test_determinism(self):
@@ -211,11 +220,15 @@ class TestEvaluationPlan(unittest.TestCase):
         self.assertEqual(reordered[indices[0]]["pair_role"], "claim")
         self.assertEqual(reordered[indices[1]]["pair_role"], "easier")
 
-        # Later day does NOT make push a pair
+        # The pair repeats on the later day too, with the same amounts.
         day2 = plan["2026-10-29"]
         push_day2 = [e for e in day2 if movement_family(e["name"]) == "push"]
-        self.assertEqual(len(push_day2), 1)
-        self.assertIsNone(push_day2[0].get("pair_id"))
+        self.assertEqual(len(push_day2), 2)
+        day2_claim = next(e for e in push_day2 if e["pair_role"] == "claim")
+        day2_easier = next(e for e in push_day2 if e["pair_role"] == "easier")
+        self.assertEqual(day2_claim["target_quantity"], 25)
+        self.assertEqual(day2_easier["target_quantity"], 18)
+        self.assertNotEqual(day2_claim["pair_id"], claim_e["pair_id"])
 
     # 8. Jump rope without a pair
     def test_jump_rope_without_a_pair(self):
