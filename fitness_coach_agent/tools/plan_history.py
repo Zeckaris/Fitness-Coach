@@ -18,6 +18,7 @@ from db.mongo_client import get_plans_collection
 from db.guards import mongo_guarded
 from auth.context import get_current_user_id
 from utils.calendar_weeks import get_plannable_dates, today_local
+from utils.exercise_prescription import format_exercise_prescription
 
 
 def _backward_dates() -> list:
@@ -76,7 +77,8 @@ def format_plan_day(doc: dict, date: str) -> str:
     exercises = doc.get("exercises") or []
     if exercises:
         ex_str = ", ".join(
-            f"{e['name']} ({e.get('sets', '?')}x{e.get('reps', '?')})" for e in exercises
+            f"{e.get('name', 'Exercise')} ({format_exercise_prescription(e)})"
+            for e in exercises
         )
         parts.append(f"exercises: {ex_str}")
 

@@ -12,11 +12,14 @@ from db.mongo_client import get_baseline_assessment_collection
 from auth.context import get_current_user_id
 from tools.user_profile import _sync_experience_level
 
+BASELINE_ASSESSMENT_DATA_VERSION = 3
+
 
 def record_baseline_assessment(
     experience_level: str,
     answers: Optional[dict] = None,
     user_id: Optional[str] = None,
+    data_version: int = BASELINE_ASSESSMENT_DATA_VERSION,
     **kwargs,
 ) -> dict:
     """
@@ -36,6 +39,7 @@ def record_baseline_assessment(
         "assessed_at": now,
         "timestamp": now,
         "experience_level": experience_level,
+        "data_version": data_version,
         "answers": raw_answers,
     }
 

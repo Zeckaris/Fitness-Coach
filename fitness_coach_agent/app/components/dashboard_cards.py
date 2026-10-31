@@ -8,6 +8,10 @@ import streamlit_antd_components as sac
 
 from db.mongo_client import get_plans_collection, get_month_plans_collection
 from utils.calendar_weeks import current_month_id, get_plannable_dates, today_local
+from utils.exercise_prescription import (
+    format_exercise_prescription,
+    resolve_exercise_prescription,
+)
 from tools.progress import calculate_progress
 from tools.week_plans import _find_week_doc_for_date
 from auth.context import get_current_user_id
@@ -85,6 +89,10 @@ def render_month_goal():
             st.warning("Pending confirmation")
         else:
             st.info(description)
+
+        focus = goal.get("focus")
+        if focus:
+            st.caption(f"🎯 Focus: {focus.replace('_', ' ').title()}")
 
         metric_name = goal.get("metric_name")
         if metric_name and goal.get("target_value") is not None:
@@ -201,17 +209,16 @@ def render_upcoming_plans():
 
                     for ex in doc.get("exercises") or []:
                         name = ex.get("name", "Exercise")
-                        sets = ex.get("sets", "?")
-                        reps = ex.get("reps", "?")
+                        amount = format_exercise_prescription(ex)
                         target_qty = ex.get("target_quantity")
-                        unit = ex.get("unit", "")
+                        unit = resolve_exercise_prescription(ex)["unit"]
                         cat = ex.get("category", "main")
                         cat_emoji = {"warmup": "🔥", "main": "💪", "cooldown": "🧘"}.get(cat, "💪")
 
                         if target_qty is not None:
-                            st.markdown(f"{cat_emoji} **{name}** — {sets}x{reps} (target: {target_qty} {unit})")
+                            st.markdown(f"{cat_emoji} **{name}** — {amount} (target: {target_qty} {unit})")
                         else:
-                            st.markdown(f"{cat_emoji} **{name}** — {sets}x{reps}")
+                            st.markdown(f"{cat_emoji} **{name}** — {amount}")
 
                 if doc.get("avoid_body_parts"):
                     st.caption(f"Avoiding: {', '.join(doc['avoid_body_parts'])}")
