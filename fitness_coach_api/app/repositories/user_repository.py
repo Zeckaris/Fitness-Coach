@@ -41,3 +41,6 @@ async def create_user(db : AsyncDatabase, email : str, password : str)-> UserMod
     except DuplicateKeyError:
         raise ValueError("Email already registered")
         
+        
+def verify_password(plain_password:str, hashed_password:bytes)->bool:
+    return bcrypt.checkpw(plain_password.encode("utf-8"),hashed_password)
